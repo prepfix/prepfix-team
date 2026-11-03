@@ -16,7 +16,7 @@ input,select{background:#0f1115;border:1px solid #363c48;border-radius:10px;padd
 header{position:sticky;top:0;z-index:20;background:#16181dee;backdrop-filter:blur(8px);padding:calc(env(safe-area-inset-top) + 10px) 14px 8px;border-bottom:1px solid #262b34}
 .hd{display:flex;align-items:center;gap:10px}.hd img{height:30px;border-radius:6px}
 .hd .t{flex:1;min-width:0}.hd .t b{display:block;font-size:15px;letter-spacing:.03em}.hd .t span{display:block;font-size:12px;color:#e0b24a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tabs{display:flex;gap:6px;margin-top:9px}.tabs button{flex:1;padding:8px}.tabs button.on{background:#e0b24a;color:#16181d;border-color:#e0b24a;font-weight:700}
+.tabs{display:flex;gap:6px;margin-top:9px}.tabs button{flex:1;padding:8px 3px;font-size:13px}.tabs button.on{background:#e0b24a;color:#16181d;border-color:#e0b24a;font-weight:700}
 main{padding:12px 14px calc(120px + var(--cb));max-width:760px;margin:0 auto}
 .chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0 4px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
 .chips button{flex:0 0 auto;padding:5px 12px;font-size:14px;border-radius:20px}.chips button.on{background:#e0b24a;color:#16181d;font-weight:700}
@@ -142,8 +142,8 @@ function render(){
   const a=$('app');
   if(!code||!pin||!D){a.innerHTML=loginHtml();return}
   let h='<header><div class="hd"><img src="logo.jpg" alt="" onerror="this.style.display=\'none\'"><div class="t"><b>PREPFIX TEAM</b><span>'+esc(D.church)+'</span></div><button id="instBtn" onclick="maybeInstall(1)" title="Install the app"'+(installEvt&&!isStandalone()?' style="display:inline-block"':'')+'>📲</button><button onclick="load()" title="Get the newest songs"'+(busy?' disabled':'')+'>'+(busy?'…':'↻')+'</button></div>'+
-    '<div class="tabs"><button class="'+(tab==='songs'?'on':'')+'" onclick="go(\'songs\')">🎵 Songs ('+songs().length+')</button><button class="'+(tab==='pls'?'on':'')+'" onclick="go(\'pls\')">📋 My playlists ('+pls.length+')</button></div></header><main>';
-  if(cur)h+=songHtml();else if(curPl)h+=plHtml();else if(tab==='songs')h+=listHtml();else h+=plsHtml();
+    '<div class="tabs"><button class="'+(tab==='songs'?'on':'')+'" onclick="go(\'songs\')">🎵 Songs ('+songs().length+')</button><button class="'+(tab==='prac'?'on':'')+'" onclick="go(\'prac\')">🎧 Practice ('+songs().filter(s=>linksOf(s).length).length+')</button><button class="'+(tab==='pls'?'on':'')+'" onclick="go(\'pls\')">📋 Playlists ('+pls.length+')</button></div></header><main>';
+  if(cur)h+=songHtml();else if(curPl)h+=plHtml();else if(tab==='songs')h+=listHtml();else if(tab==='prac')h+=pracHtml();else h+=plsHtml();
   h+='<div class="foot"><span style="font-weight:500;letter-spacing:0;color:#8a90a0">irericyrus004@gmail.com</span></div></main>';
   a.innerHTML=h;
   const qi=$('q');if(qi&&document.activeElement!==qi&&q)qi.setSelectionRange(q.length,q.length);
@@ -170,11 +170,15 @@ function listHtml(){
   h+='<div class="chips"><button class="'+(!folder?'on':'')+'" onclick="folder=\'\';render()">All</button><button class="'+(folder==='🎧'?'on':'')+'" onclick="folder=\'🎧\';render()">🎧 With practice link</button>'+fs.map(f=>'<button class="'+(folder===f?'on':'')+'" onclick="folder=this.dataset.f;render()" data-f="'+esc(f)+'">📁 '+esc(f)+'</button>').join('')+'</div><div id="list">'+listRows()+'</div>';
   return h;
 }
+function pracHtml(){
+  const n=songs().filter(s=>linksOf(s).length).length;
+  return '<p class="hint" style="margin:0 0 8px">Songs with a practice link. Open one and press play to listen as you learn.</p><input id="q" type="search" placeholder="Search '+n+' songs with links…" value="'+esc(q)+'" oninput="q=this.value;renderList()"><div id="list" style="margin-top:8px">'+listRows()+'</div>';
+}
 function listRows(){
   const w=q.trim().toLowerCase();
-  let r=songs().filter(s=>(!folder||(folder==='🎧'?s.l:s.f===folder))&&(!w||s.t.toLowerCase().includes(w)||String(s.x).toLowerCase().includes(w)));
+  let r=songs().filter(s=>(tab==='prac'?linksOf(s).length>0:(!folder||(folder==='🎧'?s.l:s.f===folder)))&&(!w||s.t.toLowerCase().includes(w)||String(s.x).toLowerCase().includes(w)));
   r.sort((a,b)=>{const at=a.t.toLowerCase().includes(w),bt=b.t.toLowerCase().includes(w);return at===bt?a.t.localeCompare(b.t):at?-1:1});
-  return r.slice(0,400).map(s=>'<div class="row" onclick="openSong(\''+s.i+'\')"><div class="n">'+esc(s.t)+(s.mine?' <span class="gold" style="font-size:12px">✎ new</span>':'')+(s.f?'<small>📁 '+esc(s.f)+'</small>':'')+'</div>'+(s.l?'<span title="Has a practice link">🎧</span>':'')+'</div>').join('')||'<p class="hint">No songs found.</p>';
+  return r.slice(0,400).map(s=>'<div class="row" onclick="openSong(\''+s.i+'\')"><div class="n">'+esc(s.t)+(s.mine?' <span class="gold" style="font-size:12px">✎ new</span>':'')+(s.f?'<small>📁 '+esc(s.f)+'</small>':'')+'</div>'+(linksOf(s).length?'<span title="Has a practice link">🎧'+(linksOf(s).length>1?' '+linksOf(s).length:'')+'</span>':'')+'</div>').join('')||'<p class="hint">'+(tab==='prac'?'No songs with practice links yet.':'No songs found.')+'</p>';
 }
 function renderList(){const l=$('list');if(l)l.innerHTML=listRows()}
 function openSong(id,pl){cur=id;fromPl=pl||null;render();scrollTo(0,0)}
