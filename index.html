@@ -119,7 +119,7 @@ async function load(first){
     else if(!D)toast('No internet. Connect and try again.',1);
     else toast('Offline – showing the songs saved on this phone.',1);
   }
-  busy=false;render();
+  busy=false;if(D&&PENDING_PL)importPl();render();
 }
 // the church's songs + songs this member added (sent with their playlist) + practice links they added
 let mine=store.get('mine_'+code,[]),myLinks=store.get('links_'+code,{});
@@ -288,19 +288,38 @@ async function sendPl(){
 }
 
 /* ---------- tell the team on WhatsApp (no server: the leader taps once) ---------- */
+// the playlist itself travels inside the link (names, sections, leads and song ids), so no server is needed
+const b64e=o=>{const b=new TextEncoder().encode(JSON.stringify(o));let t='';b.forEach(c=>t+=String.fromCharCode(c));return btoa(t).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')};
+const b64d=r=>{let t=r.replace(/-/g,'+').replace(/_/g,'/');while(t.length%4)t+='=';const a=atob(t),u=new Uint8Array(a.length);for(let i=0;i<a.length;i++)u[i]=a.charCodeAt(i);return JSON.parse(new TextDecoder().decode(u))};
+function churchParam(){
+  const nm=store.get('cname_'+code,'')||(D&&D.church)||'';
+  const slug=String(nm).toLowerCase().replace(/['’.]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  return slug?slug+'-'+code:code;
+}
+function plLink(p){
+  const have=new Set(((D&&D.songs)||[]).map(x=>x.i));let skipped=0;
+  const i=[];p.items.forEach(x=>{if(x.sec)i.push([x.sec,x.lead||'']);else if(have.has(x.s))i.push(x.s);else skipped++});
+  return {skipped,count:i.filter(x=>typeof x==='string').length,link:location.origin+location.pathname+'?church='+churchParam()+'&pl='+b64e({p:p.id,n:p.name,b:p.by||'',i})};
+}
 function teamMsg(p){
-  const L=[],n=p.items.filter(x=>x.s).length;
-  L.push('🎵 *'+p.name+'*'+(p.by?' – led by '+p.by:''));
-  L.push(nS(n)+' · sent to the church toolkit');
-  let k=0;
-  p.items.forEach(x=>{
-    if(x.sec){L.push('');L.push('*'+x.sec+'*'+(x.lead?' – '+x.lead:''));return}
-    const s=songById(x.s);
-    if(s)L.push((++k)+'. '+s.t);
-  });
-  L.push('');L.push('Open Prepfix Team to practise:');
-  L.push(location.origin+location.pathname+location.search);
-  return L.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+  const l=plLink(p);
+  return ['🎵 *'+p.name+'*'+(p.by?' – led by '+p.by:''),nS(l.count),'','Open this playlist in Prepfix Team:',l.link].join('\n');
+}
+// opening a playlist link: the playlist is added to My playlists and opened
+let PENDING_PL=null;
+try{const r=QP.get('pl');if(r)PENDING_PL=b64d(r)}catch(e){}
+function importPl(){
+  const x=PENDING_PL;PENDING_PL=null;if(!x||!Array.isArray(x.i))return;
+  try{history.replaceState(null,'',location.pathname+'?church='+churchParam())}catch(e){}
+  const have=new Set(songs().map(o=>o.i));let miss=0;const items=[];
+  x.i.forEach(e=>{if(Array.isArray(e))items.push({sec:String(e[0]||'').slice(0,60),lead:String(e[1]||'').slice(0,80)});else if(have.has(e))items.push({s:String(e)});else miss++});
+  if(!items.some(o=>o.s)){toast('This playlist has no songs that are in the church list.',1);return}
+  const pid=String(x.p||'').slice(0,40)||uid(),name=String(x.n||'Team playlist').slice(0,100),by=String(x.b||'').slice(0,60);
+  let pl=pls.find(o=>o.id===pid);
+  if(pl&&!pl.from){tab='pls';curPl=pid;cur=null;fromPl=null;toast('This is your own playlist.');return}   // the leader opening their own link
+  if(pl){pl.items=items;pl.name=name;pl.by=by}else{pl={id:pid,name,by,items,from:1};pls.unshift(pl)}
+  pl.sent=null;savePls();tab='pls';curPl=pid;cur=null;fromPl=null;
+  toast(miss?'Playlist opened ('+miss+' song'+(miss===1?'':'s')+' not in your list)':'Playlist opened. It is saved in My playlists.');
 }
 function tellTeam(pid){
   const p=pls.find(x=>x.id===pid);if(!p)return;
@@ -313,9 +332,10 @@ async function copyTeam(pid){
 }
 function tellDlg(pid,justSent){
   const p=pls.find(x=>x.id===pid);if(!p)return;
-  const d=$('dlg');
+  const sk=plLink(p).skipped,d=$('dlg');
   d.innerHTML='<h3 style="margin:0">'+(justSent?'Sent ✓ Now tell the team':'Tell the team')+'</h3>'+
-    '<p class="hint">This opens WhatsApp with the playlist and the team link ready. Choose your team group and press send.</p>'+
+    '<p class="hint">This opens WhatsApp with a short message and a link. When your team taps the link, this playlist opens in Prepfix Team with its songs and practice links. Choose your team group and press send.</p>'+
+    (sk?'<p class="hint gold">'+sk+(sk===1?' song you added is':' songs you added are')+' not in the church list yet, so '+(sk===1?'it is':'they are')+' not in the link. Send again once the church laptop has '+(sk===1?'it':'them')+'.</p>':'')+
     '<div class="bar" style="margin-top:14px"><button class="pri" onclick="tellTeam(\''+pid+'\')">💬 Share on WhatsApp</button><button onclick="copyTeam(\''+pid+'\')">Copy message</button><button onclick="$(\'dlg\').close()">'+(justSent?'Not now':'Close')+'</button></div>';
   d.showModal();
 }
