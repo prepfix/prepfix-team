@@ -296,10 +296,22 @@ function churchParam(){
   const slug=String(nm).toLowerCase().replace(/['’.]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
   return slug?slug+'-'+code:code;
 }
+// short link: songs travel as their first 5 characters (checked to be unique in the church list); names are written as plain text.
+// If any chosen song cannot be told apart that way, the older (longer) link is made instead. Both kinds open fine.
+const PRE=5,escQ=t=>encodeURIComponent(t).replace(/[.~!*'()]/g,c=>'%'+c.charCodeAt(0).toString(16).toUpperCase());
 function plLink(p){
-  const have=new Set(((D&&D.songs)||[]).map(x=>x.i));let skipped=0;
+  const list=(D&&D.songs)||[],have=new Set(list.map(x=>x.i));let skipped=0;
   const i=[];p.items.forEach(x=>{if(x.sec)i.push([x.sec,x.lead||'']);else if(have.has(x.s))i.push(x.s);else skipped++});
-  return {skipped,count:i.filter(x=>typeof x==='string').length,link:location.origin+location.pathname+'?church='+churchParam()+'&pl='+b64e({p:p.id,n:p.name,b:p.by||'',i})};
+  const count=i.filter(x=>typeof x==='string').length,base=location.origin+location.pathname+'?church='+churchParam();
+  const cnt={};list.forEach(x=>{const k=String(x.i).slice(0,PRE);cnt[k]=(cnt[k]||0)+1});
+  const ok=i.every(x=>Array.isArray(x)||(String(x).length>=PRE&&cnt[String(x).slice(0,PRE)]===1));
+  if(ok){
+    const toks=[];let run='';
+    i.forEach(x=>{if(Array.isArray(x)){if(run){toks.push(run);run=''}toks.push('.'+escQ(x[0])+'.'+escQ(x[1]))}else run+=String(x).slice(0,PRE)});
+    if(run)toks.push(run);
+    return {skipped,count,link:base+'&q='+[p.id,escQ(p.name),escQ(p.by||'')].concat(toks).join('~')};
+  }
+  return {skipped,count,link:base+'&pl='+b64e({p:p.id,n:p.name,b:p.by||'',i})};
 }
 function teamMsg(p){
   const l=plLink(p);
@@ -318,10 +330,14 @@ function teamMsg(p){
 // opening a playlist link: the playlist is added to My playlists and opened
 let PENDING_PL=null;
 try{const r=QP.get('pl');if(r)PENDING_PL=b64d(r)}catch(e){}
+try{const mq=/[?&]q=([^&#]*)/.exec(location.search),q=mq&&mq[1];if(q){const t=q.split('~'),dec=v=>{try{return decodeURIComponent(v)}catch(e){return v}},o={p:t[0],n:dec(t[1]||''),b:dec(t[2]||''),i:[],pre:1};
+  t.slice(3).forEach(k=>{if(k[0]==='.'){const m=k.slice(1).split('.');o.i.push([dec(m[0]||''),dec(m[1]||'')])}else for(let j=0;j+PRE<=k.length;j+=PRE)o.i.push(k.slice(j,j+PRE))});
+  PENDING_PL=o}}catch(e){}
 function importPl(){
   const x=PENDING_PL;PENDING_PL=null;if(!x||!Array.isArray(x.i))return;
   try{history.replaceState(null,'',location.pathname+'?church='+churchParam())}catch(e){}
   const have=new Set(songs().map(o=>o.i));let miss=0;const items=[];
+  if(x.pre){const all=songs().map(o=>String(o.i));x.i=x.i.map(e=>{if(Array.isArray(e))return e;const m=all.filter(v=>v.startsWith(e));return m.length===1?m[0]:e})}
   x.i.forEach(e=>{if(Array.isArray(e))items.push({sec:String(e[0]||'').slice(0,60),lead:String(e[1]||'').slice(0,80)});else if(have.has(e))items.push({s:String(e)});else miss++});
   if(!items.some(o=>o.s)){toast('This playlist has no songs that are in the church list.',1);return}
   const pid=String(x.p||'').slice(0,40)||uid(),name=String(x.n||'Team playlist').slice(0,100),by=String(x.b||'').slice(0,60);
