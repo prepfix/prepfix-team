@@ -83,7 +83,11 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store={get(k,d){try{const v=localStorage.getItem('pft_'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('pft_'+k,JSON.stringify(v))}catch(e){}}};
 const uid=()=>Math.random().toString(36).slice(2,9);
-let code=((new URLSearchParams(location.search).get('church')||new URLSearchParams(location.search).get('c'))||window.PREPFIX_CODE||store.get('code','')).toLowerCase().replace(/[^0-9a-f]/g,'');
+// the link carries the church's name and its code, e.g. ?church=fgck-muranga-lca-786053373dbf
+const QP=new URLSearchParams(location.search),RAW=(QP.get('church')||QP.get('c')||'').trim();
+const LINK_NAME=RAW.includes('-')?RAW.split('-').slice(0,-1).join(' ').toUpperCase():'';
+let code=((RAW.split('-').pop())||window.PREPFIX_CODE||store.get('code','')).toLowerCase().replace(/[^0-9a-f]/g,'');
+if(LINK_NAME)store.set('cname_'+code,LINK_NAME);
 if(DEMO&&!code)code='dee0';
 let pin=store.get('pin',''),D=store.get('data_'+code,null);
 let tab='songs',q='',folder='',cur=null,curPl=null,fromPl=null,big=store.get('big',false),busy=false;
@@ -140,7 +144,7 @@ function render(){
   const qi=$('q');if(qi&&document.activeElement!==qi&&q)qi.setSelectionRange(q.length,q.length);
 }
 function loginHtml(){
-  return '<div class="login"><img src="logo.jpg" alt="Prepfix" onerror="this.style.display=\'none\'"><h2>Prepfix Team</h2><p class="hint">Songs and practice links from your church’s Prepfix toolkit.</p>'+
+  return '<div class="login"><img src="logo.jpg" alt="Prepfix" onerror="this.style.display=\'none\'"><h2>Prepfix Team</h2>'+((LINK_NAME||store.get('cname_'+code,''))?'<p class="gold" style="font-weight:700;letter-spacing:.06em;margin:0 0 6px">'+esc(LINK_NAME||store.get('cname_'+code,''))+'</p>':'')+'<p class="hint">Songs and practice links from your church’s Prepfix toolkit.</p>'+
     (code?'':'<input id="lc" placeholder="Church code" autocomplete="off">')+
     '<input id="lp" type="password" inputmode="numeric" placeholder="Team PIN" autocomplete="off" onkeydown="if(event.key===\'Enter\')login()">'+
     '<button class="pri" style="width:100%;margin-top:8px" onclick="login()"'+(busy?' disabled':'')+'>'+(busy?'Opening…':'Open songs')+'</button>'+
@@ -348,6 +352,7 @@ if('serviceWorker' in navigator&&!DEMO&&location.protocol==='https:')navigator.s
 /* ---------- splash and the "install the app" popup ---------- */
 function hideSplash(){const s=$('splash');if(s&&!s.classList.contains('out')){s.classList.add('out');setTimeout(()=>s.remove(),700);setTimeout(maybeInstall,900)}}
 setTimeout(hideSplash,2200);
+if(LINK_NAME||store.get('cname_'+code,'')){const n=LINK_NAME||store.get('cname_'+code,'');document.title='Prepfix Team – '+n;const st=document.querySelector('#splash .st');if(st)st.insertAdjacentHTML('afterend','<div class="gold" style="margin-top:6px;font-weight:700;letter-spacing:.08em">'+esc(n)+'</div>')}
 let installEvt=null;
 const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&'ontouchend' in document);
