@@ -303,7 +303,17 @@ function plLink(p){
 }
 function teamMsg(p){
   const l=plLink(p);
-  return ['🎵 *'+p.name+'*'+(p.by?' – led by '+p.by:''),nS(l.count),'','Open this playlist in Prepfix Team:',l.link].join('\n');
+  // next Sunday (today if it is Sunday), written day/month/year
+  const d=new Date();d.setDate(d.getDate()+(7-d.getDay())%7);
+  const when='Sunday: '+d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear();
+  const all=songs(),nm=id=>{const o=all.find(y=>y.i===id);return o?o.t:''};
+  const out=['*Ministration Songs*',when];let n=0;
+  p.items.forEach(x=>{
+    if(x.sec){const t=String(x.sec).replace(/\s*set\s*$/i,'').trim()||x.sec;out.push('Set: '+t);n=0}
+    else{const t=nm(x.s);if(t){n++;out.push(n+'. '+t)}}
+  });
+  out.push('','Open this playlist, listen as you learn.',l.link);
+  return out.join('\n');
 }
 // opening a playlist link: the playlist is added to My playlists and opened
 let PENDING_PL=null;
