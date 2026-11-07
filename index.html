@@ -59,7 +59,7 @@ dialog label{display:block;font-size:13px;color:#8a90a0;margin:10px 0 4px}
 #splash{position:fixed;inset:0;z-index:200;background:#16181d;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;transition:opacity .6s}
 #splash.out{opacity:0;pointer-events:none}
 #splash img,.inst img{width:260px;max-width:72vw;border-radius:14px;background:#fff;padding:10px}
-#splash .st{margin-top:14px;font-weight:800;letter-spacing:.12em;color:#ece8e1}
+#splash .st{margin-top:16px;font-weight:800;letter-spacing:.12em;color:#ece8e1}
 #splash .by,.inst .by{margin-top:18px;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e0b24a}
 #splash .by small,.inst .by small{display:block;color:#8a90a0;font-weight:500;letter-spacing:0;margin-top:3px}
 .inst{position:fixed;inset:0;z-index:150;background:#000b;display:flex;align-items:flex-end;justify-content:center}
@@ -81,8 +81,15 @@ dialog label{display:block;font-size:13px;color:#8a90a0;margin:10px 0 4px}
 .mr input[type=checkbox]{width:22px;height:22px;padding:0;flex:0 0 auto;margin:1px 0 0;accent-color:#e0b24a}
 .mr small{display:block;color:#8a90a0;font-size:12.5px}
 .mr.dup{opacity:.55;cursor:default}.mr .mk{width:22px;flex:0 0 auto;text-align:center;color:#8a90a0}
+
+/* launcher glow */
+@keyframes glowBox{0%,100%{box-shadow:0 0 14px #e0b24a66,0 0 32px #e0b24a33}50%{box-shadow:0 0 30px #e0b24acc,0 0 64px #e0b24a77}}
+@keyframes glowTxt{0%,100%{text-shadow:0 0 6px #e0b24a88,0 0 14px #e0b24a44}50%{text-shadow:0 0 12px #e0b24a,0 0 28px #e0b24acc,0 0 46px #e0b24a77}}
+#splash img{animation:glowBox 2.2s ease-in-out infinite}
+#splash .ch{margin-top:8px;font-weight:800;font-size:17px;letter-spacing:.1em;color:#e0b24a;animation:glowTxt 2.2s ease-in-out infinite}
+#splash .by{position:absolute;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));margin:0;padding:0 12px;animation:glowTxt 2.2s ease-in-out infinite}
 </style></head><body>
-<div id="splash" onclick="hideSplash()"><img src="logo.jpg" alt="Prepfix"><div class="st">PREPFIX TEAM</div><div class="hint" style="margin-top:4px">Songs · Lyrics · Practice</div><div class="by">DESIGNED BY CYRUS IRERI 0720872582<small>irericyrus004@gmail.com</small></div></div>
+<div id="splash" onclick="hideSplash();autoFull()"><img src="logo.jpg" alt="Prepfix"><div class="st">PREPFIX TEAM</div><div class="ch">F.G.C.K MURANG'A L.C.A</div><div class="by">DESIGNED BY CYRUS IRERI 0720872582<small>irericyrus004@gmail.com</small></div></div>
 <div id="app"></div>
 <dialog id="dlg"></dialog>
 <dialog id="mdlg"></dialog>
@@ -153,7 +160,7 @@ const stanzas=t=>String(t||'').split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean)
 function render(){
   const a=$('app');
   if(!code||!pin||!D){a.innerHTML=loginHtml();return}
-  let h='<header><div class="hd"><img src="logo.jpg" alt="" onerror="this.style.display=\'none\'"><div class="t"><b>PREPFIX TEAM</b><span>'+esc(D.church)+'</span></div><button id="instBtn" onclick="maybeInstall(1)" title="Install the app"'+(installEvt&&!isStandalone()?' style="display:inline-block"':'')+'>📲</button><button onclick="load()" title="Get the newest songs"'+(busy?' disabled':'')+'>'+(busy?'…':'↻')+'</button></div>'+
+  let h='<header><div class="hd"><img src="logo.jpg" alt="" onerror="this.style.display=\'none\'"><div class="t"><b>PREPFIX TEAM</b><span>'+esc(D.church)+'</span></div>'+(fsOK()?'<button onclick="goFull()" title="Full screen">⛶</button>':'')+'<button id="instBtn" onclick="maybeInstall(1)" title="Install the app"'+(installEvt&&!isStandalone()?' style="display:inline-block"':'')+'>📲</button><button onclick="load()" title="Get the newest songs"'+(busy?' disabled':'')+'>'+(busy?'…':'↻')+'</button></div>'+
     '<div class="tabs"><button class="'+(tab==='songs'?'on':'')+'" onclick="go(\'songs\')">🎵 Songs ('+songs().length+')</button><button class="'+(tab==='prac'?'on':'')+'" onclick="go(\'prac\')">🎧 Practice ('+songs().filter(s=>linksOf(s).length).length+')</button><button class="'+(tab==='pls'?'on':'')+'" onclick="go(\'pls\')">📋 Playlists ('+pls.length+')</button></div></header><main>';
   if(cur)h+=songHtml();else if(curPl)h+=plHtml();else if(tab==='songs')h+=listHtml();else if(tab==='prac')h+=pracHtml();else h+=plsHtml();
   h+='<div class="foot"><span style="font-weight:500;letter-spacing:0;color:#8a90a0">irericyrus004@gmail.com</span></div></main>';
@@ -527,10 +534,22 @@ function dlgForm(title,fields,done){
 window.addEventListener('popstate',()=>{});
 if('serviceWorker' in navigator&&!DEMO&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 
+/* ---------- full screen ---------- */
+// Installed app: full screen comes from manifest.json ("display":"fullscreen"). In the browser: the first tap opens full screen, and the ⛶ button switches it on or off.
+const fsOK=()=>!!(document.fullscreenEnabled&&document.documentElement.requestFullscreen)&&!isStandalone();
+function goFull(){
+  try{
+    if(document.fullscreenElement){store.set('full',0);document.exitFullscreen()}
+    else{store.set('full',1);document.documentElement.requestFullscreen({navigationUI:'hide'}).catch(()=>{})}
+  }catch(e){}
+}
+function autoFull(){if(fsOK()&&!document.fullscreenElement&&store.get('full',1))try{document.documentElement.requestFullscreen({navigationUI:'hide'}).catch(()=>{})}catch(e){}}
+document.addEventListener('pointerdown',autoFull,{once:true});
+
 /* ---------- splash and the "install the app" popup ---------- */
 function hideSplash(){const s=$('splash');if(s&&!s.classList.contains('out')){s.classList.add('out');setTimeout(()=>s.remove(),700);setTimeout(maybeInstall,900)}}
 setTimeout(hideSplash,2200);
-if(LINK_NAME||store.get('cname_'+code,'')){const n=LINK_NAME||store.get('cname_'+code,'');document.title='Prepfix Team – '+n;const st=document.querySelector('#splash .st');if(st)st.insertAdjacentHTML('afterend','<div class="gold" style="margin-top:6px;font-weight:700;letter-spacing:.08em">'+esc(n)+'</div>')}
+if(LINK_NAME||store.get('cname_'+code,'')){const n=LINK_NAME||store.get('cname_'+code,'');document.title='Prepfix Team – '+n;}
 let installEvt=null;
 const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&'ontouchend' in document);
