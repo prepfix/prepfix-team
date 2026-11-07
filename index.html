@@ -134,7 +134,7 @@ async function load(first){
     const j=await call({action:'team',c:code,pin});
     D={church:j.church,songs:j.songs||[],folders:j.folders||[],updated:j.updated};store.set('data_'+code,D);reconcile();store.set('code',code);store.set('pin',pin);
   }catch(e){
-    if(/pin|not found|suspend|no team/i.test(e.message)){if(!D||/pin/i.test(e.message)){pin='';store.set('pin','');D=null}toast(e.message,1)}
+    if(/pin|not found|suspend|no team/i.test(e.message)){if(/pin/i.test(e.message)){pin='';store.set('pin','');D=null}toast(e.message,1)}
     else if(!D)toast('No internet. Connect and try again.',1);
     else toast('Offline – showing the songs saved on this phone.',1);
   }
@@ -170,7 +170,7 @@ function render(){
 function loginHtml(){
   return '<div class="login"><img src="logo.jpg" alt="Prepfix" onerror="this.style.display=\'none\'"><h2>Prepfix Team</h2>'+((LINK_NAME||store.get('cname_'+code,''))?'<p class="gold" style="font-weight:700;letter-spacing:.06em;margin:0 0 6px">'+esc(LINK_NAME||store.get('cname_'+code,''))+'</p>':'')+'<p class="hint">Songs and practice links from your church’s Prepfix toolkit.</p>'+
     (code?'':'<input id="lc" placeholder="Church code" autocomplete="off">')+
-    '<input id="lp" type="password" inputmode="numeric" placeholder="Team PIN" autocomplete="off" onkeydown="if(event.key===\'Enter\')login()">'+
+    '<input id="lp" type="password" inputmode="numeric" placeholder="Team PIN" autocomplete="off" value="'+esc(pin)+'" onkeydown="if(event.key===\'Enter\')login()">'+
     '<button class="pri" style="width:100%;margin-top:8px" onclick="login()"'+(busy?' disabled':'')+'>'+(busy?'Opening…':'Open songs')+'</button>'+
     '<p class="hint" style="margin-top:16px">Get the team link or code and the PIN from your church’s media team.</p>'+
     (DEMO?'<p class="gold">Demo: the PIN is '+esc(DEMO.pin)+'</p>':'')+'</div>';
@@ -178,6 +178,7 @@ function loginHtml(){
 function login(){
   const c=$('lc');if(c){code=c.value.toLowerCase().replace(/[^0-9a-f]/g,'');if(!code){toast('Type the church code.',1);return}}
   pin=$('lp').value.trim();if(!pin){toast('Type the team PIN.',1);return}
+  store.set('code',code);store.set('pin',pin);
   pls=store.get('pls_'+code,[]);mine=store.get('mine_'+code,[]);myLinks=store.get('links_'+code,{});load(true);
 }
 function go(t){tab=t;cur=null;curPl=null;fromPl=null;closePlayer(true);render();scrollTo(0,0)}
@@ -574,6 +575,7 @@ function maybeInstall(force){
 async function doInstall(){if(!installEvt)return;installEvt.prompt();const r=await installEvt.userChoice;installEvt=null;closeInstall();const b=$('instBtn');if(b)b.style.display='none';if(r.outcome!=='accepted')store.set('instLater',Date.now())}
 function installLater(){store.set('instLater',Date.now());closeInstall()}
 function closeInstall(){const d=$('inst');if(d)d.remove()}
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}
 render();if(code&&pin)load(!D);
 </script>
 </body></html>
