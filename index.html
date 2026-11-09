@@ -175,7 +175,7 @@ const stanzas=t=>String(t||'').split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean)
 function render(){
   const a=$('app');
   if(!code||!signedIn()||!D){a.innerHTML=loginHtml();return}
-  let h='<header><div class="hd"><img src="logo.jpg" alt="" onerror="this.style.display=\'none\'"><div class="t"><b>PREPFIX TEAM</b><span>'+esc(D.church)+'</span></div>'+(fsOK()?'<button onclick="goFull()" title="Full screen">⛶</button>':'')+'<button id="instBtn" onclick="maybeInstall(1)" title="Install the app"'+(installEvt&&!isStandalone()?' style="display:inline-block"':'')+'>📲</button><button onclick="load()" title="Get the newest songs"'+(busy?' disabled':'')+'>'+(busy?'…':'↻')+'</button>'+(ph?'<button onclick="outDlg()" title="Sign out">⎋</button>':'')+'</div>'+
+  let h='<header><div class="hd"><img src="logo.jpg" alt="" onerror="this.style.display=\'none\'"><div class="t"><b>PREPFIX TEAM</b><span>'+esc(D.church)+'</span></div>'+(fsOK()?'<button onclick="goFull()" title="Full screen">⛶</button>':'')+(isStandalone()||DEMO?'':'<button id="instBtn" onclick="maybeInstall(1)" title="Install the app" style="display:inline-block">📲 Install</button>')+'<button onclick="load()" title="Get the newest songs"'+(busy?' disabled':'')+'>'+(busy?'…':'↻')+'</button>'+(ph?'<button onclick="outDlg()" title="Sign out">⎋</button>':'')+'</div>'+
     '<div class="tabs"><button class="'+(tab==='songs'?'on':'')+'" onclick="go(\'songs\')">🎵 Songs ('+songs().length+')</button><button class="'+(tab==='prac'?'on':'')+'" onclick="go(\'prac\')">🎧 Practice ('+songs().filter(s=>linksOf(s).length).length+')</button><button class="'+(tab==='pls'?'on':'')+'" onclick="go(\'pls\')">📋 Playlists ('+pls.length+')</button></div></header><main>';
   if(cur)h+=songHtml();else if(curPl)h+=plHtml();else if(tab==='songs')h+=listHtml();else if(tab==='prac')h+=pracHtml();else h+=plsHtml();
   h+='<div class="foot"><span style="font-weight:500;letter-spacing:0;color:#8a90a0">irericyrus004@gmail.com</span></div></main>';
@@ -191,6 +191,7 @@ function loginHtml(){
     '<input id="lp2" type="password" inputmode="numeric" maxlength="4" placeholder="Type the PIN again" autocomplete="new-password" onkeydown="if(event.key===\'Enter\')login()">'+
     '<button class="pri" style="width:100%;margin-top:8px" onclick="login()"'+(busy?' disabled':'')+'>'+(busy?'Opening…':'Open songs')+'</button>'+
     (loginMsg?'<p style="color:#ff8a7e;font-weight:600">'+esc(loginMsg)+'</p>':'')+
+    (isStandalone()||DEMO?'':'<button style="width:100%;margin-top:10px" onclick="maybeInstall(1)">📲 Install the app on this phone</button>')+
     '<p class="hint" style="margin-top:16px">One phone per number. Changing phones? Sign out on the old phone first (⎋ at the top).</p>'+
     (DEMO?'<p class="gold">Demo: the PIN is '+esc(DEMO.pin)+'</p>':'')+'</div>';
 }
@@ -610,7 +611,7 @@ function maybeInstall(force){
     '<p>Put the app on your home screen. It opens full screen like any other app, keeps the songs on your phone and plays the practice songs inside the app.</p>'+
     (installEvt?'<div class="bar"><button class="pri" onclick="doInstall()">📲 Install app</button><button onclick="installLater()">Not now</button></div>':
      isIOS?'<ol><li>Tap the <b>Share</b> button <b>⎙</b> at the bottom of Safari.</li><li>Choose <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>.</li></ol><div class="bar"><button class="pri" onclick="installLater()">OK</button></div>':
-     '<ol><li>Tap the browser menu <b>⋮</b> (top right).</li><li>Choose <b>Install app</b> or <b>Add to Home screen</b>.</li></ol><div class="bar"><button class="pri" onclick="installLater()">OK</button></div>')+
+     '<ol><li>Tap the browser menu <b>⋮</b> (top right) in <b>Chrome</b>.</li><li>Choose <b>Install app</b> or <b>Add to Home screen</b>, then <b>Install</b>.</li></ol><p style="font-size:13px">If the menu says <b>Open app</b> instead, Prepfix Team is already on this phone: open it from your home screen. Not in Chrome? Open this link in Chrome first.</p><div class="bar"><button class="pri" onclick="installLater()">OK</button></div>')+
     '<div class="by">DESIGNED BY CYRUS IRERI 0720872582<small>irericyrus004@gmail.com</small></div></div>';
   d.onclick=e=>{if(e.target===d)installLater()};
   document.body.appendChild(d);
