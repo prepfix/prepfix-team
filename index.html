@@ -89,11 +89,11 @@ dialog label{display:block;font-size:13px;color:#8a90a0;margin:10px 0 4px}
 #splash .ch{margin-top:8px;font-weight:800;font-size:17px;letter-spacing:.1em;color:#e0b24a;animation:glowTxt 2.2s ease-in-out infinite}
 #splash .by{position:absolute;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));margin:0;padding:0 12px;animation:glowTxt 2.2s ease-in-out infinite}
 </style></head><body>
-<div id="splash" onclick="hideSplash();autoFull()"><img src="logo.jpg" alt="Prepfix"><div class="st">PREPFIX TEAM</div><div class="ch">F.G.C.K MURANG'A L.C.A</div><div class="by">DESIGNED BY CYRUS IRERI 0720872582<small>irericyrus004@gmail.com</small></div></div>
+<div id="splash" onclick="hideSplash();autoFull()"><img src="logo.jpg" alt="Prepfix"><div class="st">PREPFIX TEAM</div><div class="ch" id="spCh"></div><div class="by">DEVELOPED BY CYRUS IRERI 0720872582<small>irericyrus004@gmail.com</small></div></div>
 <div id="app"></div>
 <dialog id="dlg"></dialog>
 <dialog id="mdlg"></dialog>
-<div id="credit">DESIGNED BY CYRUS IRERI&nbsp;<a href="tel:0720872582">0720872582</a></div>
+<div id="credit">DEVELOPED BY CYRUS IRERI&nbsp;<a href="tel:0720872582">0720872582</a></div>
 <script>
 /* PREPFIX TEAM - the praise and worship team's app.
    Shows the church's songs (lyrics + practice link) from the Prepfix Church Media Toolkit,
@@ -109,9 +109,12 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const QP=new URLSearchParams(location.search),RAW=(QP.get('church')||QP.get('c')||'').trim();
 const LINK_NAME=RAW.includes('-')?RAW.split('-').slice(0,-1).join(' ').toUpperCase():'';
 let code=((RAW.split('-').pop())||window.PREPFIX_CODE||store.get('code','')).toLowerCase().replace(/[^0-9a-f]/g,'');
-if(LINK_NAME)store.set('cname_'+code,LINK_NAME);
+if(LINK_NAME&&!store.get('cname_'+code,''))store.set('cname_'+code,LINK_NAME);
 if(DEMO&&!code)code='dee0';
 let pin=store.get('pin',''),D=store.get('data_'+code,null);
+// the church's own name (exactly as in its toolkit once the songs have loaded; from the link before that)
+const churchName=()=>(D&&D.church)||store.get('cname_'+code,'')||LINK_NAME;
+{const e=document.getElementById('spCh');if(e)e.textContent=churchName()}
 // a MEMBER signs in once with their phone number + PIN; then this phone is theirs (remembered always)
 let ph=store.get('ph_'+code,''),loginMsg='';
 const did=store.get('did','')||(()=>{const d=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>b.toString(16).padStart(2,'0')).join('');store.set('did',d);return d})();
@@ -183,7 +186,7 @@ function render(){
   const qi=$('q');if(qi&&document.activeElement!==qi&&q)qi.setSelectionRange(q.length,q.length);
 }
 function loginHtml(){
-  return '<div class="login"><img src="logo.jpg" alt="Prepfix" onerror="this.style.display=\'none\'"><h2>Prepfix Team</h2>'+((LINK_NAME||store.get('cname_'+code,''))?'<p class="gold" style="font-weight:700;letter-spacing:.06em;margin:0 0 6px">'+esc(LINK_NAME||store.get('cname_'+code,''))+'</p>':'')+'<p class="hint">Songs and practice links from your church’s Prepfix toolkit.</p>'+
+  return '<div class="login"><img src="logo.jpg" alt="Prepfix" onerror="this.style.display=\'none\'"><h2>Prepfix Team</h2>'+(churchName()?'<p class="gold" style="font-weight:700;letter-spacing:.06em;margin:0 0 6px">'+esc(churchName())+'</p>':'')+'<p class="hint">Songs and practice links from your church’s Prepfix toolkit.</p>'+
     (code?'':'<input id="lc" placeholder="Church code" autocomplete="off">')+
     '<p class="hint">For members of the praise and worship team only. Type <b>the phone number the church registered</b> and <b>make your own 4-number PIN</b>. You stay signed in on this phone.</p>'+
     '<input id="lph" type="tel" inputmode="tel" placeholder="Phone number, e.g. 0712 345 678" autocomplete="tel" style="letter-spacing:.04em">'+
@@ -594,7 +597,7 @@ document.addEventListener('pointerdown',autoFull,{once:true});
 /* ---------- splash and the "install the app" popup ---------- */
 function hideSplash(){const s=$('splash');if(s&&!s.classList.contains('out')){s.classList.add('out');setTimeout(()=>s.remove(),700);setTimeout(maybeInstall,900)}}
 setTimeout(hideSplash,2200);
-if(LINK_NAME||store.get('cname_'+code,'')){const n=LINK_NAME||store.get('cname_'+code,'');document.title='Prepfix Team – '+n;}
+if(churchName())document.title='Prepfix Team – '+churchName();
 let installEvt=null;
 const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&'ontouchend' in document);
@@ -612,7 +615,7 @@ function maybeInstall(force){
     (installEvt?'<div class="bar"><button class="pri" onclick="doInstall()">📲 Install app</button><button onclick="installLater()">Not now</button></div>':
      isIOS?'<ol><li>Tap the <b>Share</b> button <b>⎙</b> at the bottom of Safari.</li><li>Choose <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>.</li></ol><div class="bar"><button class="pri" onclick="installLater()">OK</button></div>':
      '<ol><li>Tap the browser menu <b>⋮</b> (top right) in <b>Chrome</b>.</li><li>Choose <b>Install app</b> or <b>Add to Home screen</b>, then <b>Install</b>.</li></ol><p style="font-size:13px">If the menu says <b>Open app</b> instead, Prepfix Team is already on this phone: open it from your home screen. Not in Chrome? Open this link in Chrome first.</p><div class="bar"><button class="pri" onclick="installLater()">OK</button></div>')+
-    '<div class="by">DESIGNED BY CYRUS IRERI 0720872582<small>irericyrus004@gmail.com</small></div></div>';
+    '<div class="by">DEVELOPED BY CYRUS IRERI 0720872582<small>irericyrus004@gmail.com</small></div></div>';
   d.onclick=e=>{if(e.target===d)installLater()};
   document.body.appendChild(d);
 }
