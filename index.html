@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Prepfix Team</title>
+<meta name="theme-color" content="#16181d">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Prepfix Team">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box}:root{--cb:28px}html,body{margin:0;background:#16181d;color:#ece8e1;font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit;color:inherit}a{color:inherit}.sec button{padding:5px 9px;font-size:13px}
+button{background:#2a2f39;border:1px solid #363c48;border-radius:10px;padding:9px 14px;cursor:pointer}
+button.pri{background:#e0b24a;color:#16181d;border-color:#e0b24a;font-weight:700}button.dng{background:#5a2420;border-color:#7a2f29}
+button:disabled{opacity:.45}
+input,select{background:#0f1115;border:1px solid #363c48;border-radius:10px;padding:10px 12px;width:100%}
+header{position:sticky;top:0;z-index:20;background:#16181dee;backdrop-filter:blur(8px);padding:calc(env(safe-area-inset-top) + 10px) 14px 8px;border-bottom:1px solid #262b34}
+.hd{display:flex;align-items:center;gap:10px}.hd img{height:30px;border-radius:6px}
+.hd .t{flex:1;min-width:0}.hd .t b{display:block;font-size:15px;letter-spacing:.03em}.hd .t span{display:block;font-size:12px;color:#e0b24a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tabs{display:flex;gap:6px;margin-top:9px}.tabs button{flex:1;padding:8px 3px;font-size:13px}.tabs button.on{background:#e0b24a;color:#16181d;border-color:#e0b24a;font-weight:700}
+main{padding:12px 14px calc(120px + var(--cb));max-width:760px;margin:0 auto}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0 4px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chips button{flex:0 0 auto;padding:5px 12px;font-size:14px;border-radius:20px}.chips button.on{background:#e0b24a;color:#16181d;font-weight:700}
+.row{display:flex;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid #22262e;cursor:pointer}
+.row .n{flex:1;min-width:0}.row .n small{display:block;color:#8a90a0;font-size:12.5px}
+.hint{color:#8a90a0;font-size:13.5px}.gold{color:#e0b24a}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+h2{margin:6px 0 4px;font-size:22px;line-height:1.25}
+.stz{background:#1d2026;border:1px solid #2c313a;border-radius:12px;padding:10px 14px;margin:10px 0}
+.stz h3{margin:0 0 4px;font-size:12px;color:#8a90a0;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.stz p{margin:0;font-size:19px;line-height:1.55}
+.big .stz p{font-size:23px}
+.sec{margin:16px 0 4px;padding:6px 10px;background:#2a2410;border-left:3px solid #e0b24a;border-radius:6px;display:flex;align-items:center;gap:8px}
+.sec b{color:#e0b24a}.sec span{flex:1;color:#cfc8bb;font-size:14px}
+.it{display:flex;align-items:center;gap:6px;padding:8px 4px;border-bottom:1px solid #22262e}
+.it .n{flex:1;min-width:0;cursor:pointer}.it button{padding:5px 9px;font-size:13px}
+.card{background:#1d2026;border:1px solid #2c313a;border-radius:12px;padding:14px;margin:10px 0}
+.login{max-width:380px;margin:40px auto;text-align:center}.login img{width:220px;max-width:70%;border-radius:12px;margin-bottom:10px}
+.login input{text-align:center;font-size:20px;letter-spacing:.15em;margin:6px 0}
+.toast{position:fixed;left:50%;bottom:calc(90px + var(--cb) + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2e9d6b;color:#fff;padding:10px 16px;border-radius:10px;z-index:90;font-weight:600;max-width:90vw;text-align:center}
+.toast.err{background:#b8392f}
+#prac{position:fixed;left:0;right:0;bottom:calc(var(--cb) + env(safe-area-inset-bottom));z-index:50;background:#12151b;border-top:1px solid #3a4150;box-shadow:0 -8px 24px #0008}
+#prac .phd{display:flex;align-items:center;gap:4px;padding:6px 8px 6px 12px;background:#1c2028}
+#prac .pt{flex:1;min-width:0;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#prac .phd button{padding:4px 10px;font-size:13px}
+#prac .pbody{background:#000;height:min(56vw,300px)}#prac.small .pbody{height:110px}
+#prac.demo .pbody{height:auto}#prac iframe,#prac video{display:block;width:100%;height:100%;border:0}#prac audio{width:100%;display:block}
+#prac.aud .pbody{height:auto;background:none;padding:6px}
+@media(min-width:800px){#prac{left:auto;right:14px;bottom:calc(var(--cb) + env(safe-area-inset-bottom) + 14px);width:440px;border:1px solid #3a4150;border-radius:12px;overflow:hidden}#prac .pbody{height:248px}}
+body.pracOn main{padding-bottom:calc(min(56vw,300px) + 80px + var(--cb))}
+.nav2{position:sticky;bottom:calc(var(--cb) + env(safe-area-inset-bottom));display:flex;gap:8px;padding:10px 0}
+.nav2 button{flex:1}
+dialog{background:#1d2026;color:#ece8e1;border:1px solid #363c48;border-radius:14px;width:min(92vw,420px)}dialog::backdrop{background:#000a}
+dialog label{display:block;font-size:13px;color:#8a90a0;margin:10px 0 4px}
+#credit{position:fixed;left:0;right:0;bottom:0;z-index:60;height:calc(var(--cb) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;align-items:center;justify-content:center;background:#12151b;border-top:1px solid #262b34;font-size:11px;font-weight:700;letter-spacing:.08em;color:#e0b24a;white-space:nowrap}
+#credit a{color:inherit;text-decoration:none}
+.foot{text-align:center;font-size:11px;font-weight:700;letter-spacing:.08em;color:#e0b24a99;margin-top:30px}
+
+/* splash + install popup */
+#splash{position:fixed;inset:0;z-index:200;background:#16181d;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;transition:opacity .6s}
+#splash.out{opacity:0;pointer-events:none}
+#splash img,.inst img{width:260px;max-width:72vw;border-radius:14px;background:#fff;padding:10px}
+#splash .st{margin-top:16px;font-weight:800;letter-spacing:.12em;color:#ece8e1}
+#splash .by,.inst .by{margin-top:18px;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e0b24a}
+#splash .by small,.inst .by small{display:block;color:#8a90a0;font-weight:500;letter-spacing:0;margin-top:3px}
+.inst{position:fixed;inset:0;z-index:150;background:#000b;display:flex;align-items:flex-end;justify-content:center}
+.inst .box{background:#1d2026;border:1px solid #363c48;border-radius:18px 18px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));width:min(100%,460px);text-align:center;animation:up .35s ease}
+@media(min-width:600px){.inst{align-items:center}.inst .box{border-radius:18px}}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.inst h3{margin:12px 0 4px;font-size:20px}.inst p{margin:6px 0;color:#cfc8bb;font-size:14.5px}
+.inst ol{text-align:left;color:#cfc8bb;font-size:14.5px;padding-left:22px;margin:10px 0}
+.inst .bar{justify-content:center}.inst .bar button{min-width:130px}
+#instBtn{display:none}
+
+/* search many songs */
+#mdlg{width:min(94vw,560px);max-height:92vh}
+#manyRes{max-height:44vh;overflow-y:auto;border:1px solid #2c313a;border-radius:10px;background:#16181d;margin-top:6px}
+.mt{padding:7px 10px;background:#2a2410;border-left:3px solid #e0b24a;color:#e0b24a;font-weight:700;font-size:14px}
+.mt.sub{background:none;border-left-color:#363c48;color:#8a90a0;font-weight:600;font-size:12.5px}
+.mt.bad{background:#3a1d1b;border-left-color:#b8392f;color:#ff8a7e;font-weight:600}
+.mr{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-bottom:1px solid #22262e;cursor:pointer;margin:0;font-size:15px;color:#ece8e1}
+.mr input[type=checkbox]{width:22px;height:22px;padding:0;flex:0 0 auto;margin:1px 0 0;accent-color:#e0b24a}
+.mr small{display:block;color:#8a90a0;font-size:12.5px}
+.mr.dup{opacity:.55;cursor:default}.mr .mk{width:22px;flex:0 0 auto;text-align:center;color:#8a90a0}
+
+/* launcher glow */
+@keyframes glowBox{0%,100%{box-shadow:0 0 14px #e0b24a66,0 0 32px #e0b24a33}50%{box-shadow:0 0 30px #e0b24acc,0 0 64px #e0b24a77}}
+@keyframes glowTxt{0%,100%{text-shadow:0 0 6px #e0b24a88,0 0 14px #e0b24a44}50%{text-shadow:0 0 12px #e0b24a,0 0 28px #e0b24acc,0 0 46px #e0b24a77}}
+#splash img{animation:glowBox 2.2s ease-in-out infinite}
+#splash .ch{margin-top:8px;font-weight:800;font-size:17px;letter-spacing:.1em;color:#e0b24a;animation:glowTxt 2.2s ease-in-out infinite}
+#splash .by{position:absolute;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));margin:0;padding:0 12px;animation:glowTxt 2.2s ease-in-out infinite}
+</style></head><body>
+<div id="splash" onclick="hideSplash();autoFull()"><img src="logo.jpg" alt="Prepfix"><div class="st">PREPFIX TEAM</div><div class="ch">F.G.C.K MURANG'A L.C.A</div><div class="by">DESIGNED BY CYRUS IRERI 0720872582<small>irericyrus004@gmail.com</small></div></div>
+<div id="app"></div>
+<dialog id="dlg"></dialog>
+<dialog id="mdlg"></dialog>
+<div id="credit">DESIGNED BY CYRUS IRERI&nbsp;<a href="tel:0720872582">0720872582</a></div>
+<script>
+/* PREPFIX TEAM - the praise and worship team's app.
+   Shows the church's songs (lyrics + practice link) from the Prepfix Church Media Toolkit,
+   lets a leader build a playlist with sections and send it to the church toolkit. */
+const API=window.PREPFIX_API||'https://script.google.com/macros/s/AKfycbyU3Qfwfsu_sF0gC5GGuclMPkMfcFBmTKdw41-2GZRS2zGWbHHU1AJdZ48JyEHNa74e/exec';
+const DEMO=window.PREPFIX_DEMO||null;
+const SEC_NAMES=['Slow set','Fast set','Praise','Worship','Presentation','Choir','Echoes','Special song','Offering','Altar call'];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store={get(k,d){try{const v=localStorage.getItem('pft_'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('pft_'+k,JSON.stringify(v))}catch(e){}}};
+const uid=()=>Math.random().toString(36).slice(2,9);
+// the link carries the church's name and its code, e.g. ?church=fgck-muranga-lca-786053373dbf
+const QP=new URLSearchParams(location.search),RAW=(QP.get('church')||QP.get('c')||'').trim();
+const LINK_NAME=RAW.includes('-')?RAW.split('-').slice(0,-1).join(' ').toUpperCase():'';
+let code=((RAW.split('-').pop())||window.PREPFIX_CODE||store.get('code','')).toLowerCase().replace(/[^0-9a-f]/g,'');
+if(LINK_NAME)store.set('cname_'+code,LINK_NAME);
+if(DEMO&&!code)code='dee0';
+let pin=store.get('pin',''),D=store.get('data_'+code,null);
+// a MEMBER signs in once with their phone number + PIN; then this phone is theirs (remembered always)
+let ph=store.get('ph_'+code,''),loginMsg='';
+const did=store.get('did','')||(()=>{const d=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>b.toString(16).padStart(2,'0')).join('');store.set('did',d);return d})();
+const plat=/android/i.test(navigator.userAgent)?'and':/iphone|ipad|ipod/i.test(navigator.userAgent)?'ios':'pc';
+function normPhone(s){const raw=String(s||'').trim();let d=raw.replace(/\D/g,'');
+  if(raw.startsWith('+')&&d.length>=9)return d.startsWith('2540')?'254'+d.slice(4):d;
+  if(d.startsWith('2540'))d='254'+d.slice(4);
+  if(d.length===10&&d[0]==='0'&&'17'.includes(d[1]))return '254'+d.slice(1);
+  if(d.length===9&&'17'.includes(d[0]))return '254'+d;
+  if(d.length===12&&d.startsWith('254')&&'17'.includes(d[3]))return d;return ''}
+async function hex32(s){const h=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)));return Array.from(h,b=>b.toString(16).padStart(2,'0')).join('').slice(0,32)}
+const signedIn=()=>!!(ph||pin);
+function signOut(msg){ph='';pin='';D=null;store.set('ph_'+code,'');store.set('pin','');store.set('data_'+code,null);loginMsg=msg||''}
+let tab='songs',q='',folder='',cur=null,curPl=null,fromPl=null,big=store.get('big',false),busy=false;
+let pls=store.get('pls_'+code,[]);
+const savePls=()=>store.set('pls_'+code,pls);
+const nS=n=>n+(n===1?' song':' songs');
+
+function toast(t,err){const d=document.createElement('div');d.className='toast'+(err?' err':'');d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),err?4500:2600)}
+async function call(body){
+  if(DEMO)return demoCall(body);
+  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
+  const j=await r.json();if(j.error)throw new Error(j.error);return j;
+}
+function demoCall(b){
+  if(b.action==='join')return b.pin===DEMO.pin?{ok:1,legacy:1,church:DEMO.church,songs:DEMO.songs,folders:DEMO.folders,updated:new Date().toISOString()}:Promise.reject(new Error('no-match'));
+  if(b.action==='team')return b.pin===DEMO.pin?{ok:1,church:DEMO.church,songs:DEMO.songs,folders:DEMO.folders,updated:new Date().toISOString()}:Promise.reject(new Error('Wrong PIN. (Demo PIN is '+DEMO.pin+')'));
+  if(b.action==='send')return {ok:1};
+}
+async function load(first){
+  if(!code||!signedIn()){render();return}
+  busy=true;if(first)render();
+  try{
+    const j=await call(ph?{action:'team',c:code,ph,did}:{action:'team',c:code,pin});
+    D={church:j.church,songs:j.songs||[],folders:j.folders||[],updated:j.updated};store.set('data_'+code,D);reconcile();store.set('code',code);store.set('pin',pin);
+  }catch(e){
+    if(e.message==='signed-out'){signOut('You were signed out by your church\u2019s media team. Type your number and make a PIN to sign in again.')}
+    else if(/pin|not found|suspend|no team/i.test(e.message)){if(/pin/i.test(e.message)){pin='';store.set('pin','');D=null}toast(e.message,1)}
+    else if(!D)toast('No internet. Connect and try again.',1);
+    else toast('Offline – showing the songs saved on this phone.',1);
+  }
+  busy=false;if(D&&PENDING_PL)importPl();render();
+}
+// the church's songs + songs this member added (sent with their playlist) + practice links they added
+let mine=store.get('mine_'+code,[]),myLinks=store.get('links_'+code,{});
+const saveMine=()=>{store.set('mine_'+code,mine);store.set('links_'+code,myLinks)};
+const songs=()=>[...((D&&D.songs)||[]).map(s=>!s.l&&myLinks[s.i]?{...s,l:myLinks[s.i],ml:1}:s),...mine];
+// once the church toolkit has added a member's new song, use the church's copy
+function reconcile(){
+  const by={};(D.songs||[]).forEach(s=>by[s.t.trim().toLowerCase()]=s);
+  mine=mine.filter(m=>{const r=by[m.t.trim().toLowerCase()];if(!r)return true;
+    pls.forEach(p=>p.items.forEach(x=>{if(x.s===m.i)x.s=r.i}));return false});
+  (D.songs||[]).forEach(s=>{if(s.l)delete myLinks[s.i]});
+  saveMine();savePls();
+}
+const songById=id=>songs().find(s=>s.i===id);
+// a song can have several practice links: s.ls=[[link,name],…] (s.l is always the first)
+const linksOf=s=>s&&Array.isArray(s.ls)&&s.ls.length?s.ls.map(x=>({u:x[0],n:x[1]||''})):(s&&s.l?[{u:s.l,n:''}]:[]);
+const stanzas=t=>String(t||'').split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
+
+function render(){
+  const a=$('app');
+  if(!code||!signedIn()||!D){a.innerHTML=loginHtml();return}
+  let h='<header><div class="hd"><img src="logo.jpg" alt="" onerror="this.style.display=\'none\'"><div class="t"><b>PREPFIX TEAM</b><span>'+esc(D.church)+'</span></div>'+(fsOK()?'<button onclick="goFull()" title="Full screen">⛶</button>':'')+'<button id="instBtn" onclick="maybeInstall(1)" title="Install the app"'+(installEvt&&!isStandalone()?' style="display:inline-block"':'')+'>📲</button><button onclick="load()" title="Get the newest songs"'+(busy?' disabled':'')+'>'+(busy?'…':'↻')+'</button>'+(ph?'<button onclick="outDlg()" title="Sign out">⎋</button>':'')+'</div>'+
+    '<div class="tabs"><button class="'+(tab==='songs'?'on':'')+'" onclick="go(\'songs\')">🎵 Songs ('+songs().length+')</button><button class="'+(tab==='prac'?'on':'')+'" onclick="go(\'prac\')">🎧 Practice ('+songs().filter(s=>linksOf(s).length).length+')</button><button class="'+(tab==='pls'?'on':'')+'" onclick="go(\'pls\')">📋 Playlists ('+pls.length+')</button></div></header><main>';
+  if(cur)h+=songHtml();else if(curPl)h+=plHtml();else if(tab==='songs')h+=listHtml();else if(tab==='prac')h+=pracHtml();else h+=plsHtml();
+  h+='<div class="foot"><span style="font-weight:500;letter-spacing:0;color:#8a90a0">irericyrus004@gmail.com</span></div></main>';
+  a.innerHTML=h;
+  const qi=$('q');if(qi&&document.activeElement!==qi&&q)qi.setSelectionRange(q.length,q.length);
+}
+function loginHtml(){
+  return '<div class="login"><img src="logo.jpg" alt="Prepfix" onerror="this.style.display=\'none\'"><h2>Prepfix Team</h2>'+((LINK_NAME||store.get('cname_'+code,''))?'<p class="gold" style="font-weight:700;letter-spacing:.06em;margin:0 0 6px">'+esc(LINK_NAME||store.get('cname_'+code,''))+'</p>':'')+'<p class="hint">Songs and practice links from your church’s Prepfix toolkit.</p>'+
+    (code?'':'<input id="lc" placeholder="Church code" autocomplete="off">')+
+    '<p class="hint">For members of the praise and worship team only. Type <b>the phone number the church registered</b> and <b>make your own 4-number PIN</b>. You stay signed in on this phone.</p>'+
+    '<input id="lph" type="tel" inputmode="tel" placeholder="Phone number, e.g. 0712 345 678" autocomplete="tel" style="letter-spacing:.04em">'+
+    '<input id="lp" type="password" inputmode="numeric" maxlength="4" placeholder="Make a PIN (4 numbers)" autocomplete="new-password">'+
+    '<input id="lp2" type="password" inputmode="numeric" maxlength="4" placeholder="Type the PIN again" autocomplete="new-password" onkeydown="if(event.key===\'Enter\')login()">'+
+    '<button class="pri" style="width:100%;margin-top:8px" onclick="login()"'+(busy?' disabled':'')+'>'+(busy?'Opening…':'Open songs')+'</button>'+
+    (loginMsg?'<p style="color:#ff8a7e;font-weight:600">'+esc(loginMsg)+'</p>':'')+
+    '<p class="hint" style="margin-top:16px">One phone per number. Changing phones? Sign out on the old phone first (⎋ at the top).</p>'+
+    (DEMO?'<p class="gold">Demo: the PIN is '+esc(DEMO.pin)+'</p>':'')+'</div>';
+}
+async function login(){
+  const c=$('lc');if(c){code=c.value.toLowerCase().split('-').pop().replace(/[^0-9a-f]/g,'');if(!code){toast('Type the church code.',1);return}}
+  const n=normPhone($('lph').value),p=$('lp').value.replace(/\D/g,''),p2=(($('lp2')||{}).value||'').replace(/\D/g,'');
+  if(!n){toast('Type your phone number, e.g. 0712 345 678.',1);return}
+  if(p.length!==4){toast('Make a PIN of 4 numbers.',1);return}
+  if(p!==p2){toast('The two PINs are not the same.',1);return}
+  pls=store.get('pls_'+code,[]);mine=store.get('mine_'+code,[]);myLinks=store.get('links_'+code,{});
+  busy=true;loginMsg='';render();
+  const h=await hex32(code+'|'+n);
+  try{
+    const j=await call({action:'join',c:code,ph:h,pin:p,did,plat});
+    if(j.legacy){pin=p;store.set('pin',pin)}else{ph=h;store.set('ph_'+code,ph)}       // legacy = the church still uses one team PIN
+    store.set('code',code);
+    D={church:j.church,songs:j.songs||[],folders:j.folders||[],updated:j.updated};store.set('data_'+code,D);reconcile();
+    if(j.name){store.set('me',j.name);toast('Welcome, '+j.name)}
+    try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+  }catch(e){
+    loginMsg=e.message==='no-match'?'This number is not on your church\u2019s team list. Check it, or ask the media team.'
+      :e.message==='in-use'?'This number is already signed in on another phone. If that is not you, tell the media team \u2013 they will remove that sign-in.'
+      :e.message==='too-many'?'Too many tries. Wait an hour and try again.'
+      :e.message==='need-pin'?'Make a PIN of 4 numbers.':(navigator.onLine?e.message:'No internet. Connect and try again.');
+  }
+  busy=false;render();
+}
+// SIGN OUT with the member's own PIN: the number becomes free to sign in on another phone
+function outDlg(){const d=$('dlg');d.innerHTML='<h3 style="margin:0">Sign out</h3><p class="hint">Your number becomes free to sign in on another phone. Type your PIN.</p><input id="soP" type="password" inputmode="numeric" maxlength="4" placeholder="Your PIN" style="text-align:center;font-size:20px;letter-spacing:.15em"><div class="bar" style="margin-top:14px"><button class="dng" id="soOk">Sign out</button><button onclick="dlg.close()">Cancel</button></div>';d.showModal();
+  $('soOk').onclick=async()=>{const pn=$('soP').value.replace(/\D/g,'');if(pn.length!==4){toast('Type your 4-number PIN.',1);return}
+    try{await call({action:'signout',c:code,ph,did,pin:pn});d.close();signOut('You have signed out.');render()}
+    catch(e){toast(e.message==='wrong-pin'?'That is not your PIN.':e.message==='too-many'?'Too many tries. Wait an hour.':'You need the internet to sign out.',1)}}}
+function go(t){tab=t;cur=null;curPl=null;fromPl=null;closePlayer(true);render();scrollTo(0,0)}
+
+/* ---------- songs ---------- */
+function listHtml(){
+  const fs=[...new Set([...(D.folders||[]),...songs().map(s=>s.f).filter(Boolean)])];
+  let h='<div class="bar" style="margin-top:0"><button class="pri" onclick="newSong()">+ New song</button><button onclick="mOpen()">🔎 Many songs</button><span class="hint">Not in the list? Add it with its lyrics and link.</span></div><input id="q" type="search" placeholder="Search '+songs().length+' songs or words…" value="'+esc(q)+'" oninput="q=this.value;renderList()" onpaste="mPaste(event)" onkeydown="if(event.key===\'Enter\'&&/[,;+]/.test(this.value))mOpen(this.value)">';
+  h+='<div class="chips"><button class="'+(!folder?'on':'')+'" onclick="folder=\'\';render()">All</button><button class="'+(folder==='🎧'?'on':'')+'" onclick="folder=\'🎧\';render()">🎧 With practice link</button>'+fs.map(f=>'<button class="'+(folder===f?'on':'')+'" onclick="folder=this.dataset.f;render()" data-f="'+esc(f)+'">📁 '+esc(f)+'</button>').join('')+'</div><div id="list">'+listRows()+'</div>';
+  return h;
+}
+function pracHtml(){
+  const n=songs().filter(s=>linksOf(s).length).length;
+  return '<p class="hint" style="margin:0 0 8px">Songs with a practice link. Open one and press play to listen as you learn.</p><input id="q" type="search" placeholder="Search '+n+' songs with links…" value="'+esc(q)+'" oninput="q=this.value;renderList()"><div id="list" style="margin-top:8px">'+listRows()+'</div>';
+}
+function listRows(){
+  const w=q.trim().toLowerCase();
+  let r=songs().filter(s=>(tab==='prac'?linksOf(s).length>0:(!folder||(folder==='🎧'?s.l:s.f===folder)))&&(!w||s.t.toLowerCase().includes(w)||String(s.x).toLowerCase().includes(w)));
+  r.sort((a,b)=>{const at=a.t.toLowerCase().includes(w),bt=b.t.toLowerCase().includes(w);return at===bt?mByT(a,b):at?-1:1});
+  return r.slice(0,400).map(s=>'<div class="row" onclick="openSong(\''+s.i+'\')"><div class="n">'+esc(s.t)+(s.mine?' <span class="gold" style="font-size:12px">✎ new</span>':'')+(s.f?'<small>📁 '+esc(s.f)+'</small>':'')+'</div>'+(linksOf(s).length?'<span title="Has a practice link">🎧'+(linksOf(s).length>1?' '+linksOf(s).length:'')+'</span>':'')+'</div>').join('')||'<p class="hint">'+(tab==='prac'?'No songs with practice links yet.':'No songs found.')+'</p>';
+}
+function renderList(){const l=$('list');if(l)l.innerHTML=listRows()}
+function openSong(id,pl){cur=id;fromPl=pl||null;render();scrollTo(0,0)}
+function songHtml(){
+  const s=songById(cur);if(!s){cur=null;return listHtml()}
+  let h='<div class="bar"><button onclick="back()">← Back</button><span style="flex:1"></span><button onclick="big=!big;store.set(\'big\',big);render()" title="Bigger / smaller words">'+(big?'A−':'A+')+'</button></div>';
+  h+='<h2>'+esc(s.t)+'</h2>'+(s.mine?'<p class="hint" style="margin:0">✎ Your new song – it goes to the church toolkit when you send a playlist that has it.</p>':'')+
+    '<div class="bar">'+(()=>{const L=linksOf(s);return L.map((l,k)=>'<button class="pri" onclick="play(\''+s.i+'\','+k+')">▶ '+(L.length>1?esc(l.n||'Link '+(k+1)):'Play practice song')+'</button>').join('')})()+
+    '<button onclick="addDlg(\''+s.i+'\')">+ Add to playlist</button>'+
+    (s.mine?'<button onclick="newSong(\''+s.i+'\')">✎ Edit</button><button class="dng" onclick="delMine(\''+s.i+'\')">Delete</button>':
+     !s.l?'<button onclick="linkDlg(\''+s.i+'\')">🎧 Add practice link</button>':s.ml?'<button onclick="linkDlg(\''+s.i+'\')">✎ Your link</button>':'')+'</div>'+
+    (s.ml?'<p class="hint" style="margin:0">🎧 You added this link – it goes to the church toolkit with your playlist.</p>':'');
+  h+='<div class="'+(big?'big':'')+'">'+stanzas(s.x).map((st,i)=>'<div class="stz"><h3>Stanza '+(i+1)+'</h3><p>'+esc(st).replace(/\n/g,'<br>')+'</p></div>').join('')+'</div>';
+  if(fromPl){const p=pls.find(x=>x.id===fromPl);if(p){const ids=p.items.filter(x=>x.s).map(x=>x.s),k=ids.indexOf(s.i);
+    h+='<div class="nav2"><button '+(k>0?'':'disabled')+' onclick="openSong(\''+ids[k-1]+'\',\''+p.id+'\');autoPlay()">⏮ Previous song</button><button class="pri" '+(k>=0&&k<ids.length-1?'':'disabled')+' onclick="openSong(\''+ids[k+1]+'\',\''+p.id+'\');autoPlay()">Next song ⏭</button></div>'}}
+  return h;
+}
+function autoPlay(){if(document.getElementById('prac')){const s=songById(cur);if(s&&s.l)play(s.i);else closePlayer()}}
+function back(){if(fromPl){curPl=fromPl;fromPl=null;cur=null;tab='pls'}else cur=null;render()}
+
+/* ---------- practice player (same links as the toolkit) ---------- */
+function ytId(u){const h=u.hostname.replace(/^(www|m|music)\./,'');let id='';
+  if(h==='youtu.be')id=u.pathname.slice(1).split('/')[0];
+  else if(/(^|\.)youtube(-nocookie)?\.com$/.test(h)){id=u.searchParams.get('v')||'';const m=u.pathname.match(/^\/(embed|shorts|live|v)\/([\w-]{6,})/);if(m)id=m[2]}
+  return /^[\w-]{6,20}$/.test(id)?id:''}
+function ytStart(u){const t=u.searchParams.get('t')||u.searchParams.get('start')||'';if(/^\d+$/.test(t))return +t;const m=t.match(/(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?/);return m?(+m[1]||0)*3600+(+m[2]||0)*60+(+m[3]||0):0}
+function practiceSrc(link){let u;try{u=new URL(link)}catch(e){return null}
+  const h=u.hostname.replace(/^www\./,''),id=ytId(u),list=u.searchParams.get('list');
+  if(id)return {kind:'frame',src:'https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0'+(ytStart(u)?'&start='+ytStart(u):''),name:'YouTube'};
+  if(/youtube\.com$/.test(h)&&list)return {kind:'frame',src:'https://www.youtube-nocookie.com/embed/videoseries?list='+encodeURIComponent(list)+'&autoplay=1&playsinline=1',name:'YouTube'};
+  if(h==='open.spotify.com'){const m=u.pathname.match(/\/(track|album|playlist|episode)\/(\w+)/);if(m)return {kind:'frame',src:'https://open.spotify.com/embed/'+m[1]+'/'+m[2],name:'Spotify'}}
+  if(h==='audiomack.com'){const m=u.pathname.match(/^\/([^/]+)\/(song|album|playlist)\/([^/]+)/);if(m)return {kind:'frame',src:'https://audiomack.com/embed/'+m[2]+'/'+m[1]+'/'+m[3],name:'Audiomack'}}
+  if(h==='soundcloud.com')return {kind:'frame',src:'https://w.soundcloud.com/player/?auto_play=true&url='+encodeURIComponent(link),name:'SoundCloud'};
+  if(/\.(mp3|m4a|aac|ogg|oga|wav|opus)$/i.test(u.pathname))return {kind:'audio',src:link,name:'Music'};
+  if(/\.(mp4|webm|ogv|mov)$/i.test(u.pathname))return {kind:'video',src:link,name:'Video'};
+  return {kind:'frame',src:link,name:h,other:true}}
+let playing=null;
+function play(id,k){
+  const s=songById(id);const L=linksOf(s);if(!s||!L.length)return;k=Math.min(Math.max(+k||0,0),L.length-1);const lk=L[k];const p=practiceSrc(lk.u);if(!p){toast('This practice link cannot be opened.',1);return}
+  playing=id;let b=$('prac');if(!b){b=document.createElement('div');b.id='prac';document.body.appendChild(b)}
+  b.className=DEMO?'demo':p.kind==='audio'?'aud':'';
+  b.innerHTML='<div class="phd"><span class="pt">🎧 '+esc(s.t)+' <span class="hint">· '+esc(lk.n||p.name)+'</span></span>'+
+    (L.length>1?'<select style="width:auto;max-width:110px;padding:3px 4px;font-size:12px" onchange="play(\''+id+'\',this.value)">'+L.map((l,i)=>'<option value="'+i+'"'+(i===k?' selected':'')+'>'+esc(l.n||'Link '+(i+1))+'</option>').join('')+'</select>':'')+
+    (cur!==id?'<button onclick="openSong(\''+id+'\')">Lyrics</button>':'')+(p.kind!=='audio'?'<button onclick="$(\'prac\').classList.toggle(\'small\')">⇕</button>':'')+
+    '<a href="'+esc(lk.u)+'" target="_blank" rel="noopener"><button tabindex="-1" title="Open in the YouTube app">↗</button></a><button onclick="closePlayer()">✕</button></div><div class="pbody">'+
+    (DEMO?'<div style="padding:22px;text-align:center;background:#12151b"><p class="hint" style="margin:0 0 10px">In this preview the video opens on YouTube. In the installed app it plays right here, under the lyrics.</p><a href="'+esc(lk.u)+'" target="_blank" rel="noopener" class="pri" style="display:inline-block;background:#e0b24a;color:#16181d;padding:9px 16px;border-radius:10px;font-weight:700;text-decoration:none">▶ Open on YouTube</a></div>':p.kind==='audio'?'<audio src="'+esc(p.src)+'" controls autoplay></audio>':p.kind==='video'?'<video src="'+esc(p.src)+'" controls autoplay playsinline></video>':
+    '<iframe src="'+esc(p.src)+'" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>')+'</div>'+
+    (p.other?'<p class="hint" style="margin:4px 10px">If this stays blank, press ↗ to open the link.</p>':'');
+  document.body.classList.add('pracOn');
+}
+function closePlayer(keep){if(keep&&playing)return;const b=$('prac');if(b)b.remove();playing=null;document.body.classList.remove('pracOn')}
+
+/* ---------- playlists ---------- */
+function plsHtml(){
+  let h='<div class="bar"><button class="pri" onclick="newPl()">+ New playlist</button></div>';
+  h+=pls.map(p=>'<div class="row" onclick="openPl(\''+p.id+'\')"><div class="n"><b>'+esc(p.name)+'</b><small>'+nS(p.items.filter(x=>x.s).length)+(p.by?' · '+esc(p.by):'')+(p.sent?' · <span class="gold">sent ✓</span>':'')+'</small></div>›</div>').join('')||
+    '<div class="card"><b>Leading a service?</b><p class="hint">Make a playlist, add titles like Slow set or Fast set with the lead’s name, add songs, then press <b>Send to church toolkit</b>. It appears on the church laptop by itself.</p></div>';
+  return h;
+}
+function openPl(id){curPl=id;cur=null;fromPl=null;render();scrollTo(0,0)}
+function newPl(firstSong){
+  const d=new Date();const day=d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  dlgForm('New playlist',[['name','Playlist name','Sunday Service – '+day],['by','Your name (who is leading)',store.get('me','')]],v=>{
+    if(!v.name)return;store.set('me',v.by);const p={id:uid(),name:v.name,by:v.by,items:firstSong?[{s:firstSong}]:[]};pls.unshift(p);savePls();
+    if(firstSong){addTo=p.id;toast('Playlist made and song added');render()}else openPl(p.id)});
+}
+function plHtml(){
+  const p=pls.find(x=>x.id===curPl);if(!p){curPl=null;return plsHtml()}
+  let h='<div class="bar"><button onclick="curPl=null;render()">← Playlists</button><span style="flex:1"></span><button onclick="editPl()">Rename</button><button class="dng" onclick="delPl()">Delete</button></div>';
+  h+='<h2>'+esc(p.name)+'</h2><p class="hint" style="margin:0">'+(p.by?'By '+esc(p.by)+' · ':'')+nS(p.items.filter(x=>x.s).length)+(p.sent?' · <span class="gold">sent to the church toolkit '+esc(p.sent)+'</span>':'')+'</p>';
+  h+='<div class="bar"><button onclick="secDlg()">+ Title (Slow set, Choir…)</button><button onclick="tab=\'songs\';curPl=null;addTo=\''+p.id+'\';render();toast(\'Open a song and press + Add to playlist\')">+ Add songs</button><button onclick="newSong(null,\''+p.id+'\')">+ New song</button></div>';
+  const ids=p.items.filter(x=>x.s).map(x=>x.s);
+  h+=p.items.map((x,i)=>{
+    const ctl='<button onclick="mv('+i+',-1)"'+(i?'':' disabled')+'>↑</button><button onclick="mv('+i+',1)"'+(i<p.items.length-1?'':' disabled')+'>↓</button><button onclick="rm('+i+')">✕</button>';
+    if(x.sec)return '<div class="sec"><b>'+esc(x.sec)+'</b><span>'+esc(x.lead||'')+'</span>'+ctl+'</div>';
+    const s=songById(x.s);return '<div class="it"><span class="n" onclick="openSong(\''+x.s+'\',\''+p.id+'\')">'+(s?esc(s.t)+(s.l?' 🎧':''):'<span class="hint">(song removed from the church list)</span>')+'</span>'+ctl+'</div>';
+  }).join('')||'<p class="hint">Empty. Add a title and some songs.</p>';
+  if(ids.length)h+='<div class="bar" style="margin-top:16px"><button onclick="openSong(\''+ids[0]+'\',\''+p.id+'\');autoPlay();if(songById(\''+ids[0]+'\').l)play(\''+ids[0]+'\')">▶ Practise from the first song</button></div>';
+  h+='<div class="card"><button class="pri" style="width:100%" onclick="sendPl()">📤 Send to church toolkit</button>'+(p.sent?'<button style="width:100%;margin-top:8px" onclick="tellDlg(\''+p.id+'\')">💬 Tell the team on WhatsApp</button>':'')+'<p class="hint" style="margin:8px 0 0">The media team will see it on the church laptop as a new playlist, with your titles and name.</p></div>';
+  return h;
+}
+let addTo=null;
+function addDlg(sid){
+  const s=songById(sid);
+  if(!pls.length){newPl(sid);return}
+  const opts=pls.map(p=>'<option value="'+p.id+'"'+(p.id===(addTo||pls[0].id)?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'<option value="__new">+ New playlist…</option>';
+  const d=$('dlg');d.innerHTML='<h3 style="margin:0">Add “'+esc(s.t)+'”</h3><label>Playlist</label><select id="dp">'+opts+'</select>'+
+    '<div class="bar" style="margin-top:14px"><button class="pri" onclick="doAdd(\''+sid+'\')">Add</button><button onclick="dlg.close()">Cancel</button></div>';d.showModal();
+}
+function doAdd(sid){if($('dp').value==='__new'){dlg.close();newPl(sid);return}const p=pls.find(x=>x.id===$('dp').value);if(!p)return;addTo=p.id;
+  if(p.items.some(x=>x.s===sid)){dlg.close();toast('Already in '+p.name);return}
+  p.items.push({s:sid});p.sent=null;savePls();dlg.close();toast('Added to '+p.name)}
+function secDlg(){
+  dlgForm('Add a title',[['sec','Title (e.g. Slow set, Fast set, Choir)','',SEC_NAMES],['lead','Lead or group (optional)','']],v=>{
+    if(!v.sec)return;const p=pls.find(x=>x.id===curPl);p.items.push({sec:v.sec,lead:v.lead});p.sent=null;savePls();render()});
+}
+function editPl(){const p=pls.find(x=>x.id===curPl);dlgForm('Rename playlist',[['name','Playlist name',p.name],['by','Your name',p.by||'']],v=>{if(v.name){p.name=v.name;p.by=v.by;p.sent=null;savePls();render()}})}
+function delPl(){const p=pls.find(x=>x.id===curPl);const d=$('dlg');d.innerHTML='<h3 style="margin:0">Delete “'+esc(p.name)+'” from this phone?</h3><div class="bar" style="margin-top:14px"><button class="dng" id="dOk">Delete</button><button onclick="dlg.close()">Cancel</button></div>';d.showModal();
+  $('dOk').onclick=()=>{d.close();pls=pls.filter(x=>x!==p);savePls();curPl=null;render()}}
+function mv(i,d){const p=pls.find(x=>x.id===curPl);const a=p.items;[a[i],a[i+d]]=[a[i+d],a[i]];p.sent=null;savePls();render()}
+function rm(i){const p=pls.find(x=>x.id===curPl);p.items.splice(i,1);p.sent=null;savePls();render()}
+async function sendPl(){
+  const p=pls.find(x=>x.id===curPl);if(!p.items.some(x=>x.s)){toast('Add some songs first.',1);return}
+  if(!p.by){dlgForm('Your name',[['by','So the media team knows who sent it',store.get('me','')]],v=>{if(v.by){p.by=v.by;store.set('me',v.by);savePls();sendPl()}});return}
+  const items=p.items.map(x=>{if(x.sec)return x;const m=mine.find(y=>y.i===x.s);if(m)return {n:{t:m.t,x:m.x,l:m.l||''}};return myLinks[x.s]?{s:x.s,l:myLinks[x.s]}:{s:x.s}});
+  try{await call(Object.assign(ph?{action:'send',c:code,ph,did}:{action:'send',c:code,pin},{playlist:{id:p.id,name:p.name,by:p.by,items}}));
+    p.sent=new Date().toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});savePls();render();
+    toast(DEMO?'Demo: in the real app this now goes to the church toolkit.':'Sent ✓ It will appear on the church laptop when it is online.');
+    tellDlg(p.id,true);
+  }catch(e){if(e.message==='signed-out'){signOut('You were signed out by your church\u2019s media team. Type your number and PIN again.');render();return}
+    toast(/fetch|network/i.test(e.message)?'No internet. Try again when connected.':e.message,1)}
+}
+
+/* ---------- tell the team on WhatsApp (no server: the leader taps once) ---------- */
+// the playlist itself travels inside the link (names, sections, leads and song ids), so no server is needed
+const b64e=o=>{const b=new TextEncoder().encode(JSON.stringify(o));let t='';b.forEach(c=>t+=String.fromCharCode(c));return btoa(t).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')};
+const b64d=r=>{let t=r.replace(/-/g,'+').replace(/_/g,'/');while(t.length%4)t+='=';const a=atob(t),u=new Uint8Array(a.length);for(let i=0;i<a.length;i++)u[i]=a.charCodeAt(i);return JSON.parse(new TextDecoder().decode(u))};
+function churchParam(){
+  const nm=store.get('cname_'+code,'')||(D&&D.church)||'';
+  const slug=String(nm).toLowerCase().replace(/['’.]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  return slug?slug+'-'+code:code;
+}
+// short link: songs travel as their first 5 characters (checked to be unique in the church list); names are written as plain text.
+// If any chosen song cannot be told apart that way, the older (longer) link is made instead. Both kinds open fine.
+const PRE=5,escQ=t=>encodeURIComponent(t).replace(/[.~!*'()]/g,c=>'%'+c.charCodeAt(0).toString(16).toUpperCase());
+function plLink(p){
+  const list=(D&&D.songs)||[],have=new Set(list.map(x=>x.i));let skipped=0;
+  const i=[];p.items.forEach(x=>{if(x.sec)i.push([x.sec,x.lead||'']);else if(have.has(x.s))i.push(x.s);else skipped++});
+  const count=i.filter(x=>typeof x==='string').length,base=location.origin+location.pathname+'?church='+churchParam();
+  const cnt={};list.forEach(x=>{const k=String(x.i).slice(0,PRE);cnt[k]=(cnt[k]||0)+1});
+  const ok=i.every(x=>Array.isArray(x)||(String(x).length>=PRE&&cnt[String(x).slice(0,PRE)]===1));
+  if(ok){
+    const toks=[];let run='';
+    i.forEach(x=>{if(Array.isArray(x)){if(run){toks.push(run);run=''}toks.push('.'+escQ(x[0])+'.'+escQ(x[1]))}else run+=String(x).slice(0,PRE)});
+    if(run)toks.push(run);
+    return {skipped,count,link:base+'&q='+[p.id,escQ(p.name),escQ(p.by||'')].concat(toks).join('~')};
+  }
+  return {skipped,count,link:base+'&pl='+b64e({p:p.id,n:p.name,b:p.by||'',i})};
+}
+function teamMsg(p){
+  const l=plLink(p);
+  // next Sunday (today if it is Sunday), written day/month/year
+  const d=new Date();d.setDate(d.getDate()+(7-d.getDay())%7);
+  const when='Sunday: '+d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear();
+  const all=songs(),nm=id=>{const o=all.find(y=>y.i===id);return o?o.t:''};
+  const out=['*Ministration Songs*',when];let n=0;
+  p.items.forEach(x=>{
+    if(x.sec){const t=String(x.sec).replace(/\s*set\s*$/i,'').trim()||x.sec;out.push('Set: '+t);n=0}
+    else{const t=nm(x.s);if(t){n++;out.push(n+'. '+t)}}
+  });
+  out.push('','Open this playlist, listen as you learn.',l.link);
+  return out.join('\n');
+}
+// opening a playlist link: the playlist is added to My playlists and opened
+let PENDING_PL=null;
+try{const r=QP.get('pl');if(r)PENDING_PL=b64d(r)}catch(e){}
+try{const mq=/[?&]q=([^&#]*)/.exec(location.search),q=mq&&mq[1];if(q){const t=q.split('~'),dec=v=>{try{return decodeURIComponent(v)}catch(e){return v}},o={p:t[0],n:dec(t[1]||''),b:dec(t[2]||''),i:[],pre:1};
+  t.slice(3).forEach(k=>{if(k[0]==='.'){const m=k.slice(1).split('.');o.i.push([dec(m[0]||''),dec(m[1]||'')])}else for(let j=0;j+PRE<=k.length;j+=PRE)o.i.push(k.slice(j,j+PRE))});
+  PENDING_PL=o}}catch(e){}
+function importPl(){
+  const x=PENDING_PL;PENDING_PL=null;if(!x||!Array.isArray(x.i))return;
+  try{history.replaceState(null,'',location.pathname+'?church='+churchParam())}catch(e){}
+  const have=new Set(songs().map(o=>o.i));let miss=0;const items=[];
+  if(x.pre){const all=songs().map(o=>String(o.i));x.i=x.i.map(e=>{if(Array.isArray(e))return e;const m=all.filter(v=>v.startsWith(e));return m.length===1?m[0]:e})}
+  x.i.forEach(e=>{if(Array.isArray(e))items.push({sec:String(e[0]||'').slice(0,60),lead:String(e[1]||'').slice(0,80)});else if(have.has(e))items.push({s:String(e)});else miss++});
+  if(!items.some(o=>o.s)){toast('This playlist has no songs that are in the church list.',1);return}
+  const pid=String(x.p||'').slice(0,40)||uid(),name=String(x.n||'Team playlist').slice(0,100),by=String(x.b||'').slice(0,60);
+  let pl=pls.find(o=>o.id===pid);
+  if(pl&&!pl.from){tab='pls';curPl=pid;cur=null;fromPl=null;toast('This is your own playlist.');return}   // the leader opening their own link
+  if(pl){pl.items=items;pl.name=name;pl.by=by}else{pl={id:pid,name,by,items,from:1};pls.unshift(pl)}
+  pl.sent=null;savePls();tab='pls';curPl=pid;cur=null;fromPl=null;
+  toast(miss?'Playlist opened ('+miss+' song'+(miss===1?'':'s')+' not in your list)':'Playlist opened. It is saved in My playlists.');
+}
+function tellTeam(pid){
+  const p=pls.find(x=>x.id===pid);if(!p)return;
+  if($('dlg').open)$('dlg').close();
+  window.open('https://wa.me/?text='+encodeURIComponent(teamMsg(p)),'_blank');
+}
+async function copyTeam(pid){
+  const p=pls.find(x=>x.id===pid);if(!p)return;
+  try{await navigator.clipboard.writeText(teamMsg(p));toast('Message copied')}catch(e){toast('Could not copy. Use the WhatsApp button.',1)}
+}
+function tellDlg(pid,justSent){
+  const p=pls.find(x=>x.id===pid);if(!p)return;
+  const sk=plLink(p).skipped,d=$('dlg');
+  d.innerHTML='<h3 style="margin:0">'+(justSent?'Sent ✓ Now tell the team':'Tell the team')+'</h3>'+
+    '<p class="hint">This opens WhatsApp with a short message and a link. When your team taps the link, this playlist opens in Prepfix Team with its songs and practice links. Choose your team group and press send.</p>'+
+    (sk?'<p class="hint gold">'+sk+(sk===1?' song you added is':' songs you added are')+' not in the church list yet, so '+(sk===1?'it is':'they are')+' not in the link. Send again once the church laptop has '+(sk===1?'it':'them')+'.</p>':'')+
+    '<div class="bar" style="margin-top:14px"><button class="pri" onclick="tellTeam(\''+pid+'\')">💬 Share on WhatsApp</button><button onclick="copyTeam(\''+pid+'\')">Copy message</button><button onclick="$(\'dlg\').close()">'+(justSent?'Not now':'Close')+'</button></div>';
+  d.showModal();
+}
+
+/* ---------- search many songs at once, then make a playlist and share it ---------- */
+// One song on each line (or separated by commas): a number (120), a title, words from the lyrics, or a range (105-110).
+// Each line shows ALL the songs that match, in the order written: every song with that number, every song with those words.
+let mTxt='',mSel={},mIds=[];
+const mNorm=t=>' '+String(t||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim()+' ';
+const mBare=t=>String(t||'').replace(/^\s*\d+\s*[.)]\s+/,'');
+const mNo=s=>{const n=parseInt(s.no,10);if(n>0)return n;const m=String(s.t||'').match(/^\s*(\d+)\s*[.)]\s/);return m?+m[1]:0};
+const mByT=(a,b)=>{const x=mNo(a),y=mNo(b);if(x&&y)return x-y||mBare(a.t).localeCompare(mBare(b.t),undefined,{sensitivity:'base'});if(x)return -1;if(y)return 1;return mBare(a.t).localeCompare(mBare(b.t),undefined,{sensitivity:'base'})};
+const mIsNo=t=>/^(?:#|no\.?\s*|number\s*)?\d+$/i.test(t);
+function mTerms(txt){
+  const lines=String(txt||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean),multi=lines.length>1,out=[];
+  lines.forEach(l=>{
+    let parts=(!multi||/^[\d\s,;+–-]+$/.test(l))?l.split(/[,;+]+/).map(t=>t.trim()).filter(Boolean):[l];
+    parts=parts.flatMap(x=>/^\d+(\s+\d+)+$/.test(x)?x.split(/\s+/):[x]);
+    parts.forEach(t=>{const m=t.match(/^(?:#|no\.?\s*)?(\d+)\s*(?:-|–|to)\s*(\d+)$/i);
+      if(m&&+m[2]>=+m[1]&&+m[2]-+m[1]<300){for(let n=+m[1];n<=+m[2];n++)out.push(String(n))}else out.push(t)});
+  });
+  return out;
+}
+// main = the songs to show first (ticked), more = songs that only have the words inside their lyrics (not ticked)
+function mCands(t){
+  const all=songs(),m=t.match(/^(?:#|no\.?\s*|number\s*)?(\d+)$/i);
+  if(m){const d=+m[1];return {main:all.filter(s=>mNo(s)===d).sort(mByT),more:[],tick:true}}
+  const kn=mNorm(t).trim();if(!kn)return {main:[],more:[],tick:true};
+  const words=kn.split(' '),T=[],X=[],W=[];
+  all.forEach(s=>{
+    const a=mNorm(mBare(s.t)),b=mNorm(s.x);
+    if(a.includes(kn))T.push({s,r:a.trim()===kn?0:1});
+    else if(b.includes(kn))X.push(s);
+    else if(words.length>1&&words.every(w=>(a+b).includes(w)))W.push(s);
+  });
+  T.sort((x,y)=>x.r-y.r||mByT(x.s,y.s));
+  const ti=T.map(o=>o.s),lyr=[...X.sort(mByT),...W.sort(mByT)];
+  if(ti.length)return {main:ti.slice(0,30),more:lyr.slice(0,12),tick:true};
+  return {main:lyr.slice(0,30),more:[],tick:lyr.length<=3};   // words found only in lyrics: tick them by hand if there are many
+}
+function mRun(){
+  const ta=$('manyT');if(ta)mTxt=ta.value;
+  const terms=mTerms(mTxt),seen=new Set();let bad=0;mIds=[];
+  const rowH=(s,def)=>{
+    if(seen.has(s.i))return '<div class="mr dup"><span class="mk">=</span><div><b>'+esc(s.t)+'</b><small>already listed above</small></div></div>';
+    seen.add(s.i);const on=mSel[s.i]!==undefined?mSel[s.i]:def;if(on)mIds.push(s.i);
+    return '<label class="mr"><input type="checkbox"'+(on?' checked':'')+' onchange="mTog(\''+esc(s.i)+'\',this.checked)"><div><b>'+esc(s.t)+'</b>'+(s.f?'<small>📁 '+esc(s.f)+'</small>':'')+'</div></label>'};
+  const html=terms.map(t=>{
+    const c=mCands(t);
+    if(!c.main.length&&!c.more.length){bad++;return '<div class="mt bad">✗ “'+esc(t)+'” – '+(mIsNo(t)?'no song has this number.':'no song has these words.')+'</div>'}
+    let h='<div class="mt">“'+esc(t)+'” <span class="hint">· '+nS(c.main.length)+'</span></div>'+c.main.map(s=>rowH(s,c.tick)).join('');
+    if(c.more.length)h+='<div class="mt sub">Also has these words in the lyrics</div>'+c.more.map(s=>rowH(s,false)).join('');
+    return h;
+  }).join('');
+  $('manyRes').innerHTML=html||'<p class="hint" style="padding:8px 10px;margin:0">Example:<br>Mungu Anena Hili<br>Na Hayana Mpaka<br>120<br>130</p>';
+  $('manyInfo').innerHTML=terms.length?'<b style="color:#2e9d6b">'+nS(mIds.length)+' ticked</b>'+(bad?' · <b style="color:#ff8a7e">'+bad+' not found</b>':''):'';
+  $('manyGo').disabled=!mIds.length;
+}
+function mTog(id,on){mSel[id]=on;mRun()}
+function mOpen(txt){
+  if(typeof txt==='string'&&txt.trim())mTxt=txt;
+  const d=$('mdlg'),day=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  d.innerHTML='<h3 style="margin:0">🔎 Search many songs</h3><p class="hint" style="margin:4px 0 6px">One song on each line, in the order you want: a number, a title or words from the lyrics. Every matching song is shown – tick the ones you want.</p>'+
+    '<textarea id="manyT" rows="5" placeholder="Mungu Anena Hili&#10;Na Hayana Mpaka&#10;120&#10;130" oninput="mRun()" style="width:100%;background:#0f1115;border:1px solid #363c48;border-radius:10px;padding:10px;color:inherit;font:inherit">'+esc(mTxt)+'</textarea>'+
+    '<div id="manyInfo" style="margin:8px 0 2px"></div><div id="manyRes"></div>'+
+    '<label>Playlist name</label><input id="manyN" value="'+esc('Sunday Service – '+day)+'">'+
+    '<label>Your name (who is leading)</label><input id="manyB" value="'+esc(store.get('me',''))+'">'+
+    '<div class="bar" style="margin-top:14px"><button class="pri" id="manyGo" onclick="mMake()">📋 Make playlist &amp; share</button><button onclick="mdlg.close()">Close</button></div>';
+  d.showModal();mRun();$('manyT').focus();
+}
+function mPaste(e){const t=(e.clipboardData||window.clipboardData).getData('text');if(!/[\r\n]/.test(t.trim()))return;e.preventDefault();mOpen((q?q+'\n':'')+t)}
+function mMake(){
+  mRun();if(!mIds.length)return;
+  const name=$('manyN').value.trim()||'Playlist',by=$('manyB').value.trim();if(by)store.set('me',by);
+  const p={id:uid(),name,by,items:mIds.map(s=>({s}))};pls.unshift(p);savePls();
+  mdlg.close();mTxt='';mSel={};q='';tab='pls';cur=null;curPl=p.id;fromPl=null;render();scrollTo(0,0);
+  toast('Playlist made – '+nS(p.items.length));
+  tellDlg(p.id);   // straight to the WhatsApp share
+}
+
+/* ---------- tidy pasted words, the same way as the church toolkit ---------- */
+const capWords=s=>String(s).toLocaleLowerCase().replace(/(^|[\s"“‘(\[¡¿\/])('?)(\p{L})/gu,(m,a,q,b)=>a+q+b.toLocaleUpperCase());
+const LABEL=/^\s*[\[(<{]?\s*(verse|chorus|refrain|bridge|pre-?chorus|tag|ending|intro|outro|coda|interlude|instrumental|vamp|ubeti|kiitikio|korasi|kibwagizo|mstari)\s*\.?\s*\d*\s*[a-z]?\s*[\])>}]?\s*[:.\-]?\s*(x\s*\d+)?\s*$|^\s*[\[(]\s*[vcbpte]\s*\d*\s*[\])]\s*$|^\s*[vcbp]\d+\s*:?\s*$/i;
+const FOOT=/^\s*(ccli\b|©|\(c\)\s|copyright\b|for use solely|note: reproduction|all rights reserved|used by permission|licen[cs]e\s*(no|#|number)|songselect\b)/i;
+// Finds the stanzas in pasted or imported words:
+// - section names (Verse 2, Chorus, Kiitikio…) and hymn numbers ("2. ") start a new stanza
+// - words copied with an empty line after EVERY line (web pages, WhatsApp) are joined back:
+//   one empty line = next line, two or more empty lines = next stanza
+function markBreaks(t){
+  t=String(t||'').replace(/\r\n?/g,'\n').replace(/[  -​ 　﻿]/g,' ');
+  let L=t.split('\n').map(x=>x.trim());
+  const blocks=t.split(/\n[ \t]*\n/).map(b=>b.trim()).filter(Boolean);
+  const single=blocks.filter(b=>!b.includes('\n')).length;
+  if(blocks.length>=5&&single/blocks.length>=0.7){ // double-spaced: rebuild with real stanza breaks
+    const out=[];let empty=0;
+    for(const l of L){if(!l){empty++;continue}if(out.length&&empty>=2)out.push('');empty=0;out.push(l)}
+    L=out;
+  }
+  const out=[];
+  for(const l of L){
+    if(LABEL.test(l)){if(out.length&&out[out.length-1]!=='')out.push('');continue}
+    if(/^\d{1,2}[.)]\s*\p{L}/u.test(l)){if(out.length&&out[out.length-1]!=='')out.push('');out.push(l.replace(/^\d{1,2}[.)]\s*/,''));continue}
+    out.push(l);
+  }
+  return out.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+function tidyText(t){
+  t=markBreaks(t);
+  const out=[];
+  String(t).split(/\n\s*\n/).map(b=>b.split('\n').map(l=>l.trim()).filter(l=>l&&!/author\s*unknown/i.test(l)&&!FOOT.test(l)).map(capWords)).filter(st=>st.length).forEach(st=>{
+    if(st.length>8){const n=Math.floor(st.length/4);for(let i=0;i<n;i++)out.push(st.slice(i*4,i===n-1?st.length:i*4+4))}
+    else out.push(st);
+  });
+  return out.map(a=>a.join('\n')).join('\n\n');
+}
+const tidyTitle=t=>capWords(String(t).replace(/[\s_(\[-]*(by[\s_]+)?author[\s_]*unknown[\s_)\]]*/gi,' ').replace(/_+/g,' ').replace(/\s+/g,' ').trim());
+function fixLink(v){v=String(v||'').trim();if(!v)return '';if(!/^https?:\/\//i.test(v))v='https://'+v;try{const u=new URL(v);return /\./.test(u.hostname)?u.href:false}catch(e){return false}}
+function newSong(id,plId){
+  const m=id?mine.find(x=>x.i===id):null;
+  dlgForm(m?'Edit your song':'New song',[['t','Title',m?m.t:''],['x','Lyrics – paste them; they are tidied for you (capital letters, empty line between stanzas)',m?m.x:'','area'],['l','Practice link – YouTube etc. (optional)',m?m.l||'':'']],v=>{
+    v.t=tidyTitle(v.t);v.x=tidyText(v.x);
+    if(!v.t||!v.x){toast('Add the title and the lyrics.',1);return}
+    const l=fixLink(v.l);if(l===false){toast('The link does not look right.',1);return}
+    if(m){Object.assign(m,{t:v.t,x:v.x,l});saveMine();render();return}
+    const same=songs().find(s=>s.t.trim().toLowerCase()===v.t.trim().toLowerCase());
+    if(same){toast('“'+same.t+'” is already in the list – opening it.');openSong(same.i);return}
+    const s={i:'n_'+uid(),t:v.t,x:v.x,l,mine:1};mine.push(s);saveMine();
+    if(plId){const p=pls.find(x=>x.id===plId);p.items.push({s:s.i});p.sent=null;savePls();render();toast('Song added to '+p.name)}
+    else{openSong(s.i);toast('Song saved on this phone')}
+  });
+}
+function delMine(id){mine=mine.filter(x=>x.i!==id);pls.forEach(p=>p.items=p.items.filter(x=>x.s!==id));saveMine();savePls();cur=null;render()}
+function linkDlg(id){
+  const s=songById(id);
+  dlgForm('Practice link for “'+s.t+'”',[['l','YouTube, Spotify, Audiomack, SoundCloud or MP3 link',myLinks[id]||'']],v=>{
+    const l=fixLink(v.l);if(l===false){toast('The link does not look right.',1);return}
+    if(l)myLinks[id]=l;else delete myLinks[id];saveMine();render();if(l)play(id);
+  });
+}
+function dlgForm(title,fields,done){
+  const d=$('dlg');d.innerHTML='<h3 style="margin:0">'+esc(title)+'</h3>'+fields.map(([k,l,v,list])=>'<label>'+esc(l)+'</label>'+(list==='area'?'<textarea id="f_'+k+'" rows="9" style="width:100%;background:#0f1115;border:1px solid #363c48;border-radius:10px;padding:10px;color:inherit;font:inherit">'+esc(v)+'</textarea>':'<input id="f_'+k+'" value="'+esc(v)+'"'+(list?' list="dl_'+k+'"':'')+'>')+(Array.isArray(list)?'<datalist id="dl_'+k+'">'+list.map(x=>'<option value="'+esc(x)+'">').join('')+'</datalist>':'')).join('')+
+    '<div class="bar" style="margin-top:14px"><button class="pri" id="dOk">Save</button><button onclick="dlg.close()">Cancel</button></div>';
+  d.showModal();$('f_'+fields[0][0]).focus();
+  const ta=d.querySelector('textarea');if(ta)ta.addEventListener('paste',()=>setTimeout(()=>{ta.value=tidyText(ta.value)},0));
+  $('dOk').onclick=()=>{const v={};fields.forEach(([k])=>v[k]=$('f_'+k).value.trim());d.close();done(v)};
+}
+window.addEventListener('popstate',()=>{});
+if('serviceWorker' in navigator&&!DEMO&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+/* ---------- full screen ---------- */
+// Installed app: full screen comes from manifest.json ("display":"fullscreen"). In the browser: the first tap opens full screen, and the ⛶ button switches it on or off.
+const fsOK=()=>!!(document.fullscreenEnabled&&document.documentElement.requestFullscreen)&&!isStandalone();
+function goFull(){
+  try{
+    if(document.fullscreenElement){store.set('full',0);document.exitFullscreen()}
+    else{store.set('full',1);document.documentElement.requestFullscreen({navigationUI:'hide'}).catch(()=>{})}
+  }catch(e){}
+}
+function autoFull(){if(fsOK()&&!document.fullscreenElement&&store.get('full',1))try{document.documentElement.requestFullscreen({navigationUI:'hide'}).catch(()=>{})}catch(e){}}
+document.addEventListener('pointerdown',autoFull,{once:true});
+
+/* ---------- splash and the "install the app" popup ---------- */
+function hideSplash(){const s=$('splash');if(s&&!s.classList.contains('out')){s.classList.add('out');setTimeout(()=>s.remove(),700);setTimeout(maybeInstall,900)}}
+setTimeout(hideSplash,2200);
+if(LINK_NAME||store.get('cname_'+code,'')){const n=LINK_NAME||store.get('cname_'+code,'');document.title='Prepfix Team – '+n;}
+let installEvt=null;
+const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&'ontouchend' in document);
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;const b=$('instBtn');if(b)b.style.display='inline-block';if(!$('splash'))maybeInstall()});
+window.addEventListener('appinstalled',()=>{closeInstall();store.set('installed',1);toast('Prepfix Team is installed ✓ Find the icon on your home screen.')});
+function maybeInstall(force){
+  if(isStandalone()||DEMO)return;
+  const later=store.get('instLater',0);
+  if(!force&&later&&Date.now()-later<3*86400000)return;  // "Not now" waits 3 days
+  if(!force&&!installEvt&&!isIOS)return;                   // this browser cannot install
+  if($('inst'))return;
+  const d=document.createElement('div');d.className='inst';d.id='inst';
+  d.innerHTML='<div class="box"><img src="logo.jpg" alt="Prepfix"><h3>Install Prepfix Team</h3>'+
+    '<p>Put the app on your home screen. It opens full screen like any other app, keeps the songs on your phone and plays the practice songs inside the app.</p>'+
+    (installEvt?'<div class="bar"><button class="pri" onclick="doInstall()">📲 Install app</button><button onclick="installLater()">Not now</button></div>':
+     isIOS?'<ol><li>Tap the <b>Share</b> button <b>⎙</b> at the bottom of Safari.</li><li>Choose <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>.</li></ol><div class="bar"><button class="pri" onclick="installLater()">OK</button></div>':
+     '<ol><li>Tap the browser menu <b>⋮</b> (top right).</li><li>Choose <b>Install app</b> or <b>Add to Home screen</b>.</li></ol><div class="bar"><button class="pri" onclick="installLater()">OK</button></div>')+
+    '<div class="by">DESIGNED BY CYRUS IRERI 0720872582<small>irericyrus004@gmail.com</small></div></div>';
+  d.onclick=e=>{if(e.target===d)installLater()};
+  document.body.appendChild(d);
+}
+async function doInstall(){if(!installEvt)return;installEvt.prompt();const r=await installEvt.userChoice;installEvt=null;closeInstall();const b=$('instBtn');if(b)b.style.display='none';if(r.outcome!=='accepted')store.set('instLater',Date.now())}
+function installLater(){store.set('instLater',Date.now());closeInstall()}
+function closeInstall(){const d=$('inst');if(d)d.remove()}
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}
+render();if(code&&signedIn())load(!D);
+</script>
+</body></html>
