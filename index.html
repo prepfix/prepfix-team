@@ -151,13 +151,20 @@ function demoCall(b){
   if(b.action==='send')return {ok:1};
   if(b.action==='sentStatus')return {ok:1,waiting:false,seen:new Date().toISOString()};
 }
-async function load(first){
+let lastLoad=0;
+async function load(first,quiet){
   if(!code||!signedIn()){render();return}
-  busy=true;if(first)render();
+  if(busy)return;
+  busy=true;lastLoad=Date.now();if(first||!quiet)render();
+  const before=D&&D.updated;
   try{
-    const j=await call(ph?{action:'team',c:code,ph,did}:{action:'team',c:code,pin});
+    const since=D&&D.updated?{since:D.updated}:{}; // the service answers "same" when nothing changed (saves the team's data)
+    const j=await call(ph?{action:'team',c:code,ph,did,...since}:{action:'team',c:code,pin,...since});
+    if(j.same&&D){busy=false;if(!quiet)render();return}
     D={church:j.church,songs:j.songs||[],folders:j.folders||[],updated:j.updated};store.set('data_'+code,D);reconcile();store.set('code',code);store.set('pin',pin);
+    if(quiet&&before&&before!==j.updated)toast('✓ Songs updated from the church');
   }catch(e){
+    if(quiet&&e.message!=='signed-out'){busy=false;return} // a background check that fails (no internet) says nothing
     if(e.message==='signed-out'){signOut('You were signed out by your church\u2019s media team. Type your number and make a PIN to sign in again.')}
     else if(/pin|not found|suspend|no team/i.test(e.message)){if(/pin/i.test(e.message)){pin='';store.set('pin','');D=null}toast(e.message,1)}
     else if(!D)toast('No internet. Connect and try again.',1);
@@ -663,5 +670,13 @@ function installLater(){store.set('instLater',Date.now());closeInstall()}
 function closeInstall(){const d=$('inst');if(d)d.remove()}
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}
 render();if(code&&signedIn())load(!D);
+// NEW SONGS BY THEMSELVES: the app also checks when the member comes back to it, when the internet returns,
+// and every 2 minutes while it is on the screen - no need to close and reopen it
+const autoLoad=gap=>{if(document.visibilityState==='visible'&&code&&signedIn()&&D&&Date.now()-lastLoad>gap)load(false,true)};
+document.addEventListener('visibilitychange',()=>autoLoad(15000));
+addEventListener('focus',()=>autoLoad(15000));
+addEventListener('pageshow',()=>autoLoad(15000));
+addEventListener('online',()=>autoLoad(0));
+setInterval(()=>autoLoad(110000),30000);
 </script>
 </body></html>
