@@ -21,6 +21,7 @@ main{padding:12px 14px calc(120px + var(--cb));max-width:760px;margin:0 auto}
 .chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0 4px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
 .chips button{flex:0 0 auto;padding:5px 12px;font-size:14px;border-radius:20px}.chips button.on{background:#e0b24a;color:#16181d;font-weight:700}
 .row{display:flex;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid #22262e;cursor:pointer}
+.row{content-visibility:auto;contain-intrinsic-size:auto 50px}
 .row .n{flex:1;min-width:0}.row .n small{display:block;color:#8a90a0;font-size:12.5px}
 .hint{color:#8a90a0;font-size:13.5px}.gold{color:#e0b24a}
 .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
@@ -253,7 +254,7 @@ function go(t){tab=t;cur=null;curPl=null;fromPl=null;closePlayer(true);render();
 /* ---------- songs ---------- */
 function listHtml(){
   const fs=[...new Set([...(D.folders||[]),...songs().map(s=>s.f).filter(Boolean)])];
-  let h='<div class="bar" style="margin-top:0"><button class="pri" onclick="newSong()">+ New song</button><button onclick="mOpen()">🔎 Many songs</button><span class="hint">Not in the list? Add it with its lyrics and link.</span></div><input id="q" type="search" placeholder="Search '+songs().length+' songs or words…" value="'+esc(q)+'" oninput="q=this.value;renderList()" onpaste="mPaste(event)" onkeydown="if(event.key===\'Enter\'&&/[,;+]/.test(this.value))mOpen(this.value)">';
+  let h='<div class="bar" style="margin-top:0"><button class="pri" onclick="newSong()">+ New song</button><button onclick="mOpen()">🔎 Many songs</button><span class="hint">Not in the list? Add it with its lyrics and link.</span></div><input id="q" type="search" placeholder="Search '+songs().length+' songs or words…" value="'+esc(q)+'" oninput="q=this.value;clearTimeout(window.__qt);window.__qt=setTimeout(renderList,120)" onpaste="mPaste(event)" onkeydown="if(event.key===\'Enter\'&&/[,;+]/.test(this.value))mOpen(this.value)">';
   h+='<div class="chips"><button class="'+(!folder?'on':'')+'" onclick="folder=\'\';render()">All</button><button class="'+(folder==='🎧'?'on':'')+'" onclick="folder=\'🎧\';render()">🎧 With practice link</button>'+fs.map(f=>'<button class="'+(folder===f?'on':'')+'" onclick="folder=this.dataset.f;render()" data-f="'+esc(f)+'">📁 '+esc(f)+'</button>').join('')+'</div>'+filtHtml()+'<div id="list">'+listRows()+'</div>';
   return h;
 }
@@ -273,7 +274,7 @@ function setLang(l){lang=l;store.set('lang',l);render()}
 const bareT=s=>mBare(s.t);
 function pracHtml(){
   const n=songs().filter(s=>linksOf(s).length).length;
-  return '<p class="hint" style="margin:0 0 8px">Songs with a practice link. Open one and press play to listen as you learn.</p><input id="q" type="search" placeholder="Search '+n+' songs with links…" value="'+esc(q)+'" oninput="q=this.value;renderList()">'+filtHtml()+'<div id="list" style="margin-top:8px">'+listRows()+'</div>';
+  return '<p class="hint" style="margin:0 0 8px">Songs with a practice link. Open one and press play to listen as you learn.</p><input id="q" type="search" placeholder="Search '+n+' songs with links…" value="'+esc(q)+'" oninput="q=this.value;clearTimeout(window.__qt);window.__qt=setTimeout(renderList,120)">'+filtHtml()+'<div id="list" style="margin-top:8px">'+listRows()+'</div>';
 }
 function listRows(){
   const w=q.trim().toLowerCase();
@@ -282,7 +283,7 @@ function listRows(){
   r.sort((a,b)=>{const at=a.t.toLowerCase().includes(w),bt=b.t.toLowerCase().includes(w);return at===bt?by(a,b):at?-1:1});
   if(lang==='__alt'&&!w){const sw=r.filter(s=>s.lg==='Kiswahili'),ki=r.filter(s=>s.lg==='Kikuyu'),out=[];for(let i=0;i<Math.max(sw.length,ki.length);i++){if(sw[i])out.push(sw[i]);if(ki[i])out.push(ki[i])}r=out.concat(r.filter(s=>s.lg!=='Kiswahili'&&s.lg!=='Kikuyu'))}
   order=r.map(s=>s.i);
-  return r.slice(0,400).map(s=>'<div class="row" onclick="openSong(\''+s.i+'\')"><div class="n">'+esc(s.t)+(s.mine?' <span class="gold" style="font-size:12px">✎ new</span>':'')+(s.lg&&lang!==s.lg?'<span class="tag">'+esc(s.lg)+'</span>':'')+(s.g&&genre!==s.g?'<span class="tag">'+esc(s.g)+'</span>':'')+(s.f?'<small>📁 '+esc(s.f)+'</small>':'')+'</div>'+(linksOf(s).length?'<span title="Has a practice link">🎧'+(linksOf(s).length>1?' '+linksOf(s).length:'')+'</span>':'')+'</div>').join('')||'<p class="hint">'+(tab==='prac'?'No songs with practice links yet.':'No songs found.')+'</p>';
+  return r.map(s=>'<div class="row" onclick="openSong(\''+s.i+'\')"><div class="n">'+esc(s.t)+(s.mine?' <span class="gold" style="font-size:12px">✎ new</span>':'')+(s.lg&&lang!==s.lg?'<span class="tag">'+esc(s.lg)+'</span>':'')+(s.g&&genre!==s.g?'<span class="tag">'+esc(s.g)+'</span>':'')+(s.f?'<small>📁 '+esc(s.f)+'</small>':'')+'</div>'+(linksOf(s).length?'<span title="Has a practice link">🎧'+(linksOf(s).length>1?' '+linksOf(s).length:'')+'</span>':'')+'</div>').join('')||'<p class="hint">'+(tab==='prac'?'No songs with practice links yet.':'No songs found.')+'</p>';
 }
 function renderList(){const l=$('list');if(l)l.innerHTML=listRows()}
 let listY=0;
