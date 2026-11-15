@@ -156,13 +156,13 @@ async function load(first,quiet){
   if(!code||!signedIn()){render();return}
   if(busy)return;
   busy=true;lastLoad=Date.now();if(first||!quiet)render();
-  const before=D&&D.updated;
+  const before=D&&D.hash;
   try{
-    const since=D&&D.updated?{since:D.updated}:{}; // the service answers "same" when nothing changed (saves the team's data)
-    const j=await call(ph?{action:'team',c:code,ph,did,...since}:{action:'team',c:code,pin,...since});
+    const have=D&&D.hash?{have:D.hash}:{}; // the songs this phone already has: the service answers "same" (a tiny reply) when nothing changed - saves the team's data
+    const j=await call(ph?{action:'team',c:code,ph,did,...have}:{action:'team',c:code,pin,...have});
     if(j.same&&D){busy=false;if(!quiet)render();return}
-    D={church:j.church,songs:j.songs||[],folders:j.folders||[],updated:j.updated};store.set('data_'+code,D);reconcile();store.set('code',code);store.set('pin',pin);
-    if(quiet&&before&&before!==j.updated)toast('✓ Songs updated from the church');
+    D={church:j.church,songs:j.songs||[],folders:j.folders||[],updated:j.updated,hash:j.hash||''};store.set('data_'+code,D);reconcile();store.set('code',code);store.set('pin',pin);
+    if(quiet&&before&&before!==(j.hash||''))toast('✓ Songs updated from the church');
   }catch(e){
     if(quiet&&e.message!=='signed-out'){busy=false;return} // a background check that fails (no internet) says nothing
     if(e.message==='signed-out'){signOut('You were signed out by your church\u2019s media team. Type your number and make a PIN to sign in again.')}
