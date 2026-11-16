@@ -77,18 +77,22 @@ dialog label{display:block;font-size:13px;color:#8a90a0;margin:10px 0 4px}
 .sortl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0 2px;color:#8a90a0;font-size:15px}
 .sortl button{border-radius:999px;padding:7px 16px;background:transparent;color:#e0b24a;border:1px solid #3a4150;font-weight:700}
 .sortl button.on{background:#e0b24a;color:#16181d;border-color:#e0b24a}
+.fsel{display:flex;gap:6px;margin:4px 0 2px}.fsel select{flex:1 1 0;min-width:0;width:auto;padding:6px 6px;font-size:13px;border-radius:9px;background:#1d2026;color:#ece8e1;border:1px solid #3a4150;text-overflow:ellipsis}
+.fsel select.on{border-color:#e0b24a;color:#e0b24a;font-weight:700}
+.sortl{margin:4px 0 0!important;font-size:13px!important;gap:6px!important}.sortl button{padding:3px 11px!important;font-size:12.5px!important}
+.chips{padding:4px 0 2px!important}.chips.sm button{padding:3px 10px!important;font-size:13px!important}.jump{padding-top:3px!important}
 .jump{padding-top:6px}.jump button{font-weight:700;background:#1d2026}
 .grp{font-size:20px;font-weight:800;color:#e0b24a;margin:18px 4px 6px;scroll-margin-top:calc(var(--hh,120px) + 10px)}
-.sc{display:flex;align-items:center;gap:10px;background:#1d2026;border:1px solid #2c313a;border-radius:16px;padding:12px 12px 12px 4px;margin:0 0 9px;cursor:pointer;content-visibility:auto;contain-intrinsic-size:auto 76px;transition:border-color .15s,transform .1s}
+.sc{display:flex;align-items:center;gap:6px;background:#1d2026;border:1px solid #2c313a;border-radius:12px;padding:6px 8px 6px 2px;margin:0 0 5px;cursor:pointer;content-visibility:auto;contain-intrinsic-size:auto 50px;transition:border-color .15s,transform .1s}
 .sc:active{transform:scale(.99);border-color:#e0b24a88}
-.sc .no{flex:none;min-width:54px;text-align:center;font-weight:800;font-size:18px;color:#e0b24a}
+.sc .no{flex:none;min-width:44px;text-align:center;font-weight:800;font-size:15px;color:#e0b24a}
 .sc .w{flex:1;min-width:0}
-.sc .tt{font-weight:700;font-size:17px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sc .sub{color:#8a90a0;font-size:14px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc .tt{font-weight:700;font-size:16px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc .sub{color:#8a90a0;font-size:12.5px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sc .sub .nw{color:#e0b24a;font-weight:700}
 .sc .ly{color:#cfc8bb;font-size:13px;font-style:italic;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sc .pb{flex:none;width:60px;height:42px;padding:0;border-radius:999px;background:#e0b24a;color:#16181d;border:0;font-size:17px;box-shadow:0 0 12px #e0b24a33}
-.sc .pb.off{visibility:hidden}
+.sc .pb{flex:none;width:48px;height:34px;padding:0;border-radius:999px;background:#e0b24a;color:#16181d;border:0;font-size:17px;box-shadow:0 0 12px #e0b24a33}
+.sc .pb.off{display:none}
 mark{background:#e0b24a44;color:inherit;border-radius:3px;padding:0 1px}
 .nf{text-align:center;padding:18px 10px}.nf button{margin-top:8px}
 #dupHint{margin-top:6px}#dupHint .dh{padding:8px 10px;border-radius:10px;background:#2a2410;border-left:3px solid #e0b24a;font-size:13.5px;color:#e0b24a;font-weight:600}
@@ -246,6 +250,7 @@ function loginHtml(){
     '<input id="lp" type="password" inputmode="numeric" maxlength="4" placeholder="Make a PIN (4 numbers)" autocomplete="new-password">'+
     '<input id="lp2" type="password" inputmode="numeric" maxlength="4" placeholder="Type the PIN again" autocomplete="new-password" onkeydown="if(event.key===\'Enter\')login()">'+
     '<button class="pri" style="width:100%;margin-top:8px" onclick="login()"'+(busy?' disabled':'')+'>'+(busy?'Opening…':'Open songs')+'</button>'+
+    '<p class="hint" style="font-size:12px;margin-top:10px">🔒 Privacy: your name and number are used only so your church can open this app for you. They are never shared or sold.</p>'+
     (loginMsg?'<p style="color:#ff8a7e;font-weight:600">'+esc(loginMsg)+'</p>':'')+
     (isStandalone()||DEMO?'':'<button style="width:100%;margin-top:10px" onclick="maybeInstall(1)">📲 Install the app on this phone</button>')+
     '<p class="hint" style="margin-top:16px">One phone per number. Changing phones? Sign out on the old phone first (⎋ at the top).</p>'+
@@ -295,10 +300,13 @@ function filtHtml(fs){
   const all=songs(),lg=[...new Set(all.map(s=>s.lg).filter(Boolean))].sort((a,b)=>(LANGS.indexOf(a)+1||9)-(LANGS.indexOf(b)+1||9)||a.localeCompare(b)),gs=[...new Set(all.map(s=>s.g).filter(Boolean))].sort();
   if(lang==='__alt'||(lang&&!lg.includes(lang)))lang='';if(genre&&!gs.includes(genre))genre='';
   const c=(on,js,t)=>'<button class="'+(on?'on':'')+'" onclick="'+js+'">'+t+'</button>';
-  let h='';
-  if(lg.length)h+='<div class="chips sm">'+c(!lang,"setLang('')",'All')+lg.map(l=>c(lang===l,"setLang('"+l.replace(/'/g,'')+"')",esc(l))).join('')+'</div>';
-  if(gs.length)h+='<div class="chips sm">'+c(!genre,"genre='';render()",'🏷 All kinds')+gs.map(g=>'<button class="'+(genre===g?'on':'')+'" data-g="'+esc(g)+'" onclick="genre=this.dataset.g;render()">'+esc(g)+'</button>').join('')+'</div>';
-  if(fs&&tab==='songs')h+='<div class="chips sm">'+c(!folder,"folder='';render()",'📚 All songs')+c(folder==='🎧',"folder='🎧';render()",'🎧 With practice link')+fs.map(f=>'<button class="'+(folder===f?'on':'')+'" onclick="folder=this.dataset.f;render()" data-f="'+esc(f)+'">📁 '+esc(f)+'</button>').join('')+'</div>';
+  // language, kind and folder: three small drop-down boxes on one line (not rows of buttons)
+  const o=(v,cur,t)=>'<option value="'+esc(v)+'"'+(v===cur?' selected':'')+'>'+t+'</option>';
+  let h='<div class="fsel">';
+  if(lg.length)h+='<select class="'+(lang?'on':'')+'" aria-label="Language" onchange="setLang(this.value)">'+o('',lang,'🌐 All languages')+lg.map(l=>o(l,lang,esc(l))).join('')+'</select>';
+  if(gs.length)h+='<select class="'+(genre?'on':'')+'" aria-label="Kind" onchange="genre=this.value;render()">'+o('',genre,'🏷 All kinds')+gs.map(g=>o(g,genre,esc(g))).join('')+'</select>';
+  if(fs&&tab==='songs')h+='<select class="'+(folder?'on':'')+'" aria-label="Folder" onchange="folder=this.value;render()">'+o('',folder,'📚 All songs')+o('🎧',folder,'🎧 With practice link')+fs.map(f=>o(f,folder,'📁 '+esc(f))).join('')+'</select>';
+  h+='</div>';
   h+='<div class="sortl"><span id="cnt"></span><span>· sort:</span>'+c(sortM!=='az',"setSort('no')",'By number')+c(sortM==='az',"setSort('az')",'A–Z')+'</div><div class="chips sm jump" id="jump"></div>';
   return h;
 }
