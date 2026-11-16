@@ -65,6 +65,37 @@ dialog label{display:block;font-size:13px;color:#8a90a0;margin:10px 0 4px}
 #credit a{color:inherit;text-decoration:none}
 .foot{text-align:center;font-size:11px;font-weight:700;letter-spacing:.08em;color:#e0b24a99;margin-top:30px}
 
+/* SONG LIST: cards like Echoes of Worship; search, add and the ways to sort at the top */
+.srow{display:flex;gap:10px;align-items:stretch;margin:2px 0 10px}
+.srow input{flex:1;font-size:17px;padding:14px 16px;border-radius:16px;background:#1d2026;border-color:#2f3541}
+.addb{flex:none;min-width:86px;border-radius:18px;font-size:17px;line-height:1.15;padding:8px 12px}
+.addb b{display:block;font-size:24px;line-height:1}
+.tools2{display:flex;gap:8px;margin:0 0 6px}.tools2 button{flex:1;border-radius:14px;padding:11px 8px;color:#e0b24a;font-weight:700;background:transparent}
+.chips button{border-radius:999px;background:transparent;color:#e0b24a;border:1px solid #3a4150;font-weight:600}
+.chips button.on{background:#e0b24a;color:#16181d;border-color:#e0b24a}
+.chips.sm button{padding:6px 14px;font-size:14.5px}
+.sortl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0 2px;color:#8a90a0;font-size:15px}
+.sortl button{border-radius:999px;padding:7px 16px;background:transparent;color:#e0b24a;border:1px solid #3a4150;font-weight:700}
+.sortl button.on{background:#e0b24a;color:#16181d;border-color:#e0b24a}
+.jump{padding-top:6px}.jump button{font-weight:700;background:#1d2026}
+.grp{font-size:20px;font-weight:800;color:#e0b24a;margin:18px 4px 6px;scroll-margin-top:calc(var(--hh,120px) + 10px)}
+.sc{display:flex;align-items:center;gap:10px;background:#1d2026;border:1px solid #2c313a;border-radius:16px;padding:12px 12px 12px 4px;margin:0 0 9px;cursor:pointer;content-visibility:auto;contain-intrinsic-size:auto 76px;transition:border-color .15s,transform .1s}
+.sc:active{transform:scale(.99);border-color:#e0b24a88}
+.sc .no{flex:none;min-width:54px;text-align:center;font-weight:800;font-size:18px;color:#e0b24a}
+.sc .w{flex:1;min-width:0}
+.sc .tt{font-weight:700;font-size:17px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc .sub{color:#8a90a0;font-size:14px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc .sub .nw{color:#e0b24a;font-weight:700}
+.sc .ly{color:#cfc8bb;font-size:13px;font-style:italic;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc .pb{flex:none;width:60px;height:42px;padding:0;border-radius:999px;background:#e0b24a;color:#16181d;border:0;font-size:17px;box-shadow:0 0 12px #e0b24a33}
+.sc .pb.off{visibility:hidden}
+mark{background:#e0b24a44;color:inherit;border-radius:3px;padding:0 1px}
+.nf{text-align:center;padding:18px 10px}.nf button{margin-top:8px}
+#dupHint{margin-top:6px}#dupHint .dh{padding:8px 10px;border-radius:10px;background:#2a2410;border-left:3px solid #e0b24a;font-size:13.5px;color:#e0b24a;font-weight:600}
+#dupHint .dr{display:flex;gap:8px;align-items:center;padding:7px 10px;border-bottom:1px solid #22262e;cursor:pointer;font-size:14.5px}
+#dupHint .dr span{color:#e0b24a;font-weight:800;min-width:34px}
+#dupHint .dr small{color:#8a90a0;margin-left:auto}
+
 /* splash + install popup */
 #splash{position:fixed;inset:0;z-index:200;background:#16181d;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;transition:opacity .6s}
 #splash.out{opacity:0;pointer-events:none}
@@ -254,36 +285,56 @@ function go(t){tab=t;cur=null;curPl=null;fromPl=null;closePlayer(true);render();
 /* ---------- songs ---------- */
 function listHtml(){
   const fs=[...new Set([...(D.folders||[]),...songs().map(s=>s.f).filter(Boolean)])];
-  let h='<div class="bar" style="margin-top:0"><button class="pri" onclick="newSong()">+ New song</button><button onclick="mOpen()">🔎 Many songs</button><span class="hint">Not in the list? Add it with its lyrics and link.</span></div><input id="q" type="search" placeholder="Search '+songs().length+' songs or words…" value="'+esc(q)+'" oninput="q=this.value;clearTimeout(window.__qt);window.__qt=setTimeout(renderList,120)" onpaste="mPaste(event)" onkeydown="if(event.key===\'Enter\'&&/[,;+]/.test(this.value))mOpen(this.value)">';
-  h+='<div class="chips"><button class="'+(!folder?'on':'')+'" onclick="folder=\'\';render()">All</button><button class="'+(folder==='🎧'?'on':'')+'" onclick="folder=\'🎧\';render()">🎧 With practice link</button>'+fs.map(f=>'<button class="'+(folder===f?'on':'')+'" onclick="folder=this.dataset.f;render()" data-f="'+esc(f)+'">📁 '+esc(f)+'</button>').join('')+'</div>'+filtHtml()+'<div id="list">'+listRows()+'</div>';
+  let h='<div class="srow"><input id="q" type="search" enterkeyhint="search" placeholder="Search number, title or lyrics" value="'+esc(q)+'" oninput="q=this.value;clearTimeout(window.__qt);window.__qt=setTimeout(renderList,120)" onpaste="mPaste(event)" onkeydown="if(event.key===\'Enter\'&&/[,;+]/.test(this.value))mOpen(this.value)"><button class="pri addb" onclick="newSong(null,null,q)"><b>+</b>Add</button></div>';
+  h+='<div class="tools2"><button onclick="mOpen()">🔎 Many songs → playlist</button></div>';
+  h+=filtHtml(fs)+'<div id="list">'+listRows()+'</div>';
   return h;
 }
-// LANGUAGE and GENRE chips (set in the church toolkit) and the order of the list
-function filtHtml(){
+// LANGUAGE, GENRE, FOLDER and the ORDER of the list - all at the top
+function filtHtml(fs){
   const all=songs(),lg=[...new Set(all.map(s=>s.lg).filter(Boolean))].sort((a,b)=>(LANGS.indexOf(a)+1||9)-(LANGS.indexOf(b)+1||9)||a.localeCompare(b)),gs=[...new Set(all.map(s=>s.g).filter(Boolean))].sort();
-  if(lang&&lang!=='__alt'&&!lg.includes(lang))lang='';if(genre&&!gs.includes(genre))genre='';
-  const alt=lg.includes('Kiswahili')&&lg.includes('Kikuyu'),c=(on,js,t)=>'<button class="'+(on?'on':'')+'" onclick="'+js+'">'+t+'</button>';
+  if(lang==='__alt'||(lang&&!lg.includes(lang)))lang='';if(genre&&!gs.includes(genre))genre='';
+  const c=(on,js,t)=>'<button class="'+(on?'on':'')+'" onclick="'+js+'">'+t+'</button>';
   let h='';
-  if(lg.length)h+='<div class="chips sm">'+c(!lang,"setLang('')",'🌐 All languages')+lg.map(l=>c(lang===l,"setLang('"+l.replace(/'/g,'')+"')",esc(l)+' '+all.filter(s=>s.lg===l).length)).join('')+(alt?c(lang==='__alt',"setLang('__alt')",'⇄ Kiswahili · Kikuyu'):'')+'</div>';
-  h+='<div class="chips sm">'+(gs.length?c(!genre,"genre='';render()",'🏷 All')+gs.map(g=>'<button class="'+(genre===g?'on':'')+'" data-g="'+esc(g)+'" onclick="genre=this.dataset.g;render()">'+esc(g)+'</button>').join(''):'')+
-    c(false,"sortM=sortM==='az'?'no':'az';store.set('sort',sortM);render()",sortM==='az'?'↕ A–Z':'↕ By number')+'</div>';
-  if(lang==='__alt')h+='<p class="hint" style="margin:2px 0 0">Kiswahili, Kikuyu, Kiswahili, Kikuyu… one after the other. Next ⏭ follows this order.</p>';
+  if(lg.length)h+='<div class="chips sm">'+c(!lang,"setLang('')",'All')+lg.map(l=>c(lang===l,"setLang('"+l.replace(/'/g,'')+"')",esc(l))).join('')+'</div>';
+  if(gs.length)h+='<div class="chips sm">'+c(!genre,"genre='';render()",'🏷 All kinds')+gs.map(g=>'<button class="'+(genre===g?'on':'')+'" data-g="'+esc(g)+'" onclick="genre=this.dataset.g;render()">'+esc(g)+'</button>').join('')+'</div>';
+  if(fs&&tab==='songs')h+='<div class="chips sm">'+c(!folder,"folder='';render()",'📚 All songs')+c(folder==='🎧',"folder='🎧';render()",'🎧 With practice link')+fs.map(f=>'<button class="'+(folder===f?'on':'')+'" onclick="folder=this.dataset.f;render()" data-f="'+esc(f)+'">📁 '+esc(f)+'</button>').join('')+'</div>';
+  h+='<div class="sortl"><span id="cnt"></span><span>· sort:</span>'+c(sortM!=='az',"setSort('no')",'By number')+c(sortM==='az',"setSort('az')",'A–Z')+'</div><div class="chips sm jump" id="jump"></div>';
   return h;
 }
+function setSort(m){sortM=m;store.set('sort',m);render();scrollTo(0,0)}
 function setLang(l){lang=l;store.set('lang',l);render()}
 const bareT=s=>mBare(s.t);
 function pracHtml(){
   const n=songs().filter(s=>linksOf(s).length).length;
-  return '<p class="hint" style="margin:0 0 8px">Songs with a practice link. Open one and press play to listen as you learn.</p><input id="q" type="search" placeholder="Search '+n+' songs with links…" value="'+esc(q)+'" oninput="q=this.value;clearTimeout(window.__qt);window.__qt=setTimeout(renderList,120)">'+filtHtml()+'<div id="list" style="margin-top:8px">'+listRows()+'</div>';
+  return '<p class="hint" style="margin:0 0 8px">Songs with a practice link. Press ▶ to listen as you learn.</p><div class="srow"><input id="q" type="search" enterkeyhint="search" placeholder="Search '+n+' songs with links…" value="'+esc(q)+'" oninput="q=this.value;clearTimeout(window.__qt);window.__qt=setTimeout(renderList,120)"></div>'+filtHtml()+'<div id="list" style="margin-top:8px">'+listRows()+'</div>';
+}
+const hl=(t,w)=>{const e=esc(t);if(!w)return e;const k=e.toLowerCase().indexOf(esc(w).toLowerCase());return k<0?e:e.slice(0,k)+'<mark>'+e.slice(k,k+esc(w).length)+'</mark>'+e.slice(k+esc(w).length)};
+function card(s,w){
+  const no=mNo(s),L=linksOf(s).length,t=bareT(s)||s.t;
+  let ly='';if(w&&!s.t.toLowerCase().includes(w)){const ln=String(s.x||'').split('\n').find(x=>x.toLowerCase().includes(w));if(ln)ly='<div class="ly">… '+hl(ln.trim(),w)+'</div>'}
+  const sub=[s.lg,s.g,s.f?'📁 '+s.f:''].filter(Boolean).map(esc);if(s.mine)sub.unshift('<span class="nw">✎ new</span>');
+  return '<div class="sc" onclick="openSong(\''+s.i+'\')"><div class="no">'+(no?'#'+no:'♪')+'</div><div class="w"><div class="tt">'+hl(t,w)+'</div>'+(sub.length?'<div class="sub">'+sub.join(' · ')+'</div>':'')+ly+'</div>'+
+    '<button class="pb'+(L?'':' off')+'" '+(L?'onclick="event.stopPropagation();play(\''+s.i+'\')" title="Play the practice song"':'tabindex="-1" aria-hidden="true"')+'>▶</button></div>';
+}
+function grpKey(s){
+  if(sortM==='az'){const c=(bareT(s).trim()[0]||'#').toUpperCase(),b=c.normalize('NFD')[0];return /[A-Z]/.test(b)?b:(/\p{L}/u.test(c)?c:'#')}
+  const n=mNo(s);if(!n)return 'More songs';const lo=Math.floor((n-1)/50)*50+1;return lo+'–'+(lo+49);
 }
 function listRows(){
-  const w=q.trim().toLowerCase();
-  let r=songs().filter(s=>(tab==='prac'?linksOf(s).length>0:(!folder||(folder==='🎧'?s.l:s.f===folder)))&&(!lang||lang==='__alt'||s.lg===lang)&&(!genre||s.g===genre)&&(!w||s.t.toLowerCase().includes(w)||String(s.x).toLowerCase().includes(w)));
+  const w=q.trim().toLowerCase(),wn=w.replace(/^#/,'');
+  let r=songs().filter(s=>(tab==='prac'?linksOf(s).length>0:(!folder||(folder==='🎧'?linksOf(s).length:s.f===folder)))&&(!lang||lang==='__alt'||s.lg===lang)&&(!genre||s.g===genre)&&(!w||(/^\d+$/.test(wn)&&String(mNo(s))===wn)||s.t.toLowerCase().includes(w)||String(s.x).toLowerCase().includes(w)));
   const by=sortM==='az'?(a,b)=>bareT(a).localeCompare(bareT(b),undefined,{sensitivity:'base'}):mByT;
-  r.sort((a,b)=>{const at=a.t.toLowerCase().includes(w),bt=b.t.toLowerCase().includes(w);return at===bt?by(a,b):at?-1:1});
+  r.sort((a,b)=>{if(/^\d+$/.test(wn)){const ax=String(mNo(a))===wn,bx=String(mNo(b))===wn;if(ax!==bx)return ax?-1:1}const at=a.t.toLowerCase().includes(w),bt=b.t.toLowerCase().includes(w);return at===bt?by(a,b):at?-1:1});
   if(lang==='__alt'&&!w){const sw=r.filter(s=>s.lg==='Kiswahili'),ki=r.filter(s=>s.lg==='Kikuyu'),out=[];for(let i=0;i<Math.max(sw.length,ki.length);i++){if(sw[i])out.push(sw[i]);if(ki[i])out.push(ki[i])}r=out.concat(r.filter(s=>s.lg!=='Kiswahili'&&s.lg!=='Kikuyu'))}
   order=r.map(s=>s.i);
-  return r.map(s=>'<div class="row" onclick="openSong(\''+s.i+'\')"><div class="n">'+esc(s.t)+(s.mine?' <span class="gold" style="font-size:12px">✎ new</span>':'')+(s.lg&&lang!==s.lg?'<span class="tag">'+esc(s.lg)+'</span>':'')+(s.g&&genre!==s.g?'<span class="tag">'+esc(s.g)+'</span>':'')+(s.f?'<small>📁 '+esc(s.f)+'</small>':'')+'</div>'+(linksOf(s).length?'<span title="Has a practice link">🎧'+(linksOf(s).length>1?' '+linksOf(s).length:'')+'</span>':'')+'</div>').join('')||'<p class="hint">'+(tab==='prac'?'No songs with practice links yet.':'No songs found.')+'</p>';
+  setTimeout(()=>{const c=$('cnt');if(c)c.textContent=(w?'Found ':tab==='prac'?'With links ':'All songs ')+'('+r.length+')'},0);
+  let h='',keys=[];
+  if(!w&&lang!=='__alt'&&r.length>12){let last=null;r.forEach(s=>{const k=grpKey(s);if(k!==last){last=k;keys.push(k);h+='<div class="grp" id="g_'+keys.length+'">'+esc(k)+'</div>'}h+=card(s,'')})}
+  else h=r.map(s=>card(s,w)).join('');
+  setTimeout(()=>{const j=$('jump');if(j)j.innerHTML=keys.length>1?keys.map((k,i)=>'<button onclick="$(\'g_'+(i+1)+'\').scrollIntoView({behavior:\'smooth\'})">'+esc(k)+'</button>').join(''):''},0);
+  if(!r.length)h=tab==='prac'?'<p class="hint nf">No songs with practice links yet.</p>':'<div class="nf"><p class="hint" style="margin:0">'+(w?'No song has “'+esc(q.trim())+'”.':'No songs here yet.')+'</p>'+(w&&!/^\d+$/.test(wn)?'<button class="pri" onclick="newSong(null,null,q)">+ Add “'+esc(q.trim())+'” as a new song</button>':'')+'</div>';
+  return h;
 }
 function renderList(){const l=$('list');if(l)l.innerHTML=listRows()}
 let listY=0;
@@ -696,9 +747,11 @@ function tidyText(t){
 }
 const tidyTitle=t=>capWords(String(t).replace(/[\s_(\[-]*(by[\s_]+)?author[\s_]*unknown[\s_)\]]*/gi,' ').replace(/_+/g,' ').replace(/\s+/g,' ').trim());
 function fixLink(v){v=String(v||'').trim();if(!v)return '';if(!/^https?:\/\//i.test(v))v='https://'+v;try{const u=new URL(v);return /\./.test(u.hostname)?u.href:false}catch(e){return false}}
-function newSong(id,plId){
+function newSong(id,plId,pre){
   const m=id?mine.find(x=>x.i===id):null;
-  dlgForm(m?'Edit your song':'New song',[['t','Title',m?m.t:''],['x','Lyrics – paste them; they are tidied for you (capital letters, empty line between stanzas)',m?m.x:'','area'],['l','Practice link – YouTube etc. (optional)',m?m.l||'':'']],v=>{
+  pre=String(pre||'').trim();if(/^#?\d+$/.test(pre)||/[,;+\n]/.test(pre))pre='';
+  setTimeout(()=>{if(!m)dupWatch()},0);
+  dlgForm(m?'Edit your song':'New song',[['t','Title',m?m.t:pre],['x','Lyrics – paste them; they are tidied for you (capital letters, empty line between stanzas)',m?m.x:'','area'],['l','Practice link – YouTube etc. (optional)',m?m.l||'':'']],v=>{
     v.t=tidyTitle(v.t);v.x=tidyText(v.x);
     if(!v.t||!v.x){toast('Add the title and the lyrics.',1);return}
     const l=fixLink(v.l);if(l===false){toast('The link does not look right.',1);return}
@@ -711,6 +764,21 @@ function newSong(id,plId){
     if(plId){const p=pls.find(x=>x.id===plId);p.items.push({s:s.i});p.sent=null;savePls();render();toast('Song added to '+p.name)}
     else{openSong(s.i);toast('Song saved on this phone')}
   });
+}
+// ADDING A SONG: while the member types the title (or pastes the lyrics), the songs already in the app show at once
+function dupWatch(){
+  const t=$('f_t'),x=$('f_x');if(!t||$('dupHint'))return;
+  const box=document.createElement('div');box.id='dupHint';t.insertAdjacentElement('afterend',box);
+  const run=()=>{
+    const w=t.value.trim().toLowerCase(),words=mNorm(w).trim().split(' ').filter(z=>z.length>2);
+    let hits=[];
+    if(w.length>=3)hits=songs().filter(s=>{const tt=mNorm(s.t);return tt.includes(' '+mNorm(w).trim()+' ')||s.t.toLowerCase().includes(w)||(words.length>1&&words.every(z=>tt.includes(z)))}).sort(mByT).slice(0,6);
+    const sr=x&&x.value.trim()?findSimilar(x.value):null,sim=sr?songById(sr.i):null;if(sim&&!hits.includes(sim))hits.unshift(sim);
+    box.innerHTML=hits.length?'<div class="dh">Already in the app – tap one to open it instead of adding it again:</div>'+hits.map(s=>'<div class="dr" onclick="$(\'dlg\').close();openSong(\''+s.i+'\')"><span>'+(mNo(s)?'#'+mNo(s):'♪')+'</span>'+esc(bareT(s)||s.t)+(s===sim?'<small>same words</small>':s.lg?'<small>'+esc(s.lg)+'</small>':'')+'</div>').join(''):(w.length>=3?'<div class="hint" style="padding:4px 2px">✓ No song with this title yet.</div>':'');
+  };
+  t.addEventListener('input',()=>{clearTimeout(window.__dw);window.__dw=setTimeout(run,150)});
+  if(x)x.addEventListener('input',()=>{clearTimeout(window.__dw);window.__dw=setTimeout(run,400)});
+  run();
 }
 function delMine(id){mine=mine.filter(x=>x.i!==id);pls.forEach(p=>p.items=p.items.filter(x=>x.s!==id));saveMine();savePls();cur=null;render()}
 function linkDlg(id){
