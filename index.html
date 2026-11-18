@@ -16,10 +16,10 @@ input,select{background:#0f1115;border:1px solid #363c48;border-radius:10px;padd
 header{position:sticky;top:0;z-index:20;background:#16181dee;backdrop-filter:blur(8px);padding:calc(env(safe-area-inset-top) + 10px) 14px 8px;border-bottom:1px solid #262b34}
 .hd{display:flex;align-items:center;gap:10px}.hd img{height:30px;border-radius:6px}
 .hd .t{flex:1;min-width:0}.hd .t b{display:block;font-size:15px;letter-spacing:.03em}.hd .t span{display:block;font-size:12px;color:#e0b24a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hd img.gicon{height:44px;width:44px;border-radius:50%;flex:0 0 auto;animation:iconGlow 2.2s ease-in-out infinite}
-@keyframes iconGlow{0%,100%{filter:drop-shadow(0 0 3px #4da3ff) drop-shadow(0 0 7px rgba(224,178,74,.7))}50%{filter:drop-shadow(0 0 7px #7cc0ff) drop-shadow(0 0 16px #e0b24a)}}
+.hd img.gicon{height:58px;width:58px;border-radius:50%;flex:0 0 auto;animation:iconGlow 2.2s ease-in-out infinite}
+@keyframes iconGlow{0%,100%{filter:drop-shadow(0 0 4px #4da3ff) drop-shadow(0 0 10px rgba(224,178,74,.8))}50%{filter:drop-shadow(0 0 10px #7cc0ff) drop-shadow(0 0 22px #e0b24a)}}
 @media(prefers-reduced-motion:reduce){.hd img.gicon{animation:none;filter:drop-shadow(0 0 6px #e0b24a)}}
-.hd .t span.cn{font-size:15px;font-weight:800;line-height:1.2;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
+.hd .t span.cn{font-size:19px;font-weight:900;letter-spacing:.04em;color:#ffd86b;line-height:1.2;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
 .hd .t span.cn+b{font-size:11.5px;letter-spacing:.16em;color:#c8ccd4;margin-top:1px}
 .tabs{display:flex;gap:6px;margin-top:9px}.tabs button{flex:1;padding:8px 3px;font-size:13px}.tabs button.on{background:#e0b24a;color:#16181d;border-color:#e0b24a;font-weight:700}
 main{padding:12px 14px calc(120px + var(--cb));max-width:760px;margin:0 auto}
@@ -72,7 +72,9 @@ body.pracOn main{padding-bottom:calc(120px + var(--cb))}
 .nav2 button{flex:1}
 dialog{background:#1d2026;color:#ece8e1;border:1px solid #363c48;border-radius:14px;width:min(92vw,420px)}dialog::backdrop{background:#000a}
 dialog label{display:block;font-size:13px;color:#8a90a0;margin:10px 0 4px}
-#credit{position:fixed;left:0;right:0;bottom:0;z-index:60;height:calc(var(--cb) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;align-items:center;justify-content:center;background:#12151b;border-top:1px solid #262b34;font-size:11px;font-weight:700;letter-spacing:.08em;color:#e0b24a;white-space:nowrap}
+#credit{position:fixed;left:0;right:0;bottom:0;z-index:60;height:calc(var(--cb) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;align-items:center;justify-content:center;background:#12151b;border-top:1px solid #262b34;font-size:12px;font-weight:800;letter-spacing:.08em;color:#4da3ff;white-space:nowrap;animation:byGlow 3.2s ease-in-out infinite}
+@keyframes byGlow{0%,100%{text-shadow:0 0 3px rgba(77,163,255,.45),0 0 8px rgba(77,163,255,.25)}50%{text-shadow:0 0 6px rgba(77,163,255,.9),0 0 16px rgba(77,163,255,.55)}}
+@media(prefers-reduced-motion:reduce){#credit{animation:none}}
 #credit a{color:inherit;text-decoration:none}
 .foot{text-align:center;font-size:11px;font-weight:700;letter-spacing:.08em;color:#e0b24a99;margin-top:30px}
 
@@ -118,7 +120,7 @@ mark{background:#e0b24a44;color:inherit;border-radius:3px;padding:0 1px}
 #splash.out{opacity:0;pointer-events:none}
 #splash img,.inst img{width:260px;max-width:72vw;border-radius:14px;background:#fff;padding:10px}
 #splash .st{margin-top:16px;font-weight:800;letter-spacing:.12em;color:#ece8e1}
-#splash .by,.inst .by{margin-top:18px;font-size:12px;font-weight:700;letter-spacing:.08em;color:#e0b24a}
+#splash .by,.inst .by{margin-top:18px;font-size:12px;font-weight:700;letter-spacing:.08em;color:#4da3ff}
 #splash .by small,.inst .by small{display:block;color:#8a90a0;font-weight:500;letter-spacing:0;margin-top:3px}
 .inst{position:fixed;inset:0;z-index:150;background:#000b;display:flex;align-items:flex-end;justify-content:center}
 .inst .box{background:#1d2026;border:1px solid #363c48;border-radius:18px 18px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));width:min(100%,460px);text-align:center;animation:up .35s ease}
@@ -145,13 +147,14 @@ mark{background:#e0b24a44;color:inherit;border-radius:3px;padding:0 1px}
 @keyframes glowTxt{0%,100%{text-shadow:0 0 6px #e0b24a88,0 0 14px #e0b24a44}50%{text-shadow:0 0 12px #e0b24a,0 0 28px #e0b24acc,0 0 46px #e0b24a77}}
 #splash img{animation:glowBox 2.2s ease-in-out infinite}
 #splash .ch{margin-top:8px;font-weight:800;font-size:17px;letter-spacing:.1em;color:#e0b24a;animation:glowTxt 2.2s ease-in-out infinite}
-#splash .by{position:absolute;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));margin:0;padding:0 12px;animation:glowTxt 2.2s ease-in-out infinite}
+#splash .by,.inst .by{animation:byGlow 3.2s ease-in-out infinite}
+#splash .by{position:absolute;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));margin:0;padding:0 12px}
 </style></head><body>
-<div id="splash" onclick="hideSplash();autoFull()"><img src="logo.jpg" alt="Prepfix"><div class="st">PREPFIX TEAM</div><div class="ch" id="spCh"></div><div class="by">DEVELOPED BY CYRUS IRERI 0720872582</div></div>
+<div id="splash" onclick="hideSplash();autoFull()"><img src="logo.jpg" alt="Prepfix"><div class="st">PREPFIX TEAM</div><div class="ch" id="spCh"></div><div class="by">DEVELOPED BY CYRUS IRERI</div></div>
 <div id="app"></div>
 <dialog id="dlg"></dialog>
 <dialog id="mdlg"></dialog>
-<div id="credit">DEVELOPED BY CYRUS IRERI&nbsp;<a href="tel:0720872582">0720872582</a></div>
+<div id="credit">DEVELOPED BY CYRUS IRERI</div>
 <script>
 /* PREPFIX TEAM - the praise and worship team's app.
    Shows the church's songs (lyrics + practice link) from the Prepfix Church Media Toolkit,
@@ -249,7 +252,7 @@ const stanzas=t=>String(t||'').split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean)
 function render(){
   const a=$('app');
   if(!code||!signedIn()||!D){a.innerHTML=loginHtml();return}
-  let h='<header><div class="hd"><img class="gicon" src="badge.png" alt="" onerror="this.onerror=null;this.src=\'logo.jpg\'"><div class="t"><span class="cn">'+esc(D.church||churchName())+'</span><b>TEAM APP</b></div>'+(fsOK()?'<button onclick="goFull()" title="Full screen">⛶</button>':'')+(isStandalone()||DEMO?'':'<button id="instBtn" onclick="maybeInstall(1)" title="Install the app" style="display:inline-block">📲 Install</button>')+'<button onclick="load()" title="Get the newest songs"'+(busy?' disabled':'')+'>'+(busy?'…':'↻')+'</button>'+(ph?'<button onclick="outDlg()" title="Sign out">⎋</button>':'')+'</div>'+
+  let h='<header><div class="hd"><img class="gicon" src="badge.png" alt="" onerror="this.onerror=null;this.src=\'logo.jpg\'"><div class="t"><span class="cn">'+esc(D.church||churchName()||"F.G.C.K MURANG'A L.C.A")+'</span><b>TEAM APP</b></div>'+(fsOK()?'<button onclick="goFull()" title="Full screen">⛶</button>':'')+(isStandalone()||DEMO?'':'<button id="instBtn" onclick="maybeInstall(1)" title="Install the app" style="display:inline-block">📲 Install</button>')+'<button onclick="load()" title="Get the newest songs"'+(busy?' disabled':'')+'>'+(busy?'…':'↻')+'</button>'+(ph?'<button onclick="outDlg()" title="Sign out">⎋</button>':'')+'</div>'+
     '<div class="tabs"><button class="'+(tab==='songs'?'on':'')+'" onclick="go(\'songs\')">🎵 Songs ('+songs().length+')</button><button class="'+(tab==='prac'?'on':'')+'" onclick="go(\'prac\')">🎧 Practice ('+songs().filter(s=>linksOf(s).length).length+')</button><button class="'+(tab==='pls'?'on':'')+'" onclick="go(\'pls\')">📋 Playlists ('+pls.length+')</button></div></header><main>';
   if(cur)h+=songHtml();else if(curPl)h+=plHtml();else if(tab==='songs')h+=listHtml();else if(tab==='prac')h+=pracHtml();else h+=plsHtml();
   h+='</main>';
@@ -988,7 +991,7 @@ function maybeInstall(force){
     (installEvt?'<div class="bar"><button class="pri" onclick="doInstall()">📲 Install app</button><button onclick="installLater()">Not now</button></div>':
      isIOS?'<ol><li>Tap the <b>Share</b> button <b>⎙</b> at the bottom of Safari.</li><li>Choose <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>.</li></ol><div class="bar"><button class="pri" onclick="installLater()">OK</button></div>':
      '<ol><li>Tap the browser menu <b>⋮</b> (top right) in <b>Chrome</b>.</li><li>Choose <b>Install app</b> or <b>Add to Home screen</b>, then <b>Install</b>.</li></ol><p style="font-size:13px">If the menu says <b>Open app</b> instead, the Team App is already on this phone: open it from your home screen. Not in Chrome? Open this link in Chrome first.</p><div class="bar"><button class="pri" onclick="installLater()">OK</button></div>')+
-    '<div class="by">DEVELOPED BY CYRUS IRERI 0720872582</div></div>';
+    '<div class="by">DEVELOPED BY CYRUS IRERI</div></div>';
   d.onclick=e=>{if(e.target===d)installLater()};
   document.body.appendChild(d);
 }
