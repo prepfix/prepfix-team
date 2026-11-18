@@ -40,6 +40,9 @@ h2{margin:6px 0 4px;font-size:22px;line-height:1.25}
 .stz{background:#1d2026;border:1px solid #2c313a;border-radius:12px;padding:10px 14px;margin:10px 0}
 .stz h3{margin:0 0 5px;font-size:18px;color:#2f8fff;font-weight:900;letter-spacing:.04em;text-transform:uppercase;text-shadow:0 0 .6px #2f8fff}
 .stz p{margin:0;font-size:19px;line-height:1.55}
+.stz.chs{border-color:#e0b24a;background:#221f17}.stz.chs h3{color:#ffc93c;text-shadow:0 0 .6px #ffc93c}
+#chPick{margin:4px 0 2px}#chPick .cp{padding:9px 12px;margin:5px 0;border:1px solid #363c48;border-radius:10px;background:#0f1115;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+#chPick .cp.on{border-color:#e0b24a;background:#2a2412;color:#ffc93c;font-weight:800}
 .chips.sm button{padding:4px 10px;font-size:13px}.tag{display:inline-block;margin-left:6px;padding:0 7px;border-radius:9px;background:#262b34;color:#aab0bd;font-size:11.5px;font-weight:600;vertical-align:1px}
 .yt{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;width:100%;height:100%;padding:8px;text-align:center;color:#fff;background:#c4302b;font-weight:700;font-size:15px;text-decoration:none;line-height:1.3}
 .yt small{font-weight:500;font-size:12px;opacity:.9}#prac .pmsg{padding:5px 12px;font-size:12.5px;color:#e0b24a;background:#1c2028}#prac .pmsg a{color:#ff8a7e;font-weight:700}
@@ -72,6 +75,11 @@ body.pracOn main{padding-bottom:calc(120px + var(--cb))}
 .nav2 button{flex:1}
 dialog{background:#1d2026;color:#ece8e1;border:1px solid #363c48;border-radius:14px;width:min(92vw,420px)}dialog::backdrop{background:#000a}
 dialog label{display:block;font-size:13px;color:#8a90a0;margin:10px 0 4px}
+dialog.full[open]{display:block;width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;border:0;border-radius:0;overflow-y:auto;padding:calc(env(safe-area-inset-top) + 12px) 14px 0}
+dialog.full textarea{height:46vh!important;min-height:220px;font-size:17px;line-height:1.5}
+dialog.full .bar{position:sticky;bottom:0;background:#1d2026;margin:14px 0 0!important;padding:10px 0 calc(env(safe-area-inset-bottom) + 10px);border-top:1px solid #2c313a;z-index:2}
+dialog.full .bar button{flex:1;padding:13px}
+.who{margin:8px 0 2px;padding:9px 12px;border:1px solid #2a4a78;border-radius:10px;background:#0f1a2b;color:#8a90a0;font-size:13px}.who b{color:#2f8fff;font-size:15px;font-weight:900}
 #credit{position:fixed;left:0;right:0;bottom:0;z-index:60;height:calc(var(--cb) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;align-items:center;justify-content:center;background:#12151b;border-top:1px solid #262b34;font-size:12px;font-weight:800;letter-spacing:.08em;color:#4da3ff;white-space:nowrap;animation:byGlow 3.2s ease-in-out infinite}
 @keyframes byGlow{0%,100%{text-shadow:0 0 3px rgba(77,163,255,.45),0 0 8px rgba(77,163,255,.25)}50%{text-shadow:0 0 6px rgba(77,163,255,.9),0 0 16px rgba(77,163,255,.55)}}
 @media(prefers-reduced-motion:reduce){#credit{animation:none}}
@@ -235,7 +243,7 @@ let mine=store.get('mine_'+code,[]),myLinks=store.get('links_'+code,{});
 const saveMine=()=>{store.set('mine_'+code,mine);store.set('links_'+code,myLinks)};
 let edits=store.get('edits_'+code,{});   // changes made on this phone to the church's songs: {songId:{t,x,by,at}}
 const saveEdits=()=>store.set('edits_'+code,edits);
-const songs=()=>[...((D&&D.songs)||[]).map(s=>{let r=!s.l&&myLinks[s.i]?{...s,l:myLinks[s.i],ml:1}:s;const e=edits[s.i];if(e)r={...r,t:e.t,x:e.x,h:e.h||[{by:e.by,at:e.at}],orig:{t:s.t,x:s.x}};return r}),...mine.map(m=>m.h||!m.eb?m:{...m,h:[{by:m.eb,at:m.ea}]})];
+const songs=()=>[...((D&&D.songs)||[]).map(s=>{let r=!s.l&&myLinks[s.i]?{...s,l:myLinks[s.i],ml:1}:s;const e=edits[s.i];if(e)r={...r,t:e.t,x:e.x,c:e.c==null?null:e.c,h:e.h||[{by:e.by,at:e.at}],orig:{t:s.t,x:s.x,c:s.c==null?null:s.c}};return r}),...mine.map(m=>m.h||!m.eb?m:{...m,h:[{by:m.eb,at:m.ea}]})];
 // once the church toolkit has added a member's new song, use the church's copy
 function reconcile(){
   const by={};(D.songs||[]).forEach(s=>by[s.t.trim().toLowerCase()]=s);
@@ -395,7 +403,7 @@ function songHtml(){
      (!s.l?'<button onclick="linkDlg(\''+s.i+'\')">🎧 Add practice link</button>':s.ml?'<button onclick="linkDlg(\''+s.i+'\')">✎ Your link</button>':''))+'</div>'+
     (s.h&&s.h.length?'<p class="hint" style="margin:2px 0 0">✏️ Last edited by <b style="color:#2f8fff">'+esc(s.h[0].by)+'</b> · '+esc(fmtAt(s.h[0].at))+(s.h[1]?'<br>Before that: <b style="color:#2f8fff">'+esc(s.h[1].by)+'</b> · '+esc(fmtAt(s.h[1].at)):'')+'</p>':'')+
     (s.ml?'<p class="hint" style="margin:0">🎧 You added this link – it goes to the church toolkit with your playlist.</p>':'');
-  h+='<div>'+stanzas(s.x).map((st,i)=>'<div class="stz"><h3>Stanza '+(i+1)+'</h3><p style="font-size:'+fsz+'px">'+esc(st).replace(/\n/g,'<br>')+'</p></div>').join('')+'</div>';
+  h+='<div>'+stanzas(s.x).map((st,i)=>'<div class="stz'+(i===s.c?' chs':'')+'"><h3>'+(i===s.c?'Chorus':'Stanza')+'</h3><p style="font-size:'+fsz+'px">'+esc(st).replace(/\n/g,'<br>')+'</p></div>').join('')+'</div>';
   if(fromPl){const p=pls.find(x=>x.id===fromPl);if(p){const ids=p.items.filter(x=>x.s).map(x=>x.s),k=ids.indexOf(s.i);
     h+='<div class="nav2"><button '+(k>0?'':'disabled')+' onclick="openSong(\''+ids[k-1]+'\',\''+p.id+'\');autoPlay()">⏮ Previous song</button><button class="pri" '+(k>=0&&k<ids.length-1?'':'disabled')+' onclick="openSong(\''+ids[k+1]+'\',\''+p.id+'\');autoPlay()">Next song ⏭</button></div>'}}
   else{const k=order.indexOf(s.i); // Previous / Next follow the list exactly as it was shown (search, language, genre, order)
@@ -407,7 +415,7 @@ function setFs(d){fsz=Math.min(40,Math.max(13,fsz+d));store.set('fsz',fsz);docum
 // SHARE a song: words + practice links + a link that opens this song in the team app
 function songUrl(s){return location.origin+location.pathname+'?church='+encodeURIComponent(RAW||code)+'#s-'+s.i}
 async function shareSong(){const s=songById(cur);if(!s)return;
-  const L=linksOf(s),text=s.t+'\n\n'+stanzas(s.x).join('\n\n')+(L.length?'\n\n🎧 '+L.map(l=>(l.n?l.n+': ':'')+l.u).join('\n🎧 '):'')+'\n\n📲 Open it in the Team App: '+songUrl(s);
+  const L=linksOf(s),text=s.t+'\n\n'+stanzas(s.x).map((st,i)=>(i===s.c?'Chorus:\n':'')+st).join('\n\n')+(L.length?'\n\n🎧 '+L.map(l=>(l.n?l.n+': ':'')+l.u).join('\n🎧 '):'')+'\n\n📲 Open it in the Team App: '+songUrl(s);
   try{if(navigator.share){await navigator.share({title:s.t,text});return}}catch(e){if(e&&e.name==='AbortError')return}
   open('https://wa.me/?text='+encodeURIComponent(text),'_blank')}
 function autoPlay(){if(document.getElementById('prac')){const s=songById(cur);if(s&&s.l)play(s.i);else closePlayer()}}
@@ -890,22 +898,24 @@ function tidyText(t){
 const tidyTitle=t=>capWords(String(t).replace(/[\s_(\[-]*(by[\s_]+)?author[\s_]*unknown[\s_)\]]*/gi,' ').replace(/_+/g,' ').replace(/\s+/g,' ').trim());
 function fixLink(v){v=String(v||'').trim();if(!v)return '';if(!/^https?:\/\//i.test(v))v='https://'+v;try{const u=new URL(v);return /\./.test(u.hostname)?u.href:false}catch(e){return false}}
 function newSong(id,plId,pre){
-  const m=id?mine.find(x=>x.i===id):null;
+  const m=id?mine.find(x=>x.i===id):null;let getC=()=>null;
+  if(m&&!regName()){withEditor(()=>newSong(id,plId,pre));return}
   pre=String(pre||'').trim();if(/^#?\d+$/.test(pre)||/[,;+\n]/.test(pre))pre='';
   setTimeout(()=>{if(!m)dupWatch()},0);
   dlgForm(m?'Edit your song':'New song',[['t','Title',m?m.t:pre],['x','Lyrics – paste them; they are tidied for you (capital letters, empty line between stanzas)',m?m.x:'','area'],['l','Practice link – YouTube etc. (optional)',m?m.l||'':'']],v=>{
-    v.t=tidyTitle(v.t);v.x=tidyText(v.x);
+    v.t=tidyTitle(v.t);v.x=tidyText(v.x);const c=getC();
     if(!v.t||!v.x){toast('Add the title and the lyrics.',1);return}
     const l=fixLink(v.l);if(l===false){toast('The link does not look right.',1);return}
-    if(m){withEditor(by=>{Object.assign(m,{t:v.t,x:v.x,l,h:pushH(m.h||(m.eb?[{by:m.eb,at:m.ea}]:[]),by)});delete m.eb;delete m.ea;saveMine();render();toast('Song saved')});return}
+    if(m){withEditor(by=>{Object.assign(m,{t:v.t,x:v.x,l,c,h:pushH(m.h||(m.eb?[{by:m.eb,at:m.ea}]:[]),by)});delete m.eb;delete m.ea;saveMine();render();toast('Song saved')});return}
     const same=songs().find(s=>s.t.trim().toLowerCase()===v.t.trim().toLowerCase());
     if(same){toast('“'+same.t+'” is already in the list – opening it.');openSong(same.i);return}
     const sim=findSimilar(v.x);   // the same words under another title (not the title: two songs may share a title)
     if(sim&&!confirm('These lyrics are already in the app:\n“'+sim.t+'”\n\nPress OK to save yours anyway, or Cancel to open that song.')){openSong(sim.i);return}
-    const s={i:'n_'+uid(),t:v.t,x:v.x,l,mine:1};mine.push(s);saveMine();
+    const s={i:'n_'+uid(),t:v.t,x:v.x,l,c,mine:1};mine.push(s);saveMine();
     if(plId){const p=pls.find(x=>x.id===plId);p.items.push({s:s.i});p.sent=null;savePls();render();toast('Song added to '+p.name)}
     else{openSong(s.i);toast('Song saved on this phone')}
   });
+  getC=chorusPicker(m?m.c:null);songFull(m?'Editing':'Adding');
 }
 // ADDING A SONG: while the member types the title (or pastes the lyrics), the songs already in the app show at once
 function dupWatch(){
@@ -923,6 +933,22 @@ function dupWatch(){
   run();
 }
 const fmtAt=a=>{try{return new Date(a).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}catch(e){return ''}};
+// CHOOSING THE CHORUS: under the lyrics box the stanzas are listed; tap the one that is the chorus (tap again to clear)
+function chorusPicker(init){
+  const ta=$('f_x');if(!ta)return()=>null;let sel=init==null?null:init;
+  const box=document.createElement('div');box.id='chPick';ta.insertAdjacentElement('afterend',box);
+  const run=()=>{const st=stanzas(tidyText(ta.value));if(sel!=null&&sel>=st.length)sel=null;
+    box.innerHTML='<label>Chorus – tap the stanza that is the chorus (tap again to clear)</label>'+(st.length?st.map((t,i)=>'<div class="cp'+(i===sel?' on':'')+'" data-i="'+i+'">'+(i===sel?'★ Chorus · ':'')+esc(t.split('\n')[0])+'</div>').join(''):'<p class="hint">Type or paste the lyrics first.</p>')};
+  box.onclick=e=>{const el=e.target.closest('.cp');if(!el)return;const i=+el.dataset.i;sel=sel===i?null:i;run()};
+  ta.addEventListener('input',()=>{clearTimeout(window.__cp);window.__cp=setTimeout(run,250)});run();
+  return()=>sel;
+}
+// the song form fills the screen; the editor's name is shown as fixed text (not a box that can be typed in)
+function songFull(verb){
+  const d=$('dlg'),n=regName();d.classList.add('full');
+  if(n){const w=document.createElement('div');w.className='who';w.innerHTML=esc(verb)+' as <b>'+esc(n)+'</b>';d.querySelector('h3').insertAdjacentElement('afterend',w)}
+  d.scrollTop=0;
+}
 // WHO EDITS: the name the church registered for the member (it cannot be typed or changed in the app); the last 2 editors are kept and shown
 const regName=()=>store.get('reg_'+code,'')||store.get('me','');
 const pushH=(h,by)=>[{by,at:new Date().toISOString()},...(h||[]).slice(0,1)];
@@ -933,14 +959,16 @@ function withEditor(fn){
 // EDITING A CHURCH SONG: saved on this phone with the editor's name and date; the church's own copy is kept so it can be restored
 function editSong(id,pre){
   const s=songById(id);if(!s)return;
-  const o=s.orig||{t:s.t,x:s.x},f=pre||{t:s.t,x:s.x},n=regName();
-  dlgForm('Edit song'+(n?' (as '+n+')':''),[['t','Title',f.t],['x','Lyrics – an empty line between stanzas',f.x,'area']],v=>{
-    v.t=tidyTitle(v.t);v.x=tidyText(v.x);
-    if(!v.t||!v.x){toast('Add the title and the lyrics.',1);editSong(id,{t:v.t,x:v.x});return}
-    if(v.t===o.t&&v.x===o.x){delete edits[id];saveEdits();render();toast('Same as the church copy');return}
-    if(v.t===s.t&&v.x===s.x)return;
-    withEditor(by=>{const e=edits[id];edits[id]={t:v.t,x:v.x,h:pushH(e&&(e.h||[{by:e.by,at:e.at}]),by)};saveEdits();render();toast('Song saved on this phone')});
+  if(!regName()){withEditor(()=>editSong(id,pre));return}
+  const o=s.orig||{t:s.t,x:s.x,c:s.c==null?null:s.c},f=pre||{t:s.t,x:s.x,c:s.c},n=regName();let getC=()=>null;
+  dlgForm('Edit song',[['t','Title',f.t],['x','Lyrics – an empty line between stanzas',f.x,'area']],v=>{
+    v.t=tidyTitle(v.t);v.x=tidyText(v.x);const c=getC();
+    if(!v.t||!v.x){toast('Add the title and the lyrics.',1);editSong(id,{t:v.t,x:v.x,c});return}
+    if(v.t===o.t&&v.x===o.x&&c===o.c){delete edits[id];saveEdits();render();toast('Same as the church copy');return}
+    if(v.t===s.t&&v.x===s.x&&c===(s.c==null?null:s.c))return;
+    withEditor(by=>{const e=edits[id];edits[id]={t:v.t,x:v.x,c,h:pushH(e&&(e.h||[{by:e.by,at:e.at}]),by)};saveEdits();render();toast('Song saved on this phone')});
   });
+  getC=chorusPicker(f.c);songFull('Editing');
 }
 function restoreSong(id){
   if(!confirm('Go back to the church\u2019s original words for this song?'))return;
@@ -955,7 +983,7 @@ function linkDlg(id){
   });
 }
 function dlgForm(title,fields,done){
-  const d=$('dlg');d.innerHTML='<h3 style="margin:0">'+esc(title)+'</h3>'+fields.map(([k,l,v,list])=>'<label>'+esc(l)+'</label>'+(list==='area'?'<textarea id="f_'+k+'" rows="9" style="width:100%;background:#0f1115;border:1px solid #363c48;border-radius:10px;padding:10px;color:inherit;font:inherit">'+esc(v)+'</textarea>':'<input id="f_'+k+'" value="'+esc(v)+'"'+(list?' list="dl_'+k+'"':'')+'>')+(Array.isArray(list)?'<datalist id="dl_'+k+'">'+list.map(x=>'<option value="'+esc(x)+'">').join('')+'</datalist>':'')).join('')+
+  const d=$('dlg');d.classList.remove('full');d.innerHTML='<h3 style="margin:0">'+esc(title)+'</h3>'+fields.map(([k,l,v,list])=>'<label>'+esc(l)+'</label>'+(list==='area'?'<textarea id="f_'+k+'" rows="9" style="width:100%;background:#0f1115;border:1px solid #363c48;border-radius:10px;padding:10px;color:inherit;font:inherit">'+esc(v)+'</textarea>':'<input id="f_'+k+'" value="'+esc(v)+'"'+(list?' list="dl_'+k+'"':'')+'>')+(Array.isArray(list)?'<datalist id="dl_'+k+'">'+list.map(x=>'<option value="'+esc(x)+'">').join('')+'</datalist>':'')).join('')+
     '<div class="bar" style="margin-top:14px"><button class="pri" id="dOk">Save</button><button onclick="dlg.close()">Cancel</button></div>';
   d.showModal();$('f_'+fields[0][0]).focus();
   const ta=d.querySelector('textarea');if(ta)ta.addEventListener('paste',()=>setTimeout(()=>{ta.value=tidyText(ta.value)},0));
