@@ -83,7 +83,7 @@ dialog.full .bar button{flex:1;padding:13px}
 #credit{position:fixed;left:0;right:0;bottom:0;z-index:60;height:calc(var(--cb) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;align-items:center;justify-content:center;background:#12151b;border-top:1px solid #262b34;font-size:12px;font-weight:800;letter-spacing:.08em;color:#4da3ff;white-space:nowrap;animation:byGlow 3.2s ease-in-out infinite}
 @keyframes byGlow{0%,100%{text-shadow:0 0 3px rgba(77,163,255,.45),0 0 8px rgba(77,163,255,.25)}50%{text-shadow:0 0 6px rgba(77,163,255,.9),0 0 16px rgba(77,163,255,.55)}}
 @media(prefers-reduced-motion:reduce){#credit{animation:none}}
-#credit a{color:inherit;text-decoration:none}
+#credit a,#splash .by a,.inst .by a{color:inherit;text-decoration:underline;text-underline-offset:3px;padding:6px 2px}
 .foot{text-align:center;font-size:11px;font-weight:700;letter-spacing:.08em;color:#e0b24a99;margin-top:30px}
 
 /* SONG LIST: cards like Echoes of Worship; search, add and the ways to sort at the top */
@@ -158,11 +158,11 @@ mark{background:#e0b24a44;color:inherit;border-radius:3px;padding:0 1px}
 #splash .by,.inst .by{animation:byGlow 3.2s ease-in-out infinite}
 #splash .by{position:absolute;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));margin:0;padding:0 12px}
 </style></head><body>
-<div id="splash" onclick="hideSplash();autoFull()"><img src="logo.jpg" alt="Prepfix"><div class="st">PREPFIX TEAM</div><div class="ch" id="spCh"></div><div class="by">DEVELOPED BY CYRUS IRERI</div></div>
+<div id="splash" onclick="hideSplash();autoFull()"><img src="logo.jpg" alt="Prepfix"><div class="st">PREPFIX TEAM</div><div class="ch" id="spCh"></div><div class="by">DEVELOPED BY CYRUS IRERI <a href="https://wa.me/254720872582" target="_blank" rel="noopener" onclick="event.stopPropagation()">0720872582</a></div></div>
 <div id="app"></div>
 <dialog id="dlg"></dialog>
 <dialog id="mdlg"></dialog>
-<div id="credit">DEVELOPED BY CYRUS IRERI</div>
+<div id="credit">DEVELOPED BY CYRUS IRERI&nbsp;<a href="https://wa.me/254720872582" target="_blank" rel="noopener" onclick="event.stopPropagation()">0720872582</a></div>
 <script>
 /* PREPFIX TEAM - the praise and worship team's app.
    Shows the church's songs (lyrics + practice link) from the Prepfix Church Media Toolkit,
@@ -243,7 +243,8 @@ let mine=store.get('mine_'+code,[]),myLinks=store.get('links_'+code,{});
 const saveMine=()=>{store.set('mine_'+code,mine);store.set('links_'+code,myLinks)};
 let edits=store.get('edits_'+code,{});   // changes made on this phone to the church's songs: {songId:{t,x,by,at}}
 const saveEdits=()=>store.set('edits_'+code,edits);
-const songs=()=>[...((D&&D.songs)||[]).map(s=>{let r=!s.l&&myLinks[s.i]?{...s,l:myLinks[s.i],ml:1}:s;const e=edits[s.i];if(e)r={...r,t:e.t,x:e.x,c:e.c==null?null:e.c,h:e.h||[{by:e.by,at:e.at}],orig:{t:s.t,x:s.x,c:s.c==null?null:s.c}};return r}),...mine.map(m=>m.h||!m.eb?m:{...m,h:[{by:m.eb,at:m.ea}]})];
+const cArr=c=>c==null?[]:(Array.isArray(c)?c:[c]);
+const songs=()=>[...((D&&D.songs)||[]).map(s=>{let r=!s.l&&myLinks[s.i]?{...s,l:myLinks[s.i],ml:1}:s;const e=edits[s.i];if(e)r={...r,t:e.t,x:e.x,c:cArr(e.c),h:e.h||[{by:e.by,at:e.at}],orig:{t:s.t,x:s.x,c:cArr(s.c)}};return r}),...mine.map(m=>m.h||!m.eb?m:{...m,h:[{by:m.eb,at:m.ea}]})];
 // once the church toolkit has added a member's new song, use the church's copy
 function reconcile(){
   const by={};(D.songs||[]).forEach(s=>by[s.t.trim().toLowerCase()]=s);
@@ -403,7 +404,7 @@ function songHtml(){
      (!s.l?'<button onclick="linkDlg(\''+s.i+'\')">🎧 Add practice link</button>':s.ml?'<button onclick="linkDlg(\''+s.i+'\')">✎ Your link</button>':''))+'</div>'+
     (s.h&&s.h.length?'<p class="hint" style="margin:2px 0 0">✏️ Last edited by <b style="color:#2f8fff">'+esc(s.h[0].by)+'</b> · '+esc(fmtAt(s.h[0].at))+(s.h[1]?'<br>Before that: <b style="color:#2f8fff">'+esc(s.h[1].by)+'</b> · '+esc(fmtAt(s.h[1].at)):'')+'</p>':'')+
     (s.ml?'<p class="hint" style="margin:0">🎧 You added this link – it goes to the church toolkit with your playlist.</p>':'');
-  h+='<div>'+stanzas(s.x).map((st,i)=>'<div class="stz'+(i===s.c?' chs':'')+'"><h3>'+(i===s.c?'Chorus':'Stanza')+'</h3><p style="font-size:'+fsz+'px">'+esc(st).replace(/\n/g,'<br>')+'</p></div>').join('')+'</div>';
+  h+='<div>'+stanzas(s.x).map((st,i)=>'<div class="stz'+(cArr(s.c).includes(i)?' chs':'')+'"><h3>'+(cArr(s.c).includes(i)?'Chorus':'Stanza')+'</h3><p style="font-size:'+fsz+'px">'+esc(st).replace(/\n/g,'<br>')+'</p></div>').join('')+'</div>';
   if(fromPl){const p=pls.find(x=>x.id===fromPl);if(p){const ids=p.items.filter(x=>x.s).map(x=>x.s),k=ids.indexOf(s.i);
     h+='<div class="nav2"><button '+(k>0?'':'disabled')+' onclick="openSong(\''+ids[k-1]+'\',\''+p.id+'\');autoPlay()">⏮ Previous song</button><button class="pri" '+(k>=0&&k<ids.length-1?'':'disabled')+' onclick="openSong(\''+ids[k+1]+'\',\''+p.id+'\');autoPlay()">Next song ⏭</button></div>'}}
   else{const k=order.indexOf(s.i); // Previous / Next follow the list exactly as it was shown (search, language, genre, order)
@@ -415,7 +416,7 @@ function setFs(d){fsz=Math.min(40,Math.max(13,fsz+d));store.set('fsz',fsz);docum
 // SHARE a song: words + practice links + a link that opens this song in the team app
 function songUrl(s){return location.origin+location.pathname+'?church='+encodeURIComponent(RAW||code)+'#s-'+s.i}
 async function shareSong(){const s=songById(cur);if(!s)return;
-  const L=linksOf(s),text=s.t+'\n\n'+stanzas(s.x).map((st,i)=>(i===s.c?'Chorus:\n':'')+st).join('\n\n')+(L.length?'\n\n🎧 '+L.map(l=>(l.n?l.n+': ':'')+l.u).join('\n🎧 '):'')+'\n\n📲 Open it in the Team App: '+songUrl(s);
+  const L=linksOf(s),text=s.t+'\n\n'+stanzas(s.x).map((st,i)=>(cArr(s.c).includes(i)?'Chorus:\n':'')+st).join('\n\n')+(L.length?'\n\n🎧 '+L.map(l=>(l.n?l.n+': ':'')+l.u).join('\n🎧 '):'')+'\n\n📲 Open it in the Team App: '+songUrl(s);
   try{if(navigator.share){await navigator.share({title:s.t,text});return}}catch(e){if(e&&e.name==='AbortError')return}
   open('https://wa.me/?text='+encodeURIComponent(text),'_blank')}
 function autoPlay(){if(document.getElementById('prac')){const s=songById(cur);if(s&&s.l)play(s.i);else closePlayer()}}
@@ -898,7 +899,7 @@ function tidyText(t){
 const tidyTitle=t=>capWords(String(t).replace(/[\s_(\[-]*(by[\s_]+)?author[\s_]*unknown[\s_)\]]*/gi,' ').replace(/_+/g,' ').replace(/\s+/g,' ').trim());
 function fixLink(v){v=String(v||'').trim();if(!v)return '';if(!/^https?:\/\//i.test(v))v='https://'+v;try{const u=new URL(v);return /\./.test(u.hostname)?u.href:false}catch(e){return false}}
 function newSong(id,plId,pre){
-  const m=id?mine.find(x=>x.i===id):null;let getC=()=>null;
+  const m=id?mine.find(x=>x.i===id):null;let getC=()=>[];
   if(m&&!regName()){withEditor(()=>newSong(id,plId,pre));return}
   pre=String(pre||'').trim();if(/^#?\d+$/.test(pre)||/[,;+\n]/.test(pre))pre='';
   setTimeout(()=>{if(!m)dupWatch()},0);
@@ -915,7 +916,7 @@ function newSong(id,plId,pre){
     if(plId){const p=pls.find(x=>x.id===plId);p.items.push({s:s.i});p.sent=null;savePls();render();toast('Song added to '+p.name)}
     else{openSong(s.i);toast('Song saved on this phone')}
   });
-  getC=chorusPicker(m?m.c:null);songFull(m?'Editing':'Adding');
+  getC=chorusPicker(cArr(m?m.c:null));songFull(m?'Editing':'Adding');
 }
 // ADDING A SONG: while the member types the title (or pastes the lyrics), the songs already in the app show at once
 function dupWatch(){
@@ -933,15 +934,15 @@ function dupWatch(){
   run();
 }
 const fmtAt=a=>{try{return new Date(a).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}catch(e){return ''}};
-// CHOOSING THE CHORUS: under the lyrics box the stanzas are listed; tap the one that is the chorus (tap again to clear)
+// CHOOSING THE CHORUS: under the lyrics box the stanzas are listed; tap every stanza that is the chorus (it can come more than once); tap again to clear
 function chorusPicker(init){
-  const ta=$('f_x');if(!ta)return()=>null;let sel=init==null?null:init;
+  const ta=$('f_x');if(!ta)return()=>[];let sel=new Set(cArr(init));
   const box=document.createElement('div');box.id='chPick';ta.insertAdjacentElement('afterend',box);
-  const run=()=>{const st=stanzas(tidyText(ta.value));if(sel!=null&&sel>=st.length)sel=null;
-    box.innerHTML='<label>Chorus – tap the stanza that is the chorus (tap again to clear)</label>'+(st.length?st.map((t,i)=>'<div class="cp'+(i===sel?' on':'')+'" data-i="'+i+'">'+(i===sel?'★ Chorus · ':'')+esc(t.split('\n')[0])+'</div>').join(''):'<p class="hint">Type or paste the lyrics first.</p>')};
-  box.onclick=e=>{const el=e.target.closest('.cp');if(!el)return;const i=+el.dataset.i;sel=sel===i?null:i;run()};
+  const run=()=>{const st=stanzas(tidyText(ta.value));[...sel].forEach(i=>{if(i>=st.length)sel.delete(i)});
+    box.innerHTML='<label>Chorus – tap each stanza that is the chorus. If it is repeated, tap every place it comes (tap again to clear)</label>'+(st.length?st.map((t,i)=>'<div class="cp'+(sel.has(i)?' on':'')+'" data-i="'+i+'">'+(sel.has(i)?'★ Chorus · ':'')+esc(t.split('\n')[0])+'</div>').join(''):'<p class="hint">Type or paste the lyrics first.</p>')};
+  box.onclick=e=>{const el=e.target.closest('.cp');if(!el)return;const i=+el.dataset.i;sel.has(i)?sel.delete(i):sel.add(i);run()};
   ta.addEventListener('input',()=>{clearTimeout(window.__cp);window.__cp=setTimeout(run,250)});run();
-  return()=>sel;
+  return()=>[...sel].sort((a,b)=>a-b);
 }
 // the song form fills the screen; the editor's name is shown as fixed text (not a box that can be typed in)
 function songFull(verb){
@@ -960,15 +961,15 @@ function withEditor(fn){
 function editSong(id,pre){
   const s=songById(id);if(!s)return;
   if(!regName()){withEditor(()=>editSong(id,pre));return}
-  const o=s.orig||{t:s.t,x:s.x,c:s.c==null?null:s.c},f=pre||{t:s.t,x:s.x,c:s.c},n=regName();let getC=()=>null;
+  const o=s.orig||{t:s.t,x:s.x,c:cArr(s.c)},f=pre||{t:s.t,x:s.x,c:cArr(s.c)},n=regName();let getC=()=>[];
   dlgForm('Edit song',[['t','Title',f.t],['x','Lyrics – an empty line between stanzas',f.x,'area']],v=>{
     v.t=tidyTitle(v.t);v.x=tidyText(v.x);const c=getC();
     if(!v.t||!v.x){toast('Add the title and the lyrics.',1);editSong(id,{t:v.t,x:v.x,c});return}
-    if(v.t===o.t&&v.x===o.x&&c===o.c){delete edits[id];saveEdits();render();toast('Same as the church copy');return}
-    if(v.t===s.t&&v.x===s.x&&c===(s.c==null?null:s.c))return;
+    if(v.t===o.t&&v.x===o.x&&JSON.stringify(c)===JSON.stringify(cArr(o.c))){delete edits[id];saveEdits();render();toast('Same as the church copy');return}
+    if(v.t===s.t&&v.x===s.x&&JSON.stringify(c)===JSON.stringify(cArr(s.c)))return;
     withEditor(by=>{const e=edits[id];edits[id]={t:v.t,x:v.x,c,h:pushH(e&&(e.h||[{by:e.by,at:e.at}]),by)};saveEdits();render();toast('Song saved on this phone')});
   });
-  getC=chorusPicker(f.c);songFull('Editing');
+  getC=chorusPicker(cArr(f.c));songFull('Editing');
 }
 function restoreSong(id){
   if(!confirm('Go back to the church\u2019s original words for this song?'))return;
@@ -1025,7 +1026,7 @@ function maybeInstall(force){
     (installEvt?'<div class="bar"><button class="pri" onclick="doInstall()">📲 Install app</button><button onclick="installLater()">Not now</button></div>':
      isIOS?'<ol><li>Tap the <b>Share</b> button <b>⎙</b> at the bottom of Safari.</li><li>Choose <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>.</li></ol><div class="bar"><button class="pri" onclick="installLater()">OK</button></div>':
      '<ol><li>Tap the browser menu <b>⋮</b> (top right) in <b>Chrome</b>.</li><li>Choose <b>Install app</b> or <b>Add to Home screen</b>, then <b>Install</b>.</li></ol><p style="font-size:13px">If the menu says <b>Open app</b> instead, the Team App is already on this phone: open it from your home screen. Not in Chrome? Open this link in Chrome first.</p><div class="bar"><button class="pri" onclick="installLater()">OK</button></div>')+
-    '<div class="by">DEVELOPED BY CYRUS IRERI</div></div>';
+    '<div class="by">DEVELOPED BY CYRUS IRERI <a href="https://wa.me/254720872582" target="_blank" rel="noopener" onclick="event.stopPropagation()">0720872582</a></div></div>';
   d.onclick=e=>{if(e.target===d)installLater()};
   document.body.appendChild(d);
 }
