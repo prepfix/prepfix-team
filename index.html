@@ -84,15 +84,17 @@ dialog label{display:block;font-size:13px;color:#8a90a0;margin:10px 0 4px}
 .jump{padding-top:6px}.jump button{font-weight:700;background:#1d2026}
 .grp{font-size:20px;font-weight:800;color:#e0b24a;margin:18px 4px 6px;scroll-margin-top:calc(var(--hh,120px) + 10px)}
 .sc{display:flex;align-items:center;gap:6px;background:#1d2026;border:1px solid #2c313a;border-radius:12px;padding:6px 8px 6px 2px;margin:0 0 5px;cursor:pointer;content-visibility:auto;contain-intrinsic-size:auto 50px;transition:border-color .15s,transform .1s}
-.sc:active{transform:scale(.99);border-color:#e0b24a88}
-.sc .no{flex:none;min-width:44px;text-align:center;font-weight:800;font-size:15px;color:#e0b24a}
+.sc:active{transform:scale(.99);border-color:#ffffff55}
+.sc .no{flex:none;min-width:44px;text-align:center;font-weight:800;font-size:15px;color:#d5dbe8}
 .sc .w{flex:1;min-width:0}
 .sc .tt{font-weight:700;font-size:16px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sc .sub{color:#8a90a0;font-size:12.5px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sc .sub .nw{color:#e0b24a;font-weight:700}
 .sc .ly{color:#cfc8bb;font-size:13px;font-style:italic;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sc .pb{flex:none;width:48px;height:34px;padding:0;border-radius:999px;background:#e0b24a;color:#16181d;border:0;font-size:17px;box-shadow:0 0 12px #e0b24a33}
+.sc .pb{flex:none;width:48px;height:34px;padding:0;border-radius:999px;background:#e4e8f0;color:#16181d;border:0;font-size:17px;box-shadow:0 0 12px #ffffff22}
 .sc .pb.off{display:none}
+.fold{display:flex;gap:8px;align-items:center;margin:8px 0 3px;padding:12px 10px;background:color-mix(in srgb,var(--fc,#7b8594) 16%,#1d2026);border:1px solid #2f3641;border-left:6px solid var(--fc,#7b8594);border-radius:10px;cursor:pointer;font-weight:800;font-size:16px;-webkit-user-select:none;user-select:none}
+.fold.open{background:color-mix(in srgb,var(--fc,#7b8594) 28%,#1d2026);border-color:var(--fc,#7b8594)}.fold .fn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fold small{opacity:.8;font-weight:600;font-size:12.5px}
 mark{background:#e0b24a44;color:inherit;border-radius:3px;padding:0 1px}
 .nf{text-align:center;padding:18px 10px}.nf button{margin-top:8px}
 #dupHint{margin-top:6px}#dupHint .dh{padding:8px 10px;border-radius:10px;background:#2a2410;border-left:3px solid #e0b24a;font-size:13.5px;color:#e0b24a;font-weight:600}
@@ -335,6 +337,7 @@ function listRows(){
   const by=sortM==='az'?(a,b)=>bareT(a).localeCompare(bareT(b),undefined,{sensitivity:'base'}):mByT;
   r.sort((a,b)=>{if(/^\d+$/.test(wn)){const ax=String(mNo(a))===wn,bx=String(mNo(b))===wn;if(ax!==bx)return ax?-1:1}const at=a.t.toLowerCase().includes(w),bt=b.t.toLowerCase().includes(w);return at===bt?by(a,b):at?-1:1});
   if(lang==='__alt'&&!w){const sw=r.filter(s=>s.lg==='Kiswahili'),ki=r.filter(s=>s.lg==='Kikuyu'),out=[];for(let i=0;i<Math.max(sw.length,ki.length);i++){if(sw[i])out.push(sw[i]);if(ki[i])out.push(ki[i])}r=out.concat(r.filter(s=>s.lg!=='Kiswahili'&&s.lg!=='Kikuyu'))}
+  if(tab==='songs'&&!w&&!folder&&!lang&&!genre&&r.length)return folderRows(r);
   order=r.map(s=>s.i);
   setTimeout(()=>{const c=$('cnt');if(c)c.textContent=(w?'Found ':tab==='prac'?'With links ':'All songs ')+'('+r.length+')'},0);
   let h='',keys=[];
@@ -344,6 +347,21 @@ function listRows(){
   if(!r.length)h=tab==='prac'?'<p class="hint nf">No songs with practice links yet.</p>':'<div class="nf"><p class="hint" style="margin:0">'+(w?'No song has “'+esc(q.trim())+'”.':'No songs here yet.')+'</p>'+(w&&!/^\d+$/.test(wn)?'<button class="pri" onclick="newSong(null,null,q)">+ Add “'+esc(q.trim())+'” as a new song</button>':'')+'</div>';
   return h;
 }
+let openF=null,lastG=[];
+// every folder has its own colour (never yellow); the same name always gets the same colour
+const FCOLS=['#4a90e2','#3fae7a','#9b6bd6','#e0635a','#2bb5b0','#d65fa3','#6c7ae0','#c2764a','#5bb8e8','#8aa0b8','#b5547a','#4aa86a'];
+const fcol=n=>{let h=0;for(const c of String(n))h=(h*31+c.codePointAt(0))>>>0;return FCOLS[h%FCOLS.length]};
+// All songs, no search and no filter: the songs are in folders first; press a folder to open it
+function folderRows(r){
+  const fs=[...new Set([...(D.folders||[]),...r.map(s=>s.f).filter(Boolean)])];
+  const g=fs.map(f=>({f,t:f,list:r.filter(s=>s.f===f),col:fcol(f)})),un=r.filter(s=>!s.f);
+  if(un.length<=50){if(un.length)g.push({f:'__u',t:'Not in a folder',list:un,col:'#7b8594'})}
+  else{let last=null;un.forEach(s=>{const k=grpKey(s);if(k!==last){last=k;g.push({f:'__u'+k,t:'Not in a folder · '+k,list:[],col:'#7b8594'})}g[g.length-1].list.push(s)})}
+  lastG=g;order=g.flatMap(x=>x.list).map(s=>s.i);
+  setTimeout(()=>{const c=$('cnt');if(c)c.textContent='All songs ('+r.length+')';const j=$('jump');if(j)j.innerHTML=''},0);
+  return g.map((x,i)=>{const o=openF===x.f;
+    return '<div class="fold'+(o?' open':'')+'" style="--fc:'+x.col+'" onclick="togF('+i+')"><span>'+(o?'📂':'📁')+'</span><span class="fn">'+esc(x.t)+'</span><small>'+x.list.length+' song'+(x.list.length===1?'':'s')+' '+(o?'▾':'▸')+'</small></div>'+(o?(x.list.map(s=>card(s,'')).join('')||'<p class="hint">This folder is empty.</p>'):'')}).join('')}
+function togF(i){const f=(lastG[i]||{}).f;if(f==null)return;openF=openF===f?null:f;renderList()}
 function renderList(){const l=$('list');if(l)l.innerHTML=listRows()}
 let listY=0;
 function openSong(id,pl){if(!cur&&!curPl)listY=scrollY;if(!cur)pushView();cur=id;fromPl=pl||null;render();scrollTo(0,0)}
