@@ -1,5 +1,5 @@
 // Prepfix Team: keeps the app working without data (songs are saved by the app itself)
-const C='prepfix-team-v31',FILES=['./','index.html','cast.html','manifest.json','logo.jpg','badge.png','team-icon-192.png','team-icon-512.png','team-icon-maskable-192.png','team-icon-maskable-512.png','apple-touch-icon.png'];
+const C='prepfix-team-v32',FILES=['./','index.html','cast.html','manifest.json','logo.jpg','badge.png','team-icon-192.png','team-icon-512.png','team-icon-maskable-192.png','team-icon-maskable-512.png','apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(FILES)));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C&&x.indexOf('prepfix-team-')===0).map(x=>caches.delete(x)))));self.clients.claim()});
 self.addEventListener('fetch',e=>{
