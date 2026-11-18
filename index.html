@@ -16,6 +16,11 @@ input,select{background:#0f1115;border:1px solid #363c48;border-radius:10px;padd
 header{position:sticky;top:0;z-index:20;background:#16181dee;backdrop-filter:blur(8px);padding:calc(env(safe-area-inset-top) + 10px) 14px 8px;border-bottom:1px solid #262b34}
 .hd{display:flex;align-items:center;gap:10px}.hd img{height:30px;border-radius:6px}
 .hd .t{flex:1;min-width:0}.hd .t b{display:block;font-size:15px;letter-spacing:.03em}.hd .t span{display:block;font-size:12px;color:#e0b24a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hd img.gicon{height:44px;width:44px;border-radius:50%;flex:0 0 auto;animation:iconGlow 2.2s ease-in-out infinite}
+@keyframes iconGlow{0%,100%{filter:drop-shadow(0 0 3px #4da3ff) drop-shadow(0 0 7px rgba(224,178,74,.7))}50%{filter:drop-shadow(0 0 7px #7cc0ff) drop-shadow(0 0 16px #e0b24a)}}
+@media(prefers-reduced-motion:reduce){.hd img.gicon{animation:none;filter:drop-shadow(0 0 6px #e0b24a)}}
+.hd .t span.cn{font-size:15px;font-weight:800;line-height:1.2;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
+.hd .t span.cn+b{font-size:11.5px;letter-spacing:.16em;color:#c8ccd4;margin-top:1px}
 .tabs{display:flex;gap:6px;margin-top:9px}.tabs button{flex:1;padding:8px 3px;font-size:13px}.tabs button.on{background:#e0b24a;color:#16181d;border-color:#e0b24a;font-weight:700}
 main{padding:12px 14px calc(120px + var(--cb));max-width:760px;margin:0 auto}
 .chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0 4px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
@@ -33,7 +38,7 @@ main{padding:12px 14px calc(120px + var(--cb));max-width:760px;margin:0 auto}
 @media(prefers-reduced-motion:reduce){.glow{animation:none}}
 h2{margin:6px 0 4px;font-size:22px;line-height:1.25}
 .stz{background:#1d2026;border:1px solid #2c313a;border-radius:12px;padding:10px 14px;margin:10px 0}
-.stz h3{margin:0 0 4px;font-size:12px;color:#8a90a0;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.stz h3{margin:0 0 4px;font-size:14px;color:#4da3ff;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
 .stz p{margin:0;font-size:19px;line-height:1.55}
 .chips.sm button{padding:4px 10px;font-size:13px}.tag{display:inline-block;margin-left:6px;padding:0 7px;border-radius:9px;background:#262b34;color:#aab0bd;font-size:11.5px;font-weight:600;vertical-align:1px}
 .yt{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;width:100%;height:100%;padding:8px;text-align:center;color:#fff;background:#c4302b;font-weight:700;font-size:15px;text-decoration:none;line-height:1.3}
@@ -55,9 +60,9 @@ h2{margin:6px 0 4px;font-size:22px;line-height:1.25}
 #prac .pbody{background:#000;height:min(56vw,300px)}#prac.small .pbody{height:110px}
 #prac.demo .pbody{height:auto}#prac iframe,#prac video{display:block;width:100%;height:100%;border:0}#prac audio{width:100%;display:block}
 #prac .castbar{padding:14px 12px;text-align:center;background:#12151b}#prac .castbar .bar{justify-content:center;margin:10px 0 0}#prac.aud .pbody{height:auto;background:none;padding:6px}
-@media(min-width:800px){#prac{left:auto;right:14px;bottom:calc(var(--cb) + env(safe-area-inset-bottom) + 14px);width:440px;border:1px solid #3a4150;border-radius:12px;overflow:hidden}#prac .pbody{height:248px}}
+@media(min-width:800px) and (hover:hover) and (pointer:fine){#prac{left:auto;right:14px;bottom:calc(var(--cb) + env(safe-area-inset-bottom) + 14px);width:440px;border:1px solid #3a4150;border-radius:12px;overflow:hidden}#prac .pbody{height:248px}}
 body.pracOn main{padding-bottom:calc(120px + var(--cb))}
-@media(max-width:799px){
+@media(max-width:799px),(hover:none) and (pointer:coarse){
   #prac{top:var(--hh,0px);bottom:auto;border-top:0;border-bottom:1px solid #3a4150;box-shadow:0 8px 24px #0008;z-index:19}
   body.pracOn main{padding-top:calc(var(--ph,0px) + 12px)}
 }
@@ -142,7 +147,7 @@ mark{background:#e0b24a44;color:inherit;border-radius:3px;padding:0 1px}
 #splash .ch{margin-top:8px;font-weight:800;font-size:17px;letter-spacing:.1em;color:#e0b24a;animation:glowTxt 2.2s ease-in-out infinite}
 #splash .by{position:absolute;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));margin:0;padding:0 12px;animation:glowTxt 2.2s ease-in-out infinite}
 </style></head><body>
-<div id="splash" onclick="hideSplash();autoFull()"><img src="logo.jpg" alt="Prepfix"><div class="st">PREPFIX TEAM</div><div class="ch" id="spCh"></div><div class="by">DEVELOPED BY CYRUS IRERI 0720872582<small>irericyrus004@gmail.com</small></div></div>
+<div id="splash" onclick="hideSplash();autoFull()"><img src="logo.jpg" alt="Prepfix"><div class="st">PREPFIX TEAM</div><div class="ch" id="spCh"></div><div class="by">DEVELOPED BY CYRUS IRERI 0720872582</div></div>
 <div id="app"></div>
 <dialog id="dlg"></dialog>
 <dialog id="mdlg"></dialog>
@@ -242,10 +247,10 @@ const stanzas=t=>String(t||'').split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean)
 function render(){
   const a=$('app');
   if(!code||!signedIn()||!D){a.innerHTML=loginHtml();return}
-  let h='<header><div class="hd"><img src="logo.jpg" alt="" onerror="this.style.display=\'none\'"><div class="t"><b>TEAM APP</b><span>'+esc(D.church)+'</span></div>'+(fsOK()?'<button onclick="goFull()" title="Full screen">⛶</button>':'')+(isStandalone()||DEMO?'':'<button id="instBtn" onclick="maybeInstall(1)" title="Install the app" style="display:inline-block">📲 Install</button>')+'<button onclick="load()" title="Get the newest songs"'+(busy?' disabled':'')+'>'+(busy?'…':'↻')+'</button>'+(ph?'<button onclick="outDlg()" title="Sign out">⎋</button>':'')+'</div>'+
+  let h='<header><div class="hd"><img class="gicon" src="badge.png" alt="" onerror="this.onerror=null;this.src=\'logo.jpg\'"><div class="t"><span class="cn">'+esc(D.church||churchName())+'</span><b>TEAM APP</b></div>'+(fsOK()?'<button onclick="goFull()" title="Full screen">⛶</button>':'')+(isStandalone()||DEMO?'':'<button id="instBtn" onclick="maybeInstall(1)" title="Install the app" style="display:inline-block">📲 Install</button>')+'<button onclick="load()" title="Get the newest songs"'+(busy?' disabled':'')+'>'+(busy?'…':'↻')+'</button>'+(ph?'<button onclick="outDlg()" title="Sign out">⎋</button>':'')+'</div>'+
     '<div class="tabs"><button class="'+(tab==='songs'?'on':'')+'" onclick="go(\'songs\')">🎵 Songs ('+songs().length+')</button><button class="'+(tab==='prac'?'on':'')+'" onclick="go(\'prac\')">🎧 Practice ('+songs().filter(s=>linksOf(s).length).length+')</button><button class="'+(tab==='pls'?'on':'')+'" onclick="go(\'pls\')">📋 Playlists ('+pls.length+')</button></div></header><main>';
   if(cur)h+=songHtml();else if(curPl)h+=plHtml();else if(tab==='songs')h+=listHtml();else if(tab==='prac')h+=pracHtml();else h+=plsHtml();
-  h+='<div class="foot"><span style="font-weight:500;letter-spacing:0;color:#8a90a0">irericyrus004@gmail.com</span></div></main>';
+  h+='</main>';
   a.innerHTML=h;
   sizeBars();
   const qi=$('q');if(qi&&document.activeElement!==qi&&q)qi.setSelectionRange(q.length,q.length);
@@ -418,9 +423,9 @@ function practiceSrc(link){let u;try{u=new URL(link)}catch(e){return null}
   if(/\.(mp3|m4a|aac|ogg|oga|wav|opus)$/i.test(u.pathname))return {kind:'audio',src:link,name:'Music'};
   if(/\.(mp4|webm|ogv|mov)$/i.test(u.pathname))return {kind:'video',src:link,name:'Video'};
   return {kind:'frame',src:link,name:h,other:true}}
-let playing=null,ytP=null,ytTok=0,autoP=store.get('autoplay',true),ytPref='app';
+let playing=null,ytP=null,ytTok=0,autoP=store.get('autoplay',true),ytPref='app';let artistOn=false,artistErr=0; // artistOn: the in-app player is showing more music from the artist
 // the playing song's title glows wherever it is shown (lists, playlist, song page, player)
-function markPlaying(){document.querySelectorAll('[data-ti]').forEach(e=>e.classList.toggle('glow',!!playing&&e.dataset.ti===playing))}
+function markPlaying(){document.querySelectorAll('[data-ti]').forEach(e=>e.classList.toggle('glow',!!playing&&!artistOn&&e.dataset.ti===playing))}
 {let mpT=0;const start=()=>new MutationObserver(()=>{if(!mpT)mpT=requestAnimationFrame(()=>{mpT=0;markPlaying()})}).observe(document.body,{childList:true,subtree:true});
  if(document.body)start();else addEventListener('DOMContentLoaded',start)}
 /* YouTube player with the YouTube API: knows when a song ENDS (autoplay the next song that has a link)
@@ -435,20 +440,30 @@ const ytBlocked=()=>{const o=store.get('ytneed',{}),n=Date.now();for(const k in 
 const ytBlock=id=>{const o=ytBlocked();o[id]=Date.now();store.set('ytneed',o)};
 const ytWatch=id=>'https://www.youtube.com/watch?v='+id;
 // always the same YouTube window: a new song replaces the one playing there
-function openYT(id){try{const w=open(ytWatch(id),'prepfix_yt');if(w){try{w.focus()}catch(e){}return true}}catch(e){}return false}
+let ytAway=0; // set when a video was sent to YouTube; used when the member comes back to the app
+function openYT(id){ytAway=Date.now();try{const w=open(ytWatch(id),'prepfix_yt');if(w){try{w.focus()}catch(e){}return true}}catch(e){}return false}
 const fbMsg=id=>'Playing on YouTube because the app cannot play this video. To show it on the TV, tap the cast icon in YouTube. <a href="#" onclick="ytRetry(\''+id+'\');return false">Try in the app again</a>';
 function ytRetry(id){const o=ytBlocked();delete o[id];store.set('ytneed',o);if(playing)play(playing,playingK)}
 function ytBtn(id,why){return '<a class="yt" href="'+ytWatch(id)+'" target="prepfix_yt" rel="noopener" onclick="if(openYT(\''+id+'\'))event.preventDefault()">▶ Watch on YouTube<small>'+esc(why)+'</small></a>'}
 function pmsg(t){const b=$('prac');if(!b)return;let m=b.querySelector('.pmsg');if(!t){if(m)m.remove();return}if(!m){m=document.createElement('div');m.className='pmsg';b.appendChild(m)}m.innerHTML=t;sizeBars()}
-function killYT(){ytTok++;try{ytP&&ytP.destroy()}catch(e){}ytP=null}
+
+// back from YouTube (the video that must play there): the player comes back reduced, at the top of the app where it normally plays
+function ytReturned(){
+  if(!ytAway||Date.now()-ytAway<1500||document.visibilityState!=='visible')return;
+  ytAway=0;const b=$('prac');if(!b)return;
+  if(b.querySelector('.yt'))b.classList.add('small');
+  const up=()=>{sizeBars();scrollTo(0,0)};up();setTimeout(up,250);setTimeout(up,900);
+}
+document.addEventListener('visibilitychange',ytReturned);addEventListener('pageshow',ytReturned);addEventListener('focus',ytReturned);
+function killYT(){artistOn=false;ytTok++;try{ytP&&ytP.destroy()}catch(e){}ytP=null}
 function play(id,k,auto){
   const s=songById(id);const L=linksOf(s);if(!s||!L.length)return;k=Math.min(Math.max(+k||0,0),L.length-1);const lk=L[k];const p=practiceSrc(lk.u);if(!p){toast('This practice link cannot be opened.',1);return}
   let yid='';try{yid=ytId(new URL(lk.u))}catch(e){}
-  playing=id;playingK=k;markPlaying();let b=$('prac');if(!b){b=document.createElement('div');b.id='prac';document.body.appendChild(b)}
+  artistOn=false;playing=id;playingK=k;markPlaying();let b=$('prac');if(!b){b=document.createElement('div');b.id='prac';document.body.appendChild(b)}
   b.className=DEMO?'demo':p.kind==='audio'?'aud':'';
   const head='<div class="phd"><span class="pt">🎧 <span class="glow">'+esc(s.t)+'</span> <span class="hint">· '+esc(lk.n||p.name)+'</span></span>'+
     (L.length>1?'<select style="width:auto;max-width:110px;padding:3px 4px;font-size:12px" onchange="play(\''+id+'\',this.value)">'+L.map((l,i)=>'<option value="'+i+'"'+(i===k?' selected':'')+'>'+esc(l.n||'Link '+(i+1))+'</option>').join('')+'</select>':'')+
-    (cur!==id?'<button onclick="openSong(\''+id+'\')">Lyrics</button>':'')+
+    (cur!==id?'<button onclick="openSong(\''+id+'\')">Lyrics</button>':'')+(yid&&!DEMO?'<button onclick="moreArtist()" title="More music from this artist – plays here in the app">🎵 More</button>':'')+
     '<button class="'+(autoP?'on':'')+'" title="Autoplay: when a song ends, the next song with a link plays" onclick="autoP=!autoP;store.set(\'autoplay\',autoP);this.classList.toggle(\'on\',autoP);toast(autoP?\'Autoplay on – the next song plays by itself\':\'Autoplay off\')">⏭</button>'+
     (p.kind!=='audio'?'<button onclick="$(\'prac\').classList.toggle(\'small\');sizeBars()" title="Smaller / bigger player">⇕</button><button onclick="fullVid()" title="Full screen video">⛶</button>':'')+
     '<button onclick="castNow()" title="Show this on the TV (Chromecast / smart TV)">📺</button>'+
@@ -481,8 +496,8 @@ function play(id,k,auto){
     loadYT(fail=>{if(tok!==ytTok)return;const box=b.querySelector('#ytp');if(!box)return;
       if(fail){box.outerHTML='<iframe src="'+esc(p.src)+'" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';return} // no YouTube API (weak internet): the plain player
       ytP=new YT.Player(box,{videoId:yid,host:'https://www.youtube-nocookie.com',playerVars:{autoplay:1,playsinline:1,rel:0,modestbranding:1,cc_load_policy:0,start,origin:location.origin},
-        events:{onError:e=>{if(tok!==ytTok)return;const vid=yid;if([100,101,150,153].includes(e.data)){if(e.data===101||e.data===150)ytBlock(vid);const pb=b.querySelector('.pbody');killYT();if(pb)pb.innerHTML=ytBtn(vid,'This video can’t play inside the app');pmsg(fbMsg(vid));if(!auto)openYT(vid)}},
-          onStateChange:e=>{if(e.data===0)autoNext();if(e.data===1){pmsg('');try{e.target.unloadModule('captions')}catch(_){}try{e.target.unloadModule('cc')}catch(_){}}}}});
+        events:{onError:e=>{if(tok!==ytTok)return;if(artistOn){artistError(e.data);return}const vid=yid;if([100,101,150,153].includes(e.data)){if(e.data===101||e.data===150)ytBlock(vid);const pb=b.querySelector('.pbody');killYT();if(pb)pb.innerHTML=ytBtn(vid,'This video can’t play inside the app');pmsg(fbMsg(vid));if(!auto)openYT(vid)}},
+          onStateChange:e=>{if(e.data===0&&!artistOn)autoNext();if(e.data===1){artistErr=0;if(!artistOn)pmsg('');try{e.target.unloadModule('captions')}catch(_){}try{e.target.unloadModule('cc')}catch(_){}}}}});
       watchStart(tok,yid)});
   }
   document.body.classList.add('pracOn');sizeBars();setTimeout(sizeBars,300);
@@ -498,6 +513,39 @@ function autoNext(){
   toast('End of the list.');
 }
 
+/* ---------- MORE FROM THE ARTIST: the same in-app player carries on with the artist's other music (a YouTube playlist),
+   so the team can browse and play it without leaving the app. Previous / Next work; "Back to the song" returns. ---------- */
+const artistLinks=n=>'🎵 '+(n?'More from <b>'+esc(n)+'</b>. ':'More music like this. ')+'<a href="#" onclick="try{ytP.previousVideo()}catch(e){}return false">⏮ Previous</a> · <a href="#" onclick="try{ytP.nextVideo()}catch(e){}return false">Next ⏭</a> · <a href="#" onclick="artistBack();return false">↩ Back to the song</a>';
+let artistName='';
+async function moreArtist(){
+  const s=songById(playing);
+  if(!s||!ytP||!ytP.loadPlaylist){toast('Play the song on this phone first (a YouTube song).',1);return}
+  let yid='';try{yid=ytId(new URL(linksOf(s)[playingK||0].u))}catch(e){}
+  if(!yid){toast('This works with YouTube songs.',1);return}
+  const tok=ytTok;toast('Finding more music…');
+  let name='',list='RD'+yid; // YouTube's own mix of this song and the artist's music; the artist's own uploads when the channel is known
+  try{
+    const c=new AbortController(),t=setTimeout(()=>c.abort(),5000);
+    const r=await fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+yid),{signal:c.signal});clearTimeout(t);
+    if(r.ok){const j=await r.json();name=String(j.author_name||'');const m=String(j.author_url||'').match(/\/channel\/UC([\w-]{22})/);if(m)list='UU'+m[1]}
+  }catch(e){}
+  if(tok!==ytTok||!ytP)return; // the player was closed or changed meanwhile
+  artistOn=true;artistErr=0;artistName=name;
+  try{ytP.loadPlaylist({list,listType:'playlist',index:0})}catch(e){artistOn=false;toast('Could not open the artist’s music here.',1);return}
+  const pt=document.querySelector('#prac .pt');if(pt)pt.innerHTML='🎵 <span class="glow">'+esc(name||'More music')+'</span> <span class="hint">· more music</span>';
+  pmsg(artistLinks(name));markPlaying();
+}
+// a song of the artist's list cannot be played inside the app: skip it; if several fail in a row, go back to the practice song
+function artistError(code){
+  artistErr++;
+  if(artistErr>=3||code===2||code===5){artistBack(true);return}
+  try{ytP.nextVideo()}catch(e){artistBack(true)}
+}
+function artistBack(failed){
+  const nm=artistName;artistOn=false;markPlaying();
+  if(playing)play(playing,playingK,true);
+  if(failed){const q=encodeURIComponent(nm||((songById(playing)||{}).t)||'');pmsg('YouTube does not allow this artist’s list to play inside the app. <a href="https://www.youtube.com/results?search_query='+q+'" target="prepfix_yt">Search the artist on YouTube</a>')}
+}
 /* ---------- CAST to the TV: Chromecast / Google TV / smart TVs that Chrome can see on the same Wi-Fi ----------
    The phone opens cast.html on the TV (no subtitles, full screen) and stays the remote: pause, play, next song, stop.
    Music / video FILES use the phone's own cast button (Remote Playback). */
@@ -918,7 +966,7 @@ function maybeInstall(force){
     (installEvt?'<div class="bar"><button class="pri" onclick="doInstall()">📲 Install app</button><button onclick="installLater()">Not now</button></div>':
      isIOS?'<ol><li>Tap the <b>Share</b> button <b>⎙</b> at the bottom of Safari.</li><li>Choose <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>.</li></ol><div class="bar"><button class="pri" onclick="installLater()">OK</button></div>':
      '<ol><li>Tap the browser menu <b>⋮</b> (top right) in <b>Chrome</b>.</li><li>Choose <b>Install app</b> or <b>Add to Home screen</b>, then <b>Install</b>.</li></ol><p style="font-size:13px">If the menu says <b>Open app</b> instead, the Team App is already on this phone: open it from your home screen. Not in Chrome? Open this link in Chrome first.</p><div class="bar"><button class="pri" onclick="installLater()">OK</button></div>')+
-    '<div class="by">DEVELOPED BY CYRUS IRERI 0720872582<small>irericyrus004@gmail.com</small></div></div>';
+    '<div class="by">DEVELOPED BY CYRUS IRERI 0720872582</div></div>';
   d.onclick=e=>{if(e.target===d)installLater()};
   document.body.appendChild(d);
 }
