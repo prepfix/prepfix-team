@@ -219,7 +219,7 @@ async function load(first,quiet){
     const have=D&&D.hash?{have:D.hash}:{}; // the songs this phone already has: the service answers "same" (a tiny reply) when nothing changed - saves the team's data
     const j=await call(ph?{action:'team',c:code,ph,did,...have}:{action:'team',c:code,pin,...have});
     if(j.same&&D){busy=false;if(!quiet)render();return}
-    D={church:j.church,songs:j.songs||[],folders:j.folders||[],updated:j.updated,hash:j.hash||''};store.set('data_'+code,D);reconcile();store.set('code',code);store.set('pin',pin);
+    if(j.name)store.set('reg_'+code,j.name);D={church:j.church,songs:j.songs||[],folders:j.folders||[],updated:j.updated,hash:j.hash||''};store.set('data_'+code,D);reconcile();store.set('code',code);store.set('pin',pin);
     if(quiet&&before&&before!==(j.hash||''))toast('✓ Songs updated from the church');
   }catch(e){
     if(quiet&&e.message!=='signed-out'){busy=false;return} // a background check that fails (no internet) says nothing
@@ -235,7 +235,7 @@ let mine=store.get('mine_'+code,[]),myLinks=store.get('links_'+code,{});
 const saveMine=()=>{store.set('mine_'+code,mine);store.set('links_'+code,myLinks)};
 let edits=store.get('edits_'+code,{});   // changes made on this phone to the church's songs: {songId:{t,x,by,at}}
 const saveEdits=()=>store.set('edits_'+code,edits);
-const songs=()=>[...((D&&D.songs)||[]).map(s=>{let r=!s.l&&myLinks[s.i]?{...s,l:myLinks[s.i],ml:1}:s;const e=edits[s.i];if(e)r={...r,t:e.t,x:e.x,eb:e.by,ea:e.at,orig:{t:s.t,x:s.x}};return r}),...mine];
+const songs=()=>[...((D&&D.songs)||[]).map(s=>{let r=!s.l&&myLinks[s.i]?{...s,l:myLinks[s.i],ml:1}:s;const e=edits[s.i];if(e)r={...r,t:e.t,x:e.x,h:e.h||[{by:e.by,at:e.at}],orig:{t:s.t,x:s.x}};return r}),...mine.map(m=>m.h||!m.eb?m:{...m,h:[{by:m.eb,at:m.ea}]})];
 // once the church toolkit has added a member's new song, use the church's copy
 function reconcile(){
   const by={};(D.songs||[]).forEach(s=>by[s.t.trim().toLowerCase()]=s);
@@ -288,7 +288,7 @@ async function login(){
     if(j.legacy){pin=p;store.set('pin',pin)}else{ph=h;store.set('ph_'+code,ph)}       // legacy = the church still uses one team PIN
     store.set('code',code);
     D={church:j.church,songs:j.songs||[],folders:j.folders||[],updated:j.updated};store.set('data_'+code,D);reconcile();
-    if(j.name){store.set('me',j.name);toast('Welcome, '+j.name)}
+    if(j.name){store.set('me',j.name);store.set('reg_'+code,j.name);toast('Welcome, '+j.name)}
     try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
   }catch(e){
     loginMsg=e.message==='no-match'?'This number is not on your church\u2019s team list. Check it, or ask the media team.'
@@ -393,7 +393,7 @@ function songHtml(){
     (s.mine?'<button onclick="newSong(\''+s.i+'\')">✎ Edit</button><button class="dng" onclick="delMine(\''+s.i+'\')">Delete</button>':
      '<button onclick="editSong(\''+s.i+'\')">✎ Edit song</button>'+(s.orig?'<button class="dng" onclick="restoreSong(\''+s.i+'\')">↺ Restore original</button>':'')+
      (!s.l?'<button onclick="linkDlg(\''+s.i+'\')">🎧 Add practice link</button>':s.ml?'<button onclick="linkDlg(\''+s.i+'\')">✎ Your link</button>':''))+'</div>'+
-    (s.eb?'<p class="hint" style="margin:2px 0 0">✏️ Edited by <b style="color:#2f8fff">'+esc(s.eb)+'</b> · '+esc(fmtAt(s.ea))+'</p>':'')+
+    (s.h&&s.h.length?'<p class="hint" style="margin:2px 0 0">✏️ Last edited by <b style="color:#2f8fff">'+esc(s.h[0].by)+'</b> · '+esc(fmtAt(s.h[0].at))+(s.h[1]?'<br>Before that: <b style="color:#2f8fff">'+esc(s.h[1].by)+'</b> · '+esc(fmtAt(s.h[1].at)):'')+'</p>':'')+
     (s.ml?'<p class="hint" style="margin:0">🎧 You added this link – it goes to the church toolkit with your playlist.</p>':'');
   h+='<div>'+stanzas(s.x).map((st,i)=>'<div class="stz"><h3>Stanza '+(i+1)+'</h3><p style="font-size:'+fsz+'px">'+esc(st).replace(/\n/g,'<br>')+'</p></div>').join('')+'</div>';
   if(fromPl){const p=pls.find(x=>x.id===fromPl);if(p){const ids=p.items.filter(x=>x.s).map(x=>x.s),k=ids.indexOf(s.i);
@@ -893,11 +893,11 @@ function newSong(id,plId,pre){
   const m=id?mine.find(x=>x.i===id):null;
   pre=String(pre||'').trim();if(/^#?\d+$/.test(pre)||/[,;+\n]/.test(pre))pre='';
   setTimeout(()=>{if(!m)dupWatch()},0);
-  dlgForm(m?'Edit your song':'New song',[['t','Title',m?m.t:pre],['x','Lyrics – paste them; they are tidied for you (capital letters, empty line between stanzas)',m?m.x:'','area'],['l','Practice link – YouTube etc. (optional)',m?m.l||'':'']].concat(m?[['by','Your name (shown as the editor)',store.get('me','')]]:[]),v=>{
+  dlgForm(m?'Edit your song':'New song',[['t','Title',m?m.t:pre],['x','Lyrics – paste them; they are tidied for you (capital letters, empty line between stanzas)',m?m.x:'','area'],['l','Practice link – YouTube etc. (optional)',m?m.l||'':'']],v=>{
     v.t=tidyTitle(v.t);v.x=tidyText(v.x);
     if(!v.t||!v.x){toast('Add the title and the lyrics.',1);return}
     const l=fixLink(v.l);if(l===false){toast('The link does not look right.',1);return}
-    if(m){const by=v.by||'A team member';store.set('me',by);Object.assign(m,{t:v.t,x:v.x,l,eb:by,ea:new Date().toISOString()});saveMine();render();toast('Song saved');return}
+    if(m){withEditor(by=>{Object.assign(m,{t:v.t,x:v.x,l,h:pushH(m.h||(m.eb?[{by:m.eb,at:m.ea}]:[]),by)});delete m.eb;delete m.ea;saveMine();render();toast('Song saved')});return}
     const same=songs().find(s=>s.t.trim().toLowerCase()===v.t.trim().toLowerCase());
     if(same){toast('“'+same.t+'” is already in the list – opening it.');openSong(same.i);return}
     const sim=findSimilar(v.x);   // the same words under another title (not the title: two songs may share a title)
@@ -923,17 +923,23 @@ function dupWatch(){
   run();
 }
 const fmtAt=a=>{try{return new Date(a).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}catch(e){return ''}};
+// WHO EDITS: the name the church registered for the member (it cannot be typed or changed in the app); the last 2 editors are kept and shown
+const regName=()=>store.get('reg_'+code,'')||store.get('me','');
+const pushH=(h,by)=>[{by,at:new Date().toISOString()},...(h||[]).slice(0,1)];
+function withEditor(fn){
+  const n=regName();if(n){fn(n);return}
+  dlgForm('Your name',[['by','Your name – saved once, then shown with your edits','']],v=>{if(!v.by){toast('Type your name.',1);return}store.set('reg_'+code,v.by);fn(v.by)});
+}
 // EDITING A CHURCH SONG: saved on this phone with the editor's name and date; the church's own copy is kept so it can be restored
 function editSong(id,pre){
   const s=songById(id);if(!s)return;
-  const o=s.orig||{t:s.t,x:s.x},f=pre||{t:s.t,x:s.x,by:store.get('me','')};
-  dlgForm('Edit song',[['t','Title',f.t],['x','Lyrics – an empty line between stanzas',f.x,'area'],['by','Your name (shown as the editor)',f.by]],v=>{
+  const o=s.orig||{t:s.t,x:s.x},f=pre||{t:s.t,x:s.x},n=regName();
+  dlgForm('Edit song'+(n?' (as '+n+')':''),[['t','Title',f.t],['x','Lyrics – an empty line between stanzas',f.x,'area']],v=>{
     v.t=tidyTitle(v.t);v.x=tidyText(v.x);
-    if(!v.t||!v.x){toast('Add the title and the lyrics.',1);editSong(id,{t:v.t,x:v.x,by:v.by});return}
+    if(!v.t||!v.x){toast('Add the title and the lyrics.',1);editSong(id,{t:v.t,x:v.x});return}
     if(v.t===o.t&&v.x===o.x){delete edits[id];saveEdits();render();toast('Same as the church copy');return}
-    if(v.t===s.t&&v.x===s.x&&s.eb)return;
-    const by=v.by||'A team member';store.set('me',by);
-    edits[id]={t:v.t,x:v.x,by,at:new Date().toISOString()};saveEdits();render();toast('Song saved on this phone');
+    if(v.t===s.t&&v.x===s.x)return;
+    withEditor(by=>{const e=edits[id];edits[id]={t:v.t,x:v.x,h:pushH(e&&(e.h||[{by:e.by,at:e.at}]),by)};saveEdits();render();toast('Song saved on this phone')});
   });
 }
 function restoreSong(id){
