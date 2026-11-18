@@ -59,9 +59,12 @@ h2{margin:6px 0 4px;font-size:22px;line-height:1.25}
 .toast{position:fixed;left:50%;bottom:calc(90px + var(--cb) + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2e9d6b;color:#fff;padding:10px 16px;border-radius:10px;z-index:90;font-weight:600;max-width:90vw;text-align:center}
 .toast.err{background:#b8392f}
 #prac{position:fixed;left:0;right:0;bottom:calc(var(--cb) + env(safe-area-inset-bottom));z-index:50;background:#12151b;border-top:1px solid #3a4150;box-shadow:0 -8px 24px #0008}
-#prac .phd{display:flex;align-items:center;gap:4px;padding:6px 8px 6px 12px;background:#1c2028}
-#prac .pt{flex:1;min-width:0;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#prac .phd button{padding:4px 10px;font-size:13px}
+#prac .phd{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 10px;background:#1c2028}
+#prac .pt{flex:1 1 100%;min-width:0;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#prac .phd button,#prac .phd select{flex:1 1 44px;min-width:44px;min-height:44px;padding:6px 10px;font-size:18px;line-height:1}
+#prac .phd select{flex:1 1 90px;font-size:14px;max-width:none!important}
+#prac .phd button.more{flex:2 1 120px;font-size:15px;font-weight:700}
+#prac .phd a{display:contents}
 #prac .pbody{background:#000;height:min(56vw,300px)}#prac.small .pbody{height:110px}
 #prac.demo .pbody{height:auto}#prac iframe,#prac video{display:block;width:100%;height:100%;border:0}#prac audio{width:100%;display:block}
 #prac .castbar{padding:14px 12px;text-align:center;background:#12151b}#prac .castbar .bar{justify-content:center;margin:10px 0 0}#prac.aud .pbody{height:auto;background:none;padding:6px}
@@ -404,7 +407,7 @@ function songHtml(){
     '<div class="bar">'+(()=>{const L=linksOf(s);return L.map((l,k)=>'<button class="pri" onclick="play(\''+s.i+'\','+k+')">▶ '+(L.length>1?esc(l.n||'Link '+(k+1)):'Play practice song')+'</button>').join('')})()+
     '<button onclick="addDlg(\''+s.i+'\')">+ Add to playlist</button>'+
     (s.mine?'<button onclick="newSong(\''+s.i+'\')">✎ Edit</button><button class="dng" onclick="delMine(\''+s.i+'\')">Delete</button>':
-     '<button onclick="editSong(\''+s.i+'\')">✎ Edit song</button>'+(s.orig?'<button class="dng" onclick="restoreSong(\''+s.i+'\')">↺ Restore original</button>':'')+
+     '<button onclick="editSong(\''+s.i+'\')">✎ Edit song</button>'+
      (!s.l?'<button onclick="linkDlg(\''+s.i+'\')">🎧 Add practice link</button>':s.ml?'<button onclick="linkDlg(\''+s.i+'\')">✎ Your link</button>':''))+'</div>'+
     (s.h&&s.h.length?'<p class="hint" style="margin:2px 0 0">✏️ Last edited by <b style="color:#2f8fff">'+esc(s.h[0].by)+'</b> · '+esc(fmtAt(s.h[0].at))+(s.h[1]?'<br>Before that: <b style="color:#2f8fff">'+esc(s.h[1].by)+'</b> · '+esc(fmtAt(s.h[1].at)):'')+'</p>':'')+
     (s.ml?'<p class="hint" style="margin:0">🎧 You added this link – it goes to the church toolkit with your playlist.</p>':'');
@@ -482,8 +485,8 @@ function play(id,k,auto){
   artistOn=false;playing=id;playingK=k;markPlaying();let b=$('prac');if(!b){b=document.createElement('div');b.id='prac';document.body.appendChild(b)}
   b.className=DEMO?'demo':p.kind==='audio'?'aud':'';
   const head='<div class="phd"><span class="pt">🎧 <span class="glow">'+esc(s.t)+'</span> <span class="hint">· '+esc(lk.n||p.name)+'</span></span>'+
-    (L.length>1?'<select style="width:auto;max-width:110px;padding:3px 4px;font-size:12px" onchange="play(\''+id+'\',this.value)">'+L.map((l,i)=>'<option value="'+i+'"'+(i===k?' selected':'')+'>'+esc(l.n||'Link '+(i+1))+'</option>').join('')+'</select>':'')+
-    (cur!==id?'<button onclick="openSong(\''+id+'\')">Lyrics</button>':'')+(yid&&!DEMO?'<button onclick="moreArtist()" title="More music from this artist – plays here in the app">🎵 More</button>':'')+
+    (L.length>1?'<select onchange="play(\''+id+'\',this.value)">'+L.map((l,i)=>'<option value="'+i+'"'+(i===k?' selected':'')+'>'+esc(l.n||'Link '+(i+1))+'</option>').join('')+'</select>':'')+
+    (cur!==id?'<button style="font-size:15px" onclick="openSong(\''+id+'\')">Lyrics</button>':'')+(yid&&!DEMO?'<button class="more" onclick="moreArtist()" title="More music from this artist – plays here in the app">🎵 More from artist</button>':'')+
     '<button class="'+(autoP?'on':'')+'" title="Autoplay: when a song ends, the next song with a link plays" onclick="autoP=!autoP;store.set(\'autoplay\',autoP);this.classList.toggle(\'on\',autoP);toast(autoP?\'Autoplay on – the next song plays by itself\':\'Autoplay off\')">⏭</button>'+
     (p.kind!=='audio'?'<button onclick="$(\'prac\').classList.toggle(\'small\');sizeBars()" title="Smaller / bigger player">⇕</button><button onclick="fullVid()" title="Full screen video">⛶</button>':'')+
     '<button onclick="castNow()" title="Show this on the TV (Chromecast / smart TV)">📺</button>'+
@@ -995,10 +998,6 @@ function editSong(id,pre){
     withEditor(by=>{const e=edits[id];edits[id]={t:v.t,x:v.x,c,m:mm,h:pushH(e&&(e.h||[{by:e.by,at:e.at}]),by)};saveEdits();render();toast('Song saved on this phone')});
   });
   getM=metaPicker(f.m||m0);getC=chorusPicker(cArr(f.c));songFull('Editing');
-}
-function restoreSong(id){
-  if(!confirm('Go back to the church\u2019s original words for this song?'))return;
-  delete edits[id];saveEdits();render();toast('Original restored');
 }
 function delMine(id){mine=mine.filter(x=>x.i!==id);pls.forEach(p=>p.items=p.items.filter(x=>x.s!==id));saveMine();savePls();cur=null;render()}
 function linkDlg(id){
