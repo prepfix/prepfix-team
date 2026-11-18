@@ -41,6 +41,8 @@ h2{margin:6px 0 4px;font-size:22px;line-height:1.25}
 .stz h3{margin:0 0 5px;font-size:18px;color:#2f8fff;font-weight:900;letter-spacing:.04em;text-transform:uppercase;text-shadow:0 0 .6px #2f8fff}
 .stz p{margin:0;font-size:19px;line-height:1.55}
 .stz.chs{border-color:#e0b24a;background:#221f17}.stz.chs h3{color:#ffc93c;text-shadow:0 0 .6px #ffc93c}
+#metaPick .addrow{display:flex;gap:6px}#metaPick .addrow input{flex:1}#metaPick .addrow button{padding:9px 12px}
+#metaPick select{width:100%;background:#0f1115;border:1px solid #363c48;border-radius:10px;padding:11px 12px;color:inherit;font:inherit}
 #chPick{margin:4px 0 2px}#chPick .cp{padding:9px 12px;margin:5px 0;border:1px solid #363c48;border-radius:10px;background:#0f1115;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 #chPick .cp.on{border-color:#e0b24a;background:#2a2412;color:#ffc93c;font-weight:800}
 .chips.sm button{padding:4px 10px;font-size:13px}.tag{display:inline-block;margin-left:6px;padding:0 7px;border-radius:9px;background:#262b34;color:#aab0bd;font-size:11.5px;font-weight:600;vertical-align:1px}
@@ -111,6 +113,7 @@ dialog.full .bar button{flex:1;padding:13px}
 .sc .tt{font-weight:700;font-size:16px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sc .sub{color:#8a90a0;font-size:12.5px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sc .sub .nw{color:#e0b24a;font-weight:700}
+.kd{display:inline-block;padding:0 8px;border-radius:9px;background:#13304f;color:#6fb8ff;font-weight:800;font-size:12px;border:1px solid #2a4a78;vertical-align:1px}
 .sc .ly{color:#cfc8bb;font-size:13px;font-style:italic;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sc .pb{flex:none;width:48px;height:34px;padding:0;border-radius:999px;background:#e4e8f0;color:#16181d;border:0;font-size:17px;box-shadow:0 0 12px #ffffff22}
 .sc .pb.off{display:none}
@@ -182,7 +185,8 @@ if(LINK_NAME&&!store.get('cname_'+code,''))store.set('cname_'+code,LINK_NAME);
 if(DEMO&&!code)code='dee0';
 let pin=store.get('pin',''),D=store.get('data_'+code,null);
 // the church's own name (exactly as in its toolkit once the songs have loaded; from the link before that)
-const churchName=()=>(D&&D.church)||store.get('cname_'+code,'')||LINK_NAME;
+const fixCh=t=>String(t||'').replace(/\bF\.?G\.?C\.?K\b/gi,'F.G.C.K').replace(/\bL\.?C\.?A\b/gi,'L.C.A').replace(/\bMURANG['’]?A\b/gi,"MURANG'A");
+const churchName=()=>fixCh((D&&D.church)||store.get('cname_'+code,'')||LINK_NAME);
 {const e=document.getElementById('spCh');if(e)e.textContent=churchName()}
 // a MEMBER signs in once with their phone number + PIN; then this phone is theirs (remembered always)
 let ph=store.get('ph_'+code,''),loginMsg='';
@@ -244,7 +248,7 @@ const saveMine=()=>{store.set('mine_'+code,mine);store.set('links_'+code,myLinks
 let edits=store.get('edits_'+code,{});   // changes made on this phone to the church's songs: {songId:{t,x,by,at}}
 const saveEdits=()=>store.set('edits_'+code,edits);
 const cArr=c=>c==null?[]:(Array.isArray(c)?c:[c]);
-const songs=()=>[...((D&&D.songs)||[]).map(s=>{let r=!s.l&&myLinks[s.i]?{...s,l:myLinks[s.i],ml:1}:s;const e=edits[s.i];if(e)r={...r,t:e.t,x:e.x,c:cArr(e.c),h:e.h||[{by:e.by,at:e.at}],orig:{t:s.t,x:s.x,c:cArr(s.c)}};return r}),...mine.map(m=>m.h||!m.eb?m:{...m,h:[{by:m.eb,at:m.ea}]})];
+const songs=()=>[...((D&&D.songs)||[]).map(s=>{let r=!s.l&&myLinks[s.i]?{...s,l:myLinks[s.i],ml:1}:s;const e=edits[s.i];if(e)r={...r,t:e.t,x:e.x,c:cArr(e.c),h:e.h||[{by:e.by,at:e.at}],...(e.m?{lg:e.m.lg,g:e.m.g,f:e.m.f}:{}),orig:{t:s.t,x:s.x,c:cArr(s.c),m:{lg:s.lg||'',g:s.g||'',f:s.f||''}}};return r}),...mine.map(m=>m.h||!m.eb?m:{...m,h:[{by:m.eb,at:m.ea}]})];
 // once the church toolkit has added a member's new song, use the church's copy
 function reconcile(){
   const by={};(D.songs||[]).forEach(s=>by[s.t.trim().toLowerCase()]=s);
@@ -261,7 +265,7 @@ const stanzas=t=>String(t||'').split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean)
 function render(){
   const a=$('app');
   if(!code||!signedIn()||!D){a.innerHTML=loginHtml();return}
-  let h='<header><div class="hd"><img class="gicon" src="badge.png" alt="" onerror="this.onerror=null;this.src=\'logo.jpg\'"><div class="t"><span class="cn">'+esc(D.church||churchName()||"F.G.C.K MURANG'A L.C.A")+'</span><b>TEAM APP</b></div>'+(fsOK()?'<button onclick="goFull()" title="Full screen">⛶</button>':'')+(isStandalone()||DEMO?'':'<button id="instBtn" onclick="maybeInstall(1)" title="Install the app" style="display:inline-block">📲 Install</button>')+'<button onclick="load()" title="Get the newest songs"'+(busy?' disabled':'')+'>'+(busy?'…':'↻')+'</button>'+(ph?'<button onclick="outDlg()" title="Sign out">⎋</button>':'')+'</div>'+
+  let h='<header><div class="hd"><img class="gicon" src="badge.png" alt="" onerror="this.onerror=null;this.src=\'logo.jpg\'"><div class="t"><span class="cn">'+esc(fixCh(D.church||churchName())||"F.G.C.K MURANG'A L.C.A")+'</span><b>TEAM APP</b></div>'+(fsOK()?'<button onclick="goFull()" title="Full screen">⛶</button>':'')+(isStandalone()||DEMO?'':'<button id="instBtn" onclick="maybeInstall(1)" title="Install the app" style="display:inline-block">📲 Install</button>')+'<button onclick="load()" title="Get the newest songs"'+(busy?' disabled':'')+'>'+(busy?'…':'↻')+'</button>'+(ph?'<button onclick="outDlg()" title="Sign out">⎋</button>':'')+'</div>'+
     '<div class="tabs"><button class="'+(tab==='songs'?'on':'')+'" onclick="go(\'songs\')">🎵 Songs ('+songs().length+')</button><button class="'+(tab==='prac'?'on':'')+'" onclick="go(\'prac\')">🎧 Practice ('+songs().filter(s=>linksOf(s).length).length+')</button><button class="'+(tab==='pls'?'on':'')+'" onclick="go(\'pls\')">📋 Playlists ('+pls.length+')</button></div></header><main>';
   if(cur)h+=songHtml();else if(curPl)h+=plHtml();else if(tab==='songs')h+=listHtml();else if(tab==='prac')h+=pracHtml();else h+=plsHtml();
   h+='</main>';
@@ -348,7 +352,7 @@ const hl=(t,w)=>{const e=esc(t);if(!w)return e;const k=e.toLowerCase().indexOf(e
 function card(s,w){
   const no=mNo(s),L=linksOf(s).length,t=bareT(s)||s.t;
   let ly='';if(w&&!s.t.toLowerCase().includes(w)){const ln=String(s.x||'').split('\n').find(x=>x.toLowerCase().includes(w));if(ln)ly='<div class="ly">… '+hl(ln.trim(),w)+'</div>'}
-  const sub=[s.lg,s.g,s.f?'📁 '+s.f:''].filter(Boolean).map(esc);if(s.mine)sub.unshift('<span class="nw">✎ new</span>');
+  const sub=[s.lg?esc(s.lg):'',s.g?'<span class="kd">'+esc(s.g)+'</span>':'',s.f?'📁 '+esc(s.f):''].filter(Boolean);if(s.mine)sub.unshift('<span class="nw">✎ new</span>');
   return '<div class="sc" onclick="openSong(\''+s.i+'\')"><div class="no">'+(no?'#'+no:'♪')+'</div><div class="w"><div class="tt" data-ti="'+s.i+'">'+hl(t,w)+'</div>'+(sub.length?'<div class="sub">'+sub.join(' · ')+'</div>':'')+ly+'</div>'+
     '<button class="pb'+(L?'':' off')+'" '+(L?'onclick="event.stopPropagation();play(\''+s.i+'\')" title="Play the practice song"':'tabindex="-1" aria-hidden="true"')+'>▶</button></div>';
 }
@@ -396,7 +400,7 @@ addEventListener('popstate',()=>{if(cur||curPl){goBack();}});
 function songHtml(){
   const s=songById(cur);if(!s){cur=null;return listHtml()}
   let h='<div class="bar"><button onclick="back()">← Back</button><span style="flex:1"></span><button onclick="setFs(-2)" title="Smaller words">A−</button><button onclick="setFs(2)" title="Bigger words">A+</button><button onclick="shareSong()" title="Send this song (WhatsApp…)">📤</button></div>';
-  h+='<h2 data-ti="'+s.i+'">'+esc(s.t)+'</h2>'+(s.lg||s.g?'<p class="hint" style="margin:0">'+[s.lg?'🌐 '+esc(s.lg):'',s.g?'🏷 '+esc(s.g):''].filter(Boolean).join(' · ')+'</p>':'')+(s.mine?'<p class="hint" style="margin:0">✎ Your new song – it goes to the church toolkit when you send a playlist that has it.</p>':'')+
+  h+='<h2 data-ti="'+s.i+'">'+esc(s.t)+'</h2>'+(s.lg||s.g?'<p class="hint" style="margin:0">'+[s.lg?'🌐 '+esc(s.lg):'',s.g?'🏷 '+esc(s.g):''].filter(Boolean).join(' · ')+'</p>':'')+(s.mine?'<p class="hint" style="margin:0">✎ Your new song – it goes to the church toolkit when you send a playlist that has it.</p>':'')+(s.ab?'<p class="hint" style="margin:2px 0 0">➕ Added by <b style="color:#2f8fff">'+esc(s.ab.by)+'</b> · '+esc(fmtAt(s.ab.at))+'</p>':'')+
     '<div class="bar">'+(()=>{const L=linksOf(s);return L.map((l,k)=>'<button class="pri" onclick="play(\''+s.i+'\','+k+')">▶ '+(L.length>1?esc(l.n||'Link '+(k+1)):'Play practice song')+'</button>').join('')})()+
     '<button onclick="addDlg(\''+s.i+'\')">+ Add to playlist</button>'+
     (s.mine?'<button onclick="newSong(\''+s.i+'\')">✎ Edit</button><button class="dng" onclick="delMine(\''+s.i+'\')">Delete</button>':
@@ -634,7 +638,7 @@ function plHtml(){
   h+=p.items.map((x,i)=>{
     const ctl='<button onclick="mv('+i+',-1)"'+(i?'':' disabled')+'>↑</button><button onclick="mv('+i+',1)"'+(i<p.items.length-1?'':' disabled')+'>↓</button><button onclick="rm('+i+')">✕</button>';
     if(x.sec)return '<div class="sec"><b>'+esc(x.sec)+'</b><span>'+esc(x.lead||'')+'</span>'+ctl+'</div>';
-    const s=songById(x.s);return '<div class="it"><span class="n" data-ti="'+x.s+'" onclick="openSong(\''+x.s+'\',\''+p.id+'\')">'+(s?esc(s.t)+(s.l?' 🎧':''):'<span class="hint">(song removed from the church list)</span>')+'</span>'+ctl+'</div>';
+    const s=songById(x.s);return '<div class="it"><span class="n" data-ti="'+x.s+'" onclick="openSong(\''+x.s+'\',\''+p.id+'\')">'+(s?esc(s.t)+(s.g?' <span class="kd">'+esc(s.g)+'</span>':'')+(s.l?' 🎧':''):'<span class="hint">(song removed from the church list)</span>')+'</span>'+ctl+'</div>';
   }).join('')||'<p class="hint">Empty. Add a title and some songs.</p>';
   if(ids.length)h+='<div class="bar" style="margin-top:16px"><button onclick="openSong(\''+ids[0]+'\',\''+p.id+'\');autoPlay();if(songById(\''+ids[0]+'\').l)play(\''+ids[0]+'\')">▶ Practise from the first song</button></div>';
   h+='<div class="card"><button class="pri" style="width:100%" onclick="sendPl()">📤 Send to church toolkit</button>'+(p.sent?'<button style="width:100%;margin-top:8px" onclick="tellDlg(\''+p.id+'\')">💬 Tell the team on WhatsApp</button>':'')+'<p class="hint" style="margin:8px 0 0">The media team will see it on the church laptop as a new playlist, with your titles and name.</p></div>';
@@ -678,7 +682,7 @@ async function sendPl(){
 const b64e=o=>{const b=new TextEncoder().encode(JSON.stringify(o));let t='';b.forEach(c=>t+=String.fromCharCode(c));return btoa(t).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')};
 const b64d=r=>{let t=r.replace(/-/g,'+').replace(/_/g,'/');while(t.length%4)t+='=';const a=atob(t),u=new Uint8Array(a.length);for(let i=0;i<a.length;i++)u[i]=a.charCodeAt(i);return JSON.parse(new TextDecoder().decode(u))};
 function churchParam(){
-  const nm=store.get('cname_'+code,'')||(D&&D.church)||'';
+  const nm=fixCh(store.get('cname_'+code,'')||(D&&D.church)||'');
   const slug=String(nm).toLowerCase().replace(/['’.]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
   return slug?slug+'-'+code:code;
 }
@@ -899,24 +903,24 @@ function tidyText(t){
 const tidyTitle=t=>capWords(String(t).replace(/[\s_(\[-]*(by[\s_]+)?author[\s_]*unknown[\s_)\]]*/gi,' ').replace(/_+/g,' ').replace(/\s+/g,' ').trim());
 function fixLink(v){v=String(v||'').trim();if(!v)return '';if(!/^https?:\/\//i.test(v))v='https://'+v;try{const u=new URL(v);return /\./.test(u.hostname)?u.href:false}catch(e){return false}}
 function newSong(id,plId,pre){
-  const m=id?mine.find(x=>x.i===id):null;let getC=()=>[];
-  if(m&&!regName()){withEditor(()=>newSong(id,plId,pre));return}
+  const m=id?mine.find(x=>x.i===id):null;let getC=()=>[],getM=()=>({lg:'',g:'',f:''});
+  if(!regName()){withEditor(()=>newSong(id,plId,pre));return}
   pre=String(pre||'').trim();if(/^#?\d+$/.test(pre)||/[,;+\n]/.test(pre))pre='';
   setTimeout(()=>{if(!m)dupWatch()},0);
   dlgForm(m?'Edit your song':'New song',[['t','Title',m?m.t:pre],['x','Lyrics – paste them; they are tidied for you (capital letters, empty line between stanzas)',m?m.x:'','area'],['l','Practice link – YouTube etc. (optional)',m?m.l||'':'']],v=>{
-    v.t=tidyTitle(v.t);v.x=tidyText(v.x);const c=getC();
+    v.t=tidyTitle(v.t);v.x=tidyText(v.x);const c=getC(),mm=getM();
     if(!v.t||!v.x){toast('Add the title and the lyrics.',1);return}
     const l=fixLink(v.l);if(l===false){toast('The link does not look right.',1);return}
-    if(m){withEditor(by=>{Object.assign(m,{t:v.t,x:v.x,l,c,h:pushH(m.h||(m.eb?[{by:m.eb,at:m.ea}]:[]),by)});delete m.eb;delete m.ea;saveMine();render();toast('Song saved')});return}
+    if(m){withEditor(by=>{Object.assign(m,{t:v.t,x:v.x,l,c,lg:mm.lg,g:mm.g,f:mm.f,h:pushH(m.h||(m.eb?[{by:m.eb,at:m.ea}]:[]),by)});delete m.eb;delete m.ea;saveMine();render();toast('Song saved')});return}
     const same=songs().find(s=>s.t.trim().toLowerCase()===v.t.trim().toLowerCase());
     if(same){toast('“'+same.t+'” is already in the list – opening it.');openSong(same.i);return}
     const sim=findSimilar(v.x);   // the same words under another title (not the title: two songs may share a title)
     if(sim&&!confirm('These lyrics are already in the app:\n“'+sim.t+'”\n\nPress OK to save yours anyway, or Cancel to open that song.')){openSong(sim.i);return}
-    const s={i:'n_'+uid(),t:v.t,x:v.x,l,c,mine:1};mine.push(s);saveMine();
+    const s={i:'n_'+uid(),t:v.t,x:v.x,l,c,lg:mm.lg,g:mm.g,f:mm.f,mine:1,ab:{by:regName(),at:new Date().toISOString()}};mine.push(s);saveMine();
     if(plId){const p=pls.find(x=>x.id===plId);p.items.push({s:s.i});p.sent=null;savePls();render();toast('Song added to '+p.name)}
     else{openSong(s.i);toast('Song saved on this phone')}
   });
-  getC=chorusPicker(cArr(m?m.c:null));songFull(m?'Editing':'Adding');
+  getM=metaPicker(m||{});getC=chorusPicker(cArr(m?m.c:null));songFull(m?'Editing':'Adding');
 }
 // ADDING A SONG: while the member types the title (or pastes the lyrics), the songs already in the app show at once
 function dupWatch(){
@@ -944,6 +948,27 @@ function chorusPicker(init){
   ta.addEventListener('input',()=>{clearTimeout(window.__cp);window.__cp=setTimeout(run,250)});run();
   return()=>[...sel].sort((a,b)=>a-b);
 }
+// LANGUAGE, KIND (Slow, Fast…) and FOLDER: three drop-down boxes under the title; "➕ New…" adds one that is not in the list yet
+function metaPicker(init){
+  const t=$('f_t');if(!t)return()=>({lg:'',g:'',f:''});
+  const all=songs(),uniq=a=>[...new Set(a.filter(Boolean))];
+  const opts={lg:uniq([...LANGS,...all.map(x=>x.lg)]),g:uniq(['Slow','Fast',...all.map(x=>x.g)]).sort(),f:uniq([...(D&&D.folders||[]),...all.map(x=>x.f)])};
+  const cur={lg:init.lg||'',g:init.g||'',f:init.f||''};
+  Object.keys(cur).forEach(k=>{if(cur[k]&&!opts[k].includes(cur[k]))opts[k].push(cur[k])});
+  const names={lg:['🌐 Language','No language','language'],g:['🏷 Kind (Slow, Fast…)','No kind','kind'],f:['📁 Folder','No folder','folder']};
+  let adding=null;
+  const box=document.createElement('div');box.id='metaPick';
+  const draw=()=>{box.innerHTML=['lg','g','f'].map(k=>'<label>'+names[k][0]+'</label>'+(adding===k
+    ?'<div class="addrow"><input id="mp_new" placeholder="Type the new '+names[k][2]+'" autocomplete="off"><button class="pri" data-add="'+k+'">Add</button><button data-no="1">Cancel</button></div>'
+    :'<select data-k="'+k+'"><option value="">'+names[k][1]+'</option>'+opts[k].map(v=>'<option value="'+esc(v)+'"'+(v===cur[k]?' selected':'')+'>'+esc(v)+'</option>').join('')+'<option value="__new">➕ Add new '+names[k][2]+'…</option></select>')).join('');
+    const i=$('mp_new');if(i)i.focus()};
+  const addNow=k=>{const i=$('mp_new'),v=i?i.value.trim().replace(/\s+/g,' '):'';if(v){const ex=opts[k].find(x=>x.toLowerCase()===v.toLowerCase());if(ex)cur[k]=ex;else{opts[k].push(v);cur[k]=v}}adding=null;draw()};
+  box.onchange=e=>{const el=e.target;if(!el.dataset||!el.dataset.k)return;const k=el.dataset.k;if(el.value==='__new'){adding=k;draw()}else cur[k]=el.value};
+  box.onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.add)addNow(b.dataset.add);else if(b.dataset.no){adding=null;draw()}};
+  box.onkeydown=e=>{if(e.key==='Enter'&&adding){e.preventDefault();addNow(adding)}};
+  t.insertAdjacentElement('afterend',box);draw();
+  return()=>({...cur});
+}
 // the song form fills the screen; the editor's name is shown as fixed text (not a box that can be typed in)
 function songFull(verb){
   const d=$('dlg'),n=regName();d.classList.add('full');
@@ -961,15 +986,15 @@ function withEditor(fn){
 function editSong(id,pre){
   const s=songById(id);if(!s)return;
   if(!regName()){withEditor(()=>editSong(id,pre));return}
-  const o=s.orig||{t:s.t,x:s.x,c:cArr(s.c)},f=pre||{t:s.t,x:s.x,c:cArr(s.c)},n=regName();let getC=()=>[];
+  const m0={lg:s.lg||'',g:s.g||'',f:s.f||''},o=s.orig||{t:s.t,x:s.x,c:cArr(s.c),m:m0},f=pre||{t:s.t,x:s.x,c:cArr(s.c),m:m0},n=regName();let getC=()=>[],getM=()=>m0;
   dlgForm('Edit song',[['t','Title',f.t],['x','Lyrics – an empty line between stanzas',f.x,'area']],v=>{
-    v.t=tidyTitle(v.t);v.x=tidyText(v.x);const c=getC();
-    if(!v.t||!v.x){toast('Add the title and the lyrics.',1);editSong(id,{t:v.t,x:v.x,c});return}
-    if(v.t===o.t&&v.x===o.x&&JSON.stringify(c)===JSON.stringify(cArr(o.c))){delete edits[id];saveEdits();render();toast('Same as the church copy');return}
-    if(v.t===s.t&&v.x===s.x&&JSON.stringify(c)===JSON.stringify(cArr(s.c)))return;
-    withEditor(by=>{const e=edits[id];edits[id]={t:v.t,x:v.x,c,h:pushH(e&&(e.h||[{by:e.by,at:e.at}]),by)};saveEdits();render();toast('Song saved on this phone')});
+    v.t=tidyTitle(v.t);v.x=tidyText(v.x);const c=getC(),mm=getM(),J=JSON.stringify;
+    if(!v.t||!v.x){toast('Add the title and the lyrics.',1);editSong(id,{t:v.t,x:v.x,c,m:mm});return}
+    if(v.t===o.t&&v.x===o.x&&J(c)===J(cArr(o.c))&&J(mm)===J(o.m)){delete edits[id];saveEdits();render();toast('Same as the church copy');return}
+    if(v.t===s.t&&v.x===s.x&&J(c)===J(cArr(s.c))&&J(mm)===J(m0))return;
+    withEditor(by=>{const e=edits[id];edits[id]={t:v.t,x:v.x,c,m:mm,h:pushH(e&&(e.h||[{by:e.by,at:e.at}]),by)};saveEdits();render();toast('Song saved on this phone')});
   });
-  getC=chorusPicker(cArr(f.c));songFull('Editing');
+  getM=metaPicker(f.m||m0);getC=chorusPicker(cArr(f.c));songFull('Editing');
 }
 function restoreSong(id){
   if(!confirm('Go back to the church\u2019s original words for this song?'))return;
