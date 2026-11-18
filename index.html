@@ -25,6 +25,12 @@ main{padding:12px 14px calc(120px + var(--cb));max-width:760px;margin:0 auto}
 .row .n{flex:1;min-width:0}.row .n small{display:block;color:#8a90a0;font-size:12.5px}
 .hint{color:#8a90a0;font-size:13.5px}.gold{color:#e0b24a}
 .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+@keyframes npGlow{0%,100%{color:#ffe08a;text-shadow:0 0 3px #e0b24a,0 0 9px rgba(224,178,74,.75)}50%{color:#fff6d6;text-shadow:0 0 6px #ffd86b,0 0 16px #e0b24a,0 0 28px rgba(224,178,74,.9)}}
+/* the song that is playing: its title glows, so it is easy to see in the lists, the playlist and the song page */
+.glow{font-weight:800;color:#ffe08a;text-shadow:0 0 6px #ffd86b,0 0 16px #e0b24a;animation:npGlow 1.6s ease-in-out infinite}
+.sc:has(.glow){border-color:#e0b24a;box-shadow:0 0 0 1px rgba(224,178,74,.45),0 0 16px rgba(224,178,74,.28)}
+.it:has(.glow){background:rgba(224,178,74,.1);border-radius:8px}
+@media(prefers-reduced-motion:reduce){.glow{animation:none}}
 h2{margin:6px 0 4px;font-size:22px;line-height:1.25}
 .stz{background:#1d2026;border:1px solid #2c313a;border-radius:12px;padding:10px 14px;margin:10px 0}
 .stz h3{margin:0 0 4px;font-size:12px;color:#8a90a0;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
@@ -324,7 +330,7 @@ function card(s,w){
   const no=mNo(s),L=linksOf(s).length,t=bareT(s)||s.t;
   let ly='';if(w&&!s.t.toLowerCase().includes(w)){const ln=String(s.x||'').split('\n').find(x=>x.toLowerCase().includes(w));if(ln)ly='<div class="ly">… '+hl(ln.trim(),w)+'</div>'}
   const sub=[s.lg,s.g,s.f?'📁 '+s.f:''].filter(Boolean).map(esc);if(s.mine)sub.unshift('<span class="nw">✎ new</span>');
-  return '<div class="sc" onclick="openSong(\''+s.i+'\')"><div class="no">'+(no?'#'+no:'♪')+'</div><div class="w"><div class="tt">'+hl(t,w)+'</div>'+(sub.length?'<div class="sub">'+sub.join(' · ')+'</div>':'')+ly+'</div>'+
+  return '<div class="sc" onclick="openSong(\''+s.i+'\')"><div class="no">'+(no?'#'+no:'♪')+'</div><div class="w"><div class="tt" data-ti="'+s.i+'">'+hl(t,w)+'</div>'+(sub.length?'<div class="sub">'+sub.join(' · ')+'</div>':'')+ly+'</div>'+
     '<button class="pb'+(L?'':' off')+'" '+(L?'onclick="event.stopPropagation();play(\''+s.i+'\')" title="Play the practice song"':'tabindex="-1" aria-hidden="true"')+'>▶</button></div>';
 }
 function grpKey(s){
@@ -371,7 +377,7 @@ addEventListener('popstate',()=>{if(cur||curPl){goBack();}});
 function songHtml(){
   const s=songById(cur);if(!s){cur=null;return listHtml()}
   let h='<div class="bar"><button onclick="back()">← Back</button><span style="flex:1"></span><button onclick="setFs(-2)" title="Smaller words">A−</button><button onclick="setFs(2)" title="Bigger words">A+</button><button onclick="shareSong()" title="Send this song (WhatsApp…)">📤</button></div>';
-  h+='<h2>'+esc(s.t)+'</h2>'+(s.lg||s.g?'<p class="hint" style="margin:0">'+[s.lg?'🌐 '+esc(s.lg):'',s.g?'🏷 '+esc(s.g):''].filter(Boolean).join(' · ')+'</p>':'')+(s.mine?'<p class="hint" style="margin:0">✎ Your new song – it goes to the church toolkit when you send a playlist that has it.</p>':'')+
+  h+='<h2 data-ti="'+s.i+'">'+esc(s.t)+'</h2>'+(s.lg||s.g?'<p class="hint" style="margin:0">'+[s.lg?'🌐 '+esc(s.lg):'',s.g?'🏷 '+esc(s.g):''].filter(Boolean).join(' · ')+'</p>':'')+(s.mine?'<p class="hint" style="margin:0">✎ Your new song – it goes to the church toolkit when you send a playlist that has it.</p>':'')+
     '<div class="bar">'+(()=>{const L=linksOf(s);return L.map((l,k)=>'<button class="pri" onclick="play(\''+s.i+'\','+k+')">▶ '+(L.length>1?esc(l.n||'Link '+(k+1)):'Play practice song')+'</button>').join('')})()+
     '<button onclick="addDlg(\''+s.i+'\')">+ Add to playlist</button>'+
     (s.mine?'<button onclick="newSong(\''+s.i+'\')">✎ Edit</button><button class="dng" onclick="delMine(\''+s.i+'\')">Delete</button>':
@@ -413,6 +419,10 @@ function practiceSrc(link){let u;try{u=new URL(link)}catch(e){return null}
   if(/\.(mp4|webm|ogv|mov)$/i.test(u.pathname))return {kind:'video',src:link,name:'Video'};
   return {kind:'frame',src:link,name:h,other:true}}
 let playing=null,ytP=null,ytTok=0,autoP=store.get('autoplay',true),ytPref='app';
+// the playing song's title glows wherever it is shown (lists, playlist, song page, player)
+function markPlaying(){document.querySelectorAll('[data-ti]').forEach(e=>e.classList.toggle('glow',!!playing&&e.dataset.ti===playing))}
+{let mpT=0;const start=()=>new MutationObserver(()=>{if(!mpT)mpT=requestAnimationFrame(()=>{mpT=0;markPlaying()})}).observe(document.body,{childList:true,subtree:true});
+ if(document.body)start();else addEventListener('DOMContentLoaded',start)}
 /* YouTube player with the YouTube API: knows when a song ENDS (autoplay the next song that has a link)
    and when a video CANNOT play inside the app (the owner blocked it) – then a red button opens it on YouTube */
 let ytApi=0;const ytQ=[];
@@ -434,9 +444,9 @@ function killYT(){ytTok++;try{ytP&&ytP.destroy()}catch(e){}ytP=null}
 function play(id,k,auto){
   const s=songById(id);const L=linksOf(s);if(!s||!L.length)return;k=Math.min(Math.max(+k||0,0),L.length-1);const lk=L[k];const p=practiceSrc(lk.u);if(!p){toast('This practice link cannot be opened.',1);return}
   let yid='';try{yid=ytId(new URL(lk.u))}catch(e){}
-  playing=id;playingK=k;let b=$('prac');if(!b){b=document.createElement('div');b.id='prac';document.body.appendChild(b)}
+  playing=id;playingK=k;markPlaying();let b=$('prac');if(!b){b=document.createElement('div');b.id='prac';document.body.appendChild(b)}
   b.className=DEMO?'demo':p.kind==='audio'?'aud':'';
-  const head='<div class="phd"><span class="pt">🎧 '+esc(s.t)+' <span class="hint">· '+esc(lk.n||p.name)+'</span></span>'+
+  const head='<div class="phd"><span class="pt">🎧 <span class="glow">'+esc(s.t)+'</span> <span class="hint">· '+esc(lk.n||p.name)+'</span></span>'+
     (L.length>1?'<select style="width:auto;max-width:110px;padding:3px 4px;font-size:12px" onchange="play(\''+id+'\',this.value)">'+L.map((l,i)=>'<option value="'+i+'"'+(i===k?' selected':'')+'>'+esc(l.n||'Link '+(i+1))+'</option>').join('')+'</select>':'')+
     (cur!==id?'<button onclick="openSong(\''+id+'\')">Lyrics</button>':'')+
     '<button class="'+(autoP?'on':'')+'" title="Autoplay: when a song ends, the next song with a link plays" onclick="autoP=!autoP;store.set(\'autoplay\',autoP);this.classList.toggle(\'on\',autoP);toast(autoP?\'Autoplay on – the next song plays by itself\':\'Autoplay off\')">⏭</button>'+
@@ -535,7 +545,7 @@ function sizeBars(){
   r.setProperty('--hh',(hd?hd.offsetHeight:0)+'px');r.setProperty('--ph',(pr?pr.offsetHeight:0)+'px');
 }
 addEventListener('resize',()=>sizeBars());
-function closePlayer(keep){if(keep&&playing)return;castStop(true);killYT();const b=$('prac');if(b)b.remove();playing=null;document.body.classList.remove('pracOn');sizeBars()}
+function closePlayer(keep){if(keep&&playing)return;castStop(true);killYT();const b=$('prac');if(b)b.remove();playing=null;markPlaying();document.body.classList.remove('pracOn');sizeBars()}
 
 /* ---------- playlists ---------- */
 function plsHtml(){
@@ -560,7 +570,7 @@ function plHtml(){
   h+=p.items.map((x,i)=>{
     const ctl='<button onclick="mv('+i+',-1)"'+(i?'':' disabled')+'>↑</button><button onclick="mv('+i+',1)"'+(i<p.items.length-1?'':' disabled')+'>↓</button><button onclick="rm('+i+')">✕</button>';
     if(x.sec)return '<div class="sec"><b>'+esc(x.sec)+'</b><span>'+esc(x.lead||'')+'</span>'+ctl+'</div>';
-    const s=songById(x.s);return '<div class="it"><span class="n" onclick="openSong(\''+x.s+'\',\''+p.id+'\')">'+(s?esc(s.t)+(s.l?' 🎧':''):'<span class="hint">(song removed from the church list)</span>')+'</span>'+ctl+'</div>';
+    const s=songById(x.s);return '<div class="it"><span class="n" data-ti="'+x.s+'" onclick="openSong(\''+x.s+'\',\''+p.id+'\')">'+(s?esc(s.t)+(s.l?' 🎧':''):'<span class="hint">(song removed from the church list)</span>')+'</span>'+ctl+'</div>';
   }).join('')||'<p class="hint">Empty. Add a title and some songs.</p>';
   if(ids.length)h+='<div class="bar" style="margin-top:16px"><button onclick="openSong(\''+ids[0]+'\',\''+p.id+'\');autoPlay();if(songById(\''+ids[0]+'\').l)play(\''+ids[0]+'\')">▶ Practise from the first song</button></div>';
   h+='<div class="card"><button class="pri" style="width:100%" onclick="sendPl()">📤 Send to church toolkit</button>'+(p.sent?'<button style="width:100%;margin-top:8px" onclick="tellDlg(\''+p.id+'\')">💬 Tell the team on WhatsApp</button>':'')+'<p class="hint" style="margin:8px 0 0">The media team will see it on the church laptop as a new playlist, with your titles and name.</p></div>';
