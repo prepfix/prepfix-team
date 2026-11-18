@@ -39,7 +39,7 @@ main{padding:12px 14px calc(120px + var(--cb));max-width:760px;margin:0 auto}
 h2{margin:6px 0 4px;font-size:22px;line-height:1.25}
 .stz{background:#1d2026;border:1px solid #2c313a;border-radius:12px;padding:10px 14px;margin:10px 0}
 .stz h3{margin:0 0 5px;font-size:18px;color:#2f8fff;font-weight:900;letter-spacing:.04em;text-transform:uppercase;text-shadow:0 0 .6px #2f8fff}
-.stz p{margin:0;font-size:19px;line-height:1.55}
+.stz{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}.stz.lp{outline:2px solid #2f8fff}.stz p{margin:0;font-size:19px;line-height:1.55}
 .stz.chs{border-color:#e0b24a;background:#221f17}.stz.chs h3{color:#ffc93c;text-shadow:0 0 .6px #ffc93c}
 #metaPick .addrow{display:flex;gap:6px}#metaPick .addrow input{flex:1}#metaPick .addrow button{padding:9px 12px}
 #metaPick select{width:100%;background:#0f1115;border:1px solid #363c48;border-radius:10px;padding:11px 12px;color:inherit;font:inherit}
@@ -262,7 +262,8 @@ function reconcile(){
   (D.songs||[]).forEach(s=>{if(s.l)delete myLinks[s.i]});
   saveMine();savePls();
 }
-const songById=id=>songs().find(s=>s.i===id);
+let tmpS=null; // a saved Find being played in the app (not a church song)
+const songById=id=>songs().find(s=>s.i===id)||(tmpS&&tmpS.i===id?tmpS:null);
 // a song can have several practice links: s.ls=[[link,name],…] (s.l is always the first)
 const linksOf=s=>s&&Array.isArray(s.ls)&&s.ls.length?s.ls.map(x=>({u:x[0],n:x[1]||''})):(s&&s.l?[{u:s.l,n:''}]:[]);
 const stanzas=t=>String(t||'').split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
@@ -404,6 +405,7 @@ function pushView(){try{history.pushState({pft:1},'')}catch(e){}}
 addEventListener('popstate',()=>{if(cur||curPl){goBack();}});
 function songHtml(){
   const s=songById(cur);if(!s){cur=null;return listHtml()}
+  if(!store.get('lptip',0)){store.set('lptip',1);setTimeout(()=>toast('Tip: press and hold a stanza to edit it'),600)}
   let h='<div class="bar"><button onclick="back()">← Back</button><span style="flex:1"></span><button onclick="setFs(-2)" title="Smaller words">A−</button><button onclick="setFs(2)" title="Bigger words">A+</button><button onclick="shareSong()" title="Send this song (WhatsApp…)">📤</button></div>';
   h+='<h2 data-ti="'+s.i+'">'+esc(s.t)+'</h2>'+(s.lg||s.g?'<p class="hint" style="margin:0">'+[s.lg?'🌐 '+esc(s.lg):'',s.g?'🏷 '+esc(s.g):''].filter(Boolean).join(' · ')+'</p>':'')+(s.mine?'<p class="hint" style="margin:0">✎ Your new song – it goes to the church toolkit when you send a playlist that has it.</p>':'')+(s.ab?'<p class="hint" style="margin:2px 0 0">➕ Added by <b style="color:#2f8fff">'+esc(s.ab.by)+'</b> · '+esc(fmtAt(s.ab.at))+'</p>':'')+
     '<div class="bar">'+(()=>{const L=linksOf(s);return L.map((l,k)=>'<button class="pri" onclick="play(\''+s.i+'\','+k+')">▶ '+(L.length>1?esc(l.n||'Link '+(k+1)):'Play practice song')+'</button>').join('')})()+
@@ -413,7 +415,7 @@ function songHtml(){
      (!s.l?'<button onclick="linkDlg(\''+s.i+'\')">🎧 Add practice link</button>':s.ml?'<button onclick="linkDlg(\''+s.i+'\')">✎ Your link</button>':''))+'</div>'+
     (s.h&&s.h.length?'<p class="hint" style="margin:2px 0 0">✏️ Last edited by <b style="color:#2f8fff">'+esc(s.h[0].by)+'</b> · '+esc(fmtAt(s.h[0].at))+(s.h[1]?'<br>Before that: <b style="color:#2f8fff">'+esc(s.h[1].by)+'</b> · '+esc(fmtAt(s.h[1].at)):'')+'</p>':'')+
     (s.ml?'<p class="hint" style="margin:0">🎧 You added this link – it goes to the church toolkit with your playlist.</p>':'');
-  h+='<div>'+stanzas(s.x).map((st,i)=>'<div class="stz'+(cArr(s.c).includes(i)?' chs':'')+'"><h3>'+(cArr(s.c).includes(i)?'Chorus':'Stanza')+'</h3><p style="font-size:'+fsz+'px">'+esc(st).replace(/\n/g,'<br>')+'</p><div class="sbar"><button onclick="editStanza(\''+s.i+'\','+i+')">✎ Edit this part</button><button class="'+(cArr(s.c).includes(i)?'on':'')+'" onclick="toggleChorus(\''+s.i+'\','+i+')">'+(cArr(s.c).includes(i)?'★ Not chorus':'☆ Make chorus')+'</button></div></div>').join('')+'</div>';
+  h+='<div>'+stanzas(s.x).map((st,i)=>'<div class="stz'+(cArr(s.c).includes(i)?' chs':'')+'" data-sid="'+s.i+'" data-si="'+i+'"><h3>'+(cArr(s.c).includes(i)?'Chorus':'Stanza')+'</h3><p style="font-size:'+fsz+'px">'+esc(st).replace(/\n/g,'<br>')+'</p><div class="sbar"><button class="'+(cArr(s.c).includes(i)?'on':'')+'" onclick="toggleChorus(\''+s.i+'\','+i+')">'+(cArr(s.c).includes(i)?'★ Not chorus':'☆ Make chorus')+'</button></div></div>').join('')+'</div>';
   if(fromPl){const p=pls.find(x=>x.id===fromPl);if(p){const ids=p.items.filter(x=>x.s).map(x=>x.s),k=ids.indexOf(s.i);
     h+='<div class="nav2"><button '+(k>0?'':'disabled')+' onclick="openSong(\''+ids[k-1]+'\',\''+p.id+'\');autoPlay()">⏮ Previous song</button><button class="pri" '+(k>=0&&k<ids.length-1?'':'disabled')+' onclick="openSong(\''+ids[k+1]+'\',\''+p.id+'\');autoPlay()">Next song ⏭</button></div>'}}
   else{const k=order.indexOf(s.i); // Previous / Next follow the list exactly as it was shown (search, language, genre, order)
@@ -488,7 +490,7 @@ function play(id,k,auto){
   b.className=DEMO?'demo':p.kind==='audio'?'aud':'';
   const head='<div class="phd"><span class="pt">🎧 <span class="glow">'+esc(s.t)+'</span> <span class="hint">· '+esc(lk.n||p.name)+'</span></span>'+
     (L.length>1?'<select onchange="play(\''+id+'\',this.value)">'+L.map((l,i)=>'<option value="'+i+'"'+(i===k?' selected':'')+'>'+esc(l.n||'Link '+(i+1))+'</option>').join('')+'</select>':'')+
-    (cur!==id?'<button style="font-size:15px" onclick="openSong(\''+id+'\')">Lyrics</button>':'')+(yid&&!DEMO?'<button onclick="saveFind()" title="Save this song to Finds – to add it to the app later">⭐</button><button class="more" onclick="moreArtist()" title="More music from this artist – plays here in the app">🎵 More from artist</button>':'')+
+    (cur!==id&&!String(id).startsWith('find:')?'<button style="font-size:15px" onclick="openSong(\''+id+'\')">Lyrics</button>':'')+(yid&&!DEMO?'<button onclick="saveFind()" title="Save this song to Finds – to add it to the app later">⭐</button><button class="more" onclick="moreArtist()" title="More music from this artist – plays here in the app">🎵 More from artist</button>':'')+
     '<button class="'+(autoP?'on':'')+'" title="Autoplay: when a song ends, the next song with a link plays" onclick="autoP=!autoP;store.set(\'autoplay\',autoP);this.classList.toggle(\'on\',autoP);toast(autoP?\'Autoplay on – the next song plays by itself\':\'Autoplay off\')">⏭</button>'+
     (p.kind!=='audio'?'<button onclick="$(\'prac\').classList.toggle(\'small\');sizeBars()" title="Smaller / bigger player">⇕</button><button onclick="fullVid()" title="Full screen video">⛶</button>':'')+
     '<button onclick="castNow()" title="Show this on the TV (Chromecast / smart TV)">📺</button>'+
@@ -521,7 +523,7 @@ function play(id,k,auto){
       if(fail){box.outerHTML='<iframe src="'+esc(p.src)+'" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';return} // no YouTube API (weak internet): the plain player
       ytP=new YT.Player(box,{videoId:yid,host:'https://www.youtube-nocookie.com',playerVars:{autoplay:1,playsinline:1,rel:0,modestbranding:1,cc_load_policy:0,start,origin:location.origin},
         events:{onError:e=>{if(tok!==ytTok)return;if(artistOn){artistError(e.data);return}const vid=yid;if([100,101,150,153].includes(e.data)){if(e.data===101||e.data===150)ytBlock(vid);const pb=b.querySelector('.pbody');killYT();if(pb)pb.innerHTML=ytBtn(vid,'This video can’t play inside the app');pmsg(fbMsg(vid))}},
-          onStateChange:e=>{if(e.data===0&&!artistOn)autoNext();if(e.data===1){artistErr=0;if(!artistOn)pmsg('');try{e.target.unloadModule('captions')}catch(_){}try{e.target.unloadModule('cc')}catch(_){}}}}});
+          onStateChange:e=>{if(e.data===0&&!artistOn)autoNext();if(e.data===1&&artistOn){let d=0;try{d=e.target.getDuration()}catch(_){}if(d>MAXSEC){toast('Skipped a video longer than 15 minutes');try{e.target.nextVideo()}catch(_){}return}}if(e.data===1){artistErr=0;if(!artistOn)pmsg('');try{e.target.unloadModule('captions')}catch(_){}try{e.target.unloadModule('cc')}catch(_){}}}}});
       watchStart(tok,yid)});
   }
   document.body.classList.add('pracOn');sizeBars();setTimeout(sizeBars,300);
@@ -532,6 +534,7 @@ function watchStart(tok,yid){setTimeout(()=>{if(tok!==ytTok||!ytP||!ytP.getPlaye
 // AUTOPLAY: when a song ends, the next song that has a link (in the playlist, or in the list as it was shown) opens and plays
 function autoNext(){
   if(!autoP||!playing)return;
+  if(String(playing).startsWith('find:')){const k=finds.findIndex(f=>'find:'+f.y===playing),n=finds[k+1];if(k>=0&&n){playFind(n.y);toast('⏭ '+(n.t||''))}else toast('End of the list.');return}
   const p=fromPl&&pls.find(x=>x.id===fromPl),ids=p?p.items.filter(x=>x.s).map(x=>x.s):order,k=ids.indexOf(playing);
   for(let j=k+1;k>=0&&j<ids.length;j++){const n=songById(ids[j]);if(n&&linksOf(n).length){if(cur)openSong(n.i,p?p.id:null);toast('⏭ '+n.t);play(n.i,0,true);return}}
   toast('End of the list.');
@@ -541,51 +544,73 @@ function autoNext(){
    so the team can browse and play it without leaving the app. Previous / Next work; "Back to the song" returns. ---------- */
 const artistLinks=n=>'🎵 '+(n?'More from <b>'+esc(n)+'</b>. ':'More music like this. ')+'<a href="#" onclick="try{ytP.previousVideo()}catch(e){}return false">⏮ Previous</a> · <a href="#" onclick="try{ytP.nextVideo()}catch(e){}return false">Next ⏭</a> · <a href="#" onclick="saveFind();return false">⭐ Save</a> · <a href="#" onclick="artistBack();return false">↩ Back to the song</a>';
 let artistName='';
+const MAXSEC=900; // songs shown in "More from artist" are never longer than 15 minutes
+const IV_HOSTS=['https://inv.nadeko.net','https://yewtu.be','https://invidious.nerdvpn.de','https://invidious.privacyredirect.com','https://iv.melmac.space','https://invidious.f5.si'];
+const PIPED_HOSTS=['https://pipedapi.kavin.rocks','https://pipedapi.adminforge.de','https://api.piped.private.coffee','https://pipedapi.leptons.xyz','https://pipedapi.nosebs.ru'];
+const jf=async(u,ms)=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||6000);try{const r=await fetch(u,{signal:c.signal});if(!r.ok)throw 0;return r}finally{clearTimeout(t)}};
+const chIdOf=x=>{const m=String(x||'').match(/UC[\w-]{22}/);return m?m[0]:''};
+// the channel that UPLOADED this video
+async function uploaderChannel(yid,au){
+  let id=chIdOf(au);if(id)return id;
+  try{return await Promise.any([
+    ...IV_HOSTS.map(b=>jf(b+'/api/v1/videos/'+yid+'?fields=authorId',7000).then(r=>r.json()).then(j=>{const c=chIdOf(j.authorId);if(!c)throw 0;return c})),
+    ...PIPED_HOSTS.map(b=>jf(b+'/streams/'+yid,7000).then(r=>r.json()).then(j=>{const c=chIdOf(j.uploaderUrl);if(!c)throw 0;return c}))])}catch(e){return ''}
+}
+// the channel's videos with their length, so long ones can be left out before they are shown
+async function channelVideos(ch){
+  try{return await Promise.any([
+    ...IV_HOSTS.map(b=>jf(b+'/api/v1/channels/'+ch+'/videos',8000).then(r=>r.json()).then(j=>{const a=Array.isArray(j)?j:j.videos;if(!a||!a.length)throw 0;return a.map(x=>({y:x.videoId,d:+x.lengthSeconds||0}))})),
+    ...PIPED_HOSTS.map(b=>jf(b+'/channel/'+ch,8000).then(r=>r.json()).then(j=>{const a=j.relatedStreams;if(!a||!a.length)throw 0;return a.map(x=>({y:String(x.url||'').split('v=')[1]||'',d:+x.duration||0}))}))])}catch(e){return null}
+}
 async function moreArtist(){
   const s=songById(playing);
   if(!s||!ytP||!ytP.loadPlaylist){toast('Play the song on this phone first (a YouTube song).',1);return}
   let yid='';try{yid=ytId(new URL(linksOf(s)[playingK||0].u))}catch(e){}
   if(!yid){toast('This works with YouTube songs.',1);return}
   const tok=ytTok;toast('Finding more music…');
-  // THE ARTIST BY NAME: "CeCe Winans - Holy Forever" -> artist "CeCe Winans" -> her own channel -> her uploads only.
-  // (Not the uploader of the video – that can be a lyrics channel or a church – and never YouTube's mix.)
-  let name='',list='';
-  const jf=async(u,ms)=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||6000);try{const r=await fetch(u,{signal:c.signal});if(!r.ok)throw 0;return r}finally{clearTimeout(t)}};
-  const chId=x=>{const m=String(x||'').match(/UC[\w-]{22}/);return m?m[0]:''};
   const nz=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\b(official|vevo|topic|music|tv|channel|ministries|ministry)\b/g,'').replace(/[^a-z0-9]/g,'');
   const same=(a,b)=>{a=nz(a);b=nz(b);return !!a&&!!b&&(a===b||(Math.min(a.length,b.length)>=6&&(a.startsWith(b)||b.startsWith(a))))};
   let title='',up='',au='';
   try{const d=ytP.getVideoData();title=d.title||'';up=d.author||''}catch(e){}
-  if(!title||!up){try{const j=await (await jf('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent(ytWatch(yid)))).json();title=title||String(j.title||'');up=up||String(j.author_name||'');au=String(j.author_url||'')}catch(e){}}
-  // possible artist names: the words before / after the dash in the video title, then the uploader's name
+  try{const j=await (await jf('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent(ytWatch(yid)))).json();title=title||String(j.title||'');up=up||String(j.author_name||'');au=String(j.author_url||'')}catch(e){}
+  const stillHere=()=>tok===ytTok&&ytP;
+  // start playing a channel inside the app: only videos of 15 minutes or less
+  const startChannel=async(ch,name)=>{
+    const v=await channelVideos(ch);if(!stillHere())return true;
+    let ids=v?v.filter(x=>x.y&&x.y!==yid&&x.d>0&&x.d<=MAXSEC).map(x=>x.y):[];
+    artistOn=true;artistErr=0;artistName=name;
+    try{ids.length>=2?ytP.loadPlaylist(ids.slice(0,100),0,0):ytP.loadPlaylist({list:'UU'+ch.slice(2),listType:'playlist',index:0})}catch(e){artistOn=false;return false}
+    const pt=document.querySelector('#prac .pt');if(pt)pt.innerHTML='🎵 <span class="glow">'+esc(name||'More music')+'</span> <span class="hint">· more music</span>';
+    pmsg('');const mb=document.querySelector('#prac .phd button.more');
+    if(mb)mb.outerHTML='<button class="anav" onclick="try{ytP.previousVideo()}catch(e){}">⏮ Previous</button><button class="anav" onclick="try{ytP.nextVideo()}catch(e){}">Next ⏭</button><button class="anav" onclick="artistBack()">↩ Back</button>';
+    markPlaying();return true;
+  };
+  // 1. the channel that uploaded this video
+  const upName=up.replace(/\s*-\s*Topic$/i,'');
+  let ch=await uploaderChannel(yid,au);
+  if(!stillHere())return;
+  if(ch&&await startChannel(ch,upName))return;
+  // 2. otherwise the artist named in the title ("Artist - Song"): find that artist's own channel
   const clean=x=>x.replace(/\(.*?\)|\[.*?\]/g,'').replace(/\b(feat|ft)\b\.?.*$/i,'').replace(/\b(official|lyrics?|video|audio|live)\b/ig,'').replace(/[“"”]/g,'').trim();
   const parts=title.split(/\s+[-–—|:]\s+/).map(clean).filter(Boolean);
-  const cands=[];[parts[0],parts[1],clean(up.replace(/\s*-\s*Topic$/i,''))].forEach(x=>{if(x&&x.length>1&&!cands.some(c=>same(c,x)))cands.push(x)});
-  if(!cands.length){pmsg('The artist’s name could not be found for this song.');return}
-  const ck=store.get('ytartist',{}),key=nz(cands[0]);
-  if(ck[key]){name=ck[key].n;list='UU'+ck[key].c.slice(2)}
-  else{
-    let id='';
-    // 1. the uploader IS the artist (the artist's own channel)
-    for(const c of cands){if(same(c,up.replace(/\s*-\s*Topic$/i,''))){id=chId(au);if(id){name=c;break}}}
-    // 2. look the artist up by name and take only a channel whose name matches
-    if(!id){
-      const pick=(arr)=>{for(const c of cands){const m=arr.filter(x=>same(c,x.n));if(m.length){m.sort((a,b)=>(b.v?1:0)-(a.v?1:0));return {c:m[0].c,n:m[0].n}}}throw 0};
-      const searchAll=async c=>{const q=encodeURIComponent(c);return Promise.any([
-        jf('https://inv.nadeko.net/api/v1/search?type=channel&q='+q,7000).then(r=>r.json()).then(a=>a.map(x=>({c:x.authorId,n:x.author,v:x.authorVerified}))),
-        jf('https://yewtu.be/api/v1/search?type=channel&q='+q,7000).then(r=>r.json()).then(a=>a.map(x=>({c:x.authorId,n:x.author,v:x.authorVerified}))),
-        jf('https://pipedapi.kavin.rocks/search?filter=channels&q='+q,7000).then(r=>r.json()).then(j=>(j.items||[]).map(x=>({c:chId(x.url),n:x.name,v:x.verified})))
-      ])};
-      for(const c of cands){try{const r=pick(await searchAll(c));if(r.c){id=r.c;name=r.n;break}}catch(e){}}
+  const cands=[];[parts[0],parts[1]].forEach(x=>{if(x&&x.length>1&&!cands.some(c=>same(c,x)))cands.push(x)});
+  const ck=store.get('ytartist',{});
+  for(const c of cands){
+    const key=nz(c);let id='',name=c;
+    if(ck[key]){id=ck[key].c;name=ck[key].n}
+    else{
+      const q=encodeURIComponent(c);
+      try{const arr=await Promise.any([
+        ...IV_HOSTS.map(b=>jf(b+'/api/v1/search?type=channel&q='+q,7000).then(r=>r.json()).then(a=>a.map(x=>({c:x.authorId,n:x.author,v:x.authorVerified})))),
+        ...PIPED_HOSTS.map(b=>jf(b+'/search?filter=channels&q='+q,7000).then(r=>r.json()).then(j=>(j.items||[]).map(x=>({c:chIdOf(x.url),n:x.name,v:x.verified}))))]);
+        const m=arr.filter(x=>x.c&&same(c,x.n));m.sort((a,b)=>(b.v?1:0)-(a.v?1:0));
+        if(m.length){id=m[0].c;name=m[0].n;const o=store.get('ytartist',{});o[key]={c:id,n:name};store.set('ytartist',o)}}catch(e){}
     }
-    if(id){list='UU'+id.slice(2);const o=store.get('ytartist',{});o[key]={c:id,n:name};store.set('ytartist',o)}
+    if(!stillHere())return;
+    if(id&&id!==ch&&await startChannel(id,name))return;
   }
-  if(tok!==ytTok||!ytP)return; // the player was closed or changed meanwhile
-  if(!list){pmsg('Could not find the artist’s own channel (“'+esc(cands[0])+'”) right now, so no other music was played. Check the internet and try again, or <a href="https://www.youtube.com/results?search_query='+encodeURIComponent(name||cands[0])+'" target="prepfix_yt">search the artist on YouTube</a>.');return}
-  artistOn=true;artistErr=0;artistName=name;
-  try{ytP.loadPlaylist({list,listType:'playlist',index:0})}catch(e){artistOn=false;toast('Could not open the artist’s music here.',1);return}
-  const pt=document.querySelector('#prac .pt');if(pt)pt.innerHTML='🎵 <span class="glow">'+esc(name||'More music')+'</span> <span class="hint">· more music</span>';
-  pmsg(artistLinks(name));markPlaying();
+  if(!stillHere())return;
+  pmsg('Could not load more music right now. Check the internet and press “🎵 More from artist” again.');
 }
 // a song of the artist's list cannot be played inside the app: skip it; if several fail in a row, go back to the practice song
 function artistError(code){
@@ -596,7 +621,7 @@ function artistError(code){
 function artistBack(failed){
   const nm=artistName;artistOn=false;markPlaying();
   if(playing)play(playing,playingK,true);
-  if(failed){const q=encodeURIComponent(nm||((songById(playing)||{}).t)||'');pmsg('YouTube does not allow this artist’s list to play inside the app. <a href="https://www.youtube.com/results?search_query='+q+'" target="prepfix_yt">Search the artist on YouTube</a>')}
+  if(failed)pmsg('These videos could not play inside the app. Press “🎵 More from artist” to try again.')
 }
 /* ---------- CAST to the TV: Chromecast / Google TV / smart TVs that Chrome can see on the same Wi-Fi ----------
    The phone opens cast.html on the TV (no subtitles, full screen) and stays the remote: pause, play, next song, stop.
@@ -1037,6 +1062,14 @@ function saveSongParts(id,mk,msg){
     else{const e=edits[id];edits[id]={t:s.t,x,c,m:{lg:s.lg||'',g:s.g||'',f:s.f||''},h:pushH(e&&(e.h||[{by:e.by,at:e.at}]),by)};saveEdits()}
     render();toast(msg)});
 }
+/* ---------- LONG-PRESS a stanza to edit it ---------- */
+{let t=0,x0=0,y0=0,el=null;
+ const clr=()=>{clearTimeout(t);t=0;if(el){el.classList.remove('lp');el=null}};
+ document.addEventListener('pointerdown',e=>{const z=e.target.closest&&e.target.closest('.stz[data-sid]');if(!z||e.target.closest('button'))return;clr();el=z;x0=e.clientX;y0=e.clientY;
+   t=setTimeout(()=>{const id=z.dataset.sid,i=+z.dataset.si;z.classList.add('lp');try{navigator.vibrate&&navigator.vibrate(30)}catch(_){}t=0;setTimeout(()=>z.classList.remove('lp'),400);editStanza(id,i)},550)},{passive:true});
+ document.addEventListener('pointermove',e=>{if(t&&(Math.abs(e.clientX-x0)>10||Math.abs(e.clientY-y0)>10))clr()},{passive:true});
+ ['pointerup','pointercancel','scroll'].forEach(n=>document.addEventListener(n,()=>{if(t)clr()},{passive:true,capture:true}));
+ document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('.stz[data-sid]'))e.preventDefault()})}
 function toggleChorus(id,i){
   const s=songById(id);if(!s)return;const on=cArr(s.c).includes(i);
   saveSongParts(id,(st,c)=>({st,c:on?c.filter(k=>k!==i):[...c,i]}),on?'Not a chorus any more':'Marked as chorus');
@@ -1067,6 +1100,7 @@ function saveFind(){
   finds.unshift({y,t:String(d.title||''),a:String(d.author||''),at:Date.now()});saveFinds();render();toast('⭐ Saved to Finds – see the Finds tab');
 }
 const findUrl=f=>'https://www.youtube.com/watch?v='+f.y;
+function playFind(y){const f=finds.find(x=>x.y===y);if(!f)return;tmpS={i:'find:'+y,t:findTitle(f)||f.t||'Saved song',l:findUrl(f)};play(tmpS.i,0)}
 function findTitle(f){ // the song's name without the artist, brackets and "official video"
   const c=x=>x.replace(/\(.*?\)|\[.*?\]/g,'').replace(/\b(official|lyrics?|video|audio|live)\b/ig,'').replace(/[“"”]/g,'').replace(/\s+/g,' ').trim();
   const p=String(f.t||'').split(/\s+[-–—|:]\s+/).map(c).filter(Boolean);if(!p.length)return '';
@@ -1077,7 +1111,7 @@ function findTitle(f){ // the song's name without the artist, brackets and "offi
 function findsHtml(){
   let h='<p class="hint" style="margin:6px 4px 10px">Songs you liked while listening that are not in the app yet. Press ⭐ in the player to keep one here. Later <b>add it as a new song</b> (you paste the lyrics) or <b>attach its link to a song</b> already in the app that has no link.</p>';
   h+=finds.map(f=>'<div class="card" style="margin:8px 0"><b>'+esc(f.t||'Saved song')+'</b><div class="hint">'+esc((f.a||'').replace(/\s*-\s*Topic$/i,''))+(f.at?' · '+new Date(f.at).toLocaleDateString():'')+'</div>'+
-    '<div class="bar" style="margin-top:8px;flex-wrap:wrap"><a href="'+esc(findUrl(f))+'" target="_blank" rel="noopener"><button tabindex="-1">▶ Listen</button></a>'+
+    '<div class="bar" style="margin-top:8px;flex-wrap:wrap"><button onclick="playFind(\''+f.y+'\')">▶ Listen</button>'+
     '<button class="pri" onclick="findNew(\''+f.y+'\')">➕ Add as new song</button><button onclick="findAttach(\''+f.y+'\')">🔗 Add to a song</button><button onclick="findDel(\''+f.y+'\')" title="Remove">✕</button></div></div>').join('')||
     '<div class="card"><b>Nothing saved yet</b><p class="hint">While a song plays (or in “More from artist”), press ⭐ on a song that is good and not in the app. It waits here until you add it.</p></div>';
   return h;
