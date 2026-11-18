@@ -54,7 +54,7 @@ h2{margin:6px 0 4px;font-size:22px;line-height:1.25}
 .it{display:flex;align-items:center;gap:6px;padding:8px 4px;border-bottom:1px solid #22262e}
 .it .n{flex:1;min-width:0;cursor:pointer}.it button{padding:5px 9px;font-size:13px}
 .card{background:#1d2026;border:1px solid #2c313a;border-radius:12px;padding:14px;margin:10px 0}
-.login{max-width:380px;margin:40px auto;text-align:center}.login img{width:220px;max-width:70%;border-radius:12px;margin-bottom:10px}
+.login{max-width:380px;margin:40px auto;text-align:center}.login img{width:200px;max-width:65%;border-radius:50%;margin-bottom:10px}
 .login input{text-align:center;font-size:20px;letter-spacing:.15em;margin:6px 0}
 .toast{position:fixed;left:50%;bottom:calc(90px + var(--cb) + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2e9d6b;color:#fff;padding:10px 16px;border-radius:10px;z-index:90;font-weight:600;max-width:90vw;text-align:center}
 .toast.err{background:#b8392f}
@@ -76,6 +76,7 @@ body.pracOn main{padding-bottom:calc(120px + var(--cb))}
 }
 .pst{padding:7px 10px;border-radius:8px;margin:4px 0;background:#12151b;color:#8a90a0;font-size:14px}
 .pst.on{color:#e0b24a;background:#2a2410}.pst.ok{color:#7fd6a8;background:#14261d}
+.sbar{display:flex;gap:8px;margin-top:8px}.sbar button{flex:1;min-height:40px;font-size:14px}.sbar button.on{border-color:#e0b24a;color:#e0b24a}
 .nav2{position:sticky;bottom:calc(var(--cb) + env(safe-area-inset-bottom));display:flex;gap:8px;padding:10px 0}
 .nav2 button{flex:1}
 dialog{background:#1d2026;color:#ece8e1;border:1px solid #363c48;border-radius:14px;width:min(92vw,420px)}dialog::backdrop{background:#000a}
@@ -132,7 +133,7 @@ mark{background:#e0b24a44;color:inherit;border-radius:3px;padding:0 1px}
 /* splash + install popup */
 #splash{position:fixed;inset:0;z-index:200;background:#16181d;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;transition:opacity .6s}
 #splash.out{opacity:0;pointer-events:none}
-#splash img,.inst img{width:260px;max-width:72vw;border-radius:14px;background:#fff;padding:10px}
+#splash img,.inst img{width:240px;max-width:68vw;border-radius:50%}
 #splash .st{margin-top:16px;font-weight:800;letter-spacing:.12em;color:#ece8e1}
 #splash .by,.inst .by{margin-top:18px;font-size:12px;font-weight:700;letter-spacing:.08em;color:#4da3ff}
 #splash .by small,.inst .by small{display:block;color:#8a90a0;font-weight:500;letter-spacing:0;margin-top:3px}
@@ -164,7 +165,7 @@ mark{background:#e0b24a44;color:inherit;border-radius:3px;padding:0 1px}
 #splash .by,.inst .by{animation:byGlow 3.2s ease-in-out infinite}
 #splash .by{position:absolute;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));margin:0;padding:0 12px}
 </style></head><body>
-<div id="splash" onclick="hideSplash();autoFull()"><img src="logo.jpg" alt="Prepfix"><div class="st">PREPFIX TEAM</div><div class="ch" id="spCh"></div><div class="by">DEVELOPED BY CYRUS IRERI <a href="https://wa.me/254720872582" target="_blank" rel="noopener" onclick="event.stopPropagation()">0720872582</a></div></div>
+<div id="splash" onclick="hideSplash();autoFull()"><img src="team-icon-512.png" alt="Team App"><div class="st">TEAM APP</div><div class="ch" id="spCh"></div><div class="by">DEVELOPED BY CYRUS IRERI <a href="https://wa.me/254720872582" target="_blank" rel="noopener" onclick="event.stopPropagation()">0720872582</a></div></div>
 <div id="app"></div>
 <dialog id="dlg"></dialog>
 <dialog id="mdlg"></dialog>
@@ -277,7 +278,7 @@ function render(){
   const qi=$('q');if(qi&&document.activeElement!==qi&&q)qi.setSelectionRange(q.length,q.length);
 }
 function loginHtml(){
-  return '<div class="login"><img src="logo.jpg" alt="Prepfix" onerror="this.style.display=\'none\'"><h2>Team App</h2>'+(churchName()?'<p class="gold" style="font-weight:700;letter-spacing:.06em;margin:0 0 6px">'+esc(churchName())+'</p>':'')+'<p class="hint">Songs and practice links from your church’s Prepfix toolkit.</p>'+
+  return '<div class="login"><img src="team-icon-512.png" alt="Team App" onerror="this.style.display=\'none\'"><h2>Team App</h2>'+(churchName()?'<p class="gold" style="font-weight:700;letter-spacing:.06em;margin:0 0 6px">'+esc(churchName())+'</p>':'')+'<p class="hint">Songs and practice links from your church’s Prepfix toolkit.</p>'+
     (code?'':'<input id="lc" placeholder="Church code" autocomplete="off">')+
     '<p class="hint">For members of the praise and worship team only. Type <b>the phone number the church registered</b> and <b>make your own 4-number PIN</b>. You stay signed in on this phone.</p>'+
     '<input id="lph" type="tel" inputmode="tel" placeholder="Phone number, e.g. 0712 345 678" autocomplete="tel" style="letter-spacing:.04em">'+
@@ -411,7 +412,7 @@ function songHtml(){
      (!s.l?'<button onclick="linkDlg(\''+s.i+'\')">🎧 Add practice link</button>':s.ml?'<button onclick="linkDlg(\''+s.i+'\')">✎ Your link</button>':''))+'</div>'+
     (s.h&&s.h.length?'<p class="hint" style="margin:2px 0 0">✏️ Last edited by <b style="color:#2f8fff">'+esc(s.h[0].by)+'</b> · '+esc(fmtAt(s.h[0].at))+(s.h[1]?'<br>Before that: <b style="color:#2f8fff">'+esc(s.h[1].by)+'</b> · '+esc(fmtAt(s.h[1].at)):'')+'</p>':'')+
     (s.ml?'<p class="hint" style="margin:0">🎧 You added this link – it goes to the church toolkit with your playlist.</p>':'');
-  h+='<div>'+stanzas(s.x).map((st,i)=>'<div class="stz'+(cArr(s.c).includes(i)?' chs':'')+'"><h3>'+(cArr(s.c).includes(i)?'Chorus':'Stanza')+'</h3><p style="font-size:'+fsz+'px">'+esc(st).replace(/\n/g,'<br>')+'</p></div>').join('')+'</div>';
+  h+='<div>'+stanzas(s.x).map((st,i)=>'<div class="stz'+(cArr(s.c).includes(i)?' chs':'')+'"><h3>'+(cArr(s.c).includes(i)?'Chorus':'Stanza')+'</h3><p style="font-size:'+fsz+'px">'+esc(st).replace(/\n/g,'<br>')+'</p><div class="sbar"><button onclick="editStanza(\''+s.i+'\','+i+')">✎ Edit this part</button><button class="'+(cArr(s.c).includes(i)?'on':'')+'" onclick="toggleChorus(\''+s.i+'\','+i+')">'+(cArr(s.c).includes(i)?'★ Not chorus':'☆ Make chorus')+'</button></div></div>').join('')+'</div>';
   if(fromPl){const p=pls.find(x=>x.id===fromPl);if(p){const ids=p.items.filter(x=>x.s).map(x=>x.s),k=ids.indexOf(s.i);
     h+='<div class="nav2"><button '+(k>0?'':'disabled')+' onclick="openSong(\''+ids[k-1]+'\',\''+p.id+'\');autoPlay()">⏮ Previous song</button><button class="pri" '+(k>=0&&k<ids.length-1?'':'disabled')+' onclick="openSong(\''+ids[k+1]+'\',\''+p.id+'\');autoPlay()">Next song ⏭</button></div>'}}
   else{const k=order.indexOf(s.i); // Previous / Next follow the list exactly as it was shown (search, language, genre, order)
@@ -776,7 +777,7 @@ function tellDlg(pid,justSent){
   const p=pls.find(x=>x.id===pid);if(!p)return;
   const sk=plLink(p).skipped,d=$('dlg');
   d.innerHTML='<h3 style="margin:0">'+(justSent?'Sent ✓ Now tell the team':'Tell the team')+'</h3>'+(justSent?'<div id="sendProg">'+progHtml(p,'waiting')+'</div>':'')+
-    '<p class="hint">This opens WhatsApp with a short message and a link. When your team taps the link, this playlist opens in Prepfix Team with its songs and practice links. Choose your team group and press send.</p>'+
+    '<p class="hint">This opens WhatsApp with a short message and a link. When your team taps the link, this playlist opens in the Team App with its songs and practice links. Choose your team group and press send.</p>'+
     (sk?'<p class="hint gold">'+sk+(sk===1?' song you added is':' songs you added are')+' not in the church list yet, so '+(sk===1?'it is':'they are')+' not in the link. Send again once the church laptop has '+(sk===1?'it':'them')+'.</p>':'')+
     '<div class="bar" style="margin-top:14px"><button class="pri" onclick="tellTeam(\''+pid+'\')">💬 Share on WhatsApp</button><button onclick="copyTeam(\''+pid+'\')">Copy message</button><button onclick="$(\'dlg\').close()">'+(justSent?'Not now':'Close')+'</button></div>';
   if(!d.open)d.showModal();
@@ -999,6 +1000,33 @@ function editSong(id,pre){
   });
   getM=metaPicker(f.m||m0);getC=chorusPicker(cArr(f.c));songFull('Editing');
 }
+// EDIT ONE STANZA, or mark it as chorus, without opening the whole song. Every change is saved with the editor's name and date.
+function saveSongParts(id,mk,msg){
+  withEditor(by=>{
+    const s=songById(id);if(!s)return;const r=mk(stanzas(s.x),cArr(s.c));if(!r)return;
+    const x=r.st.join('\n\n'),c=[...new Set(r.c)].sort((a,b)=>a-b);
+    if(s.mine){const m=mine.find(q=>q.i===id);if(!m)return;Object.assign(m,{x,c,h:pushH(m.h||(m.eb?[{by:m.eb,at:m.ea}]:[]),by)});delete m.eb;delete m.ea;saveMine()}
+    else{const e=edits[id];edits[id]={t:s.t,x,c,m:{lg:s.lg||'',g:s.g||'',f:s.f||''},h:pushH(e&&(e.h||[{by:e.by,at:e.at}]),by)};saveEdits()}
+    render();toast(msg)});
+}
+function toggleChorus(id,i){
+  const s=songById(id);if(!s)return;const on=cArr(s.c).includes(i);
+  saveSongParts(id,(st,c)=>({st,c:on?c.filter(k=>k!==i):[...c,i]}),on?'Not a chorus any more':'Marked as chorus');
+}
+function editStanza(id,i){
+  const s=songById(id);if(!s)return;const st=stanzas(s.x);if(i>=st.length)return;
+  if(!regName()){withEditor(()=>editStanza(id,i));return}
+  dlgForm((cArr(s.c).includes(i)?'Edit chorus':'Edit stanza '+(i+1))+' – '+s.t,[['x','Words of this part only',st[i],'area']],v=>{
+    const t=stanzas(tidyText(v.x));
+    if(!t.length){toast('Type the words of this part.',1);editStanza(id,i);return}
+    if(t.join('\n\n')===st[i])return; // nothing changed
+    saveSongParts(id,(cur,c)=>{
+      if(cur[i]!==st[i])return null; // the song changed meanwhile
+      const k=t.length,isC=c.includes(i);
+      const nc=c.filter(q=>q!==i).map(q=>q>i?q+k-1:q);if(isC)for(let j=0;j<k;j++)nc.push(i+j);
+      return {st:[...cur.slice(0,i),...t,...cur.slice(i+1)],c:nc}},'Saved');
+  });
+}
 function delMine(id){mine=mine.filter(x=>x.i!==id);pls.forEach(p=>p.items=p.items.filter(x=>x.s!==id));saveMine();savePls();cur=null;render()}
 function linkDlg(id){
   const s=songById(id);
@@ -1032,12 +1060,12 @@ document.addEventListener('pointerdown',autoFull,{once:true});
 /* ---------- splash and the "install the app" popup ---------- */
 function hideSplash(){const s=$('splash');if(s&&!s.classList.contains('out')){s.classList.add('out');setTimeout(()=>s.remove(),700);setTimeout(maybeInstall,900)}}
 setTimeout(hideSplash,2200);
-if(churchName())document.title='Prepfix Team – '+churchName();
+if(churchName())document.title='Team App – '+churchName();
 let installEvt=null;
 const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&'ontouchend' in document);
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;const b=$('instBtn');if(b)b.style.display='inline-block';if(!$('splash'))maybeInstall()});
-window.addEventListener('appinstalled',()=>{closeInstall();store.set('installed',1);toast('Prepfix Team is installed ✓ Find the icon on your home screen.')});
+window.addEventListener('appinstalled',()=>{closeInstall();store.set('installed',1);toast('Team App is installed ✓ Find the icon on your home screen.')});
 function maybeInstall(force){
   if(isStandalone()||DEMO)return;
   const later=store.get('instLater',0);
@@ -1045,7 +1073,7 @@ function maybeInstall(force){
   if(!force&&!installEvt&&!isIOS)return;                   // this browser cannot install
   if($('inst'))return;
   const d=document.createElement('div');d.className='inst';d.id='inst';
-  d.innerHTML='<div class="box"><img src="logo.jpg" alt="Prepfix"><h3>Install the Team App</h3>'+
+  d.innerHTML='<div class="box"><img src="team-icon-512.png" alt="Team App"><h3>Install the Team App</h3>'+
     '<p>Put the app on your home screen. It opens full screen like any other app, keeps the songs on your phone and plays the practice songs inside the app.</p>'+
     (installEvt?'<div class="bar"><button class="pri" onclick="doInstall()">📲 Install app</button><button onclick="installLater()">Not now</button></div>':
      isIOS?'<ol><li>Tap the <b>Share</b> button <b>⎙</b> at the bottom of Safari.</li><li>Choose <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>.</li></ol><div class="bar"><button class="pri" onclick="installLater()">OK</button></div>':
