@@ -264,7 +264,7 @@ let favs=store.get('favs_'+code,{}),favOnly=store.get('favonly',false);
 const saveFavs=()=>store.set('favs_'+code,favs);
 const favCount=()=>songs().filter(s=>favs[s.i]).length;
 function toggleFav(id,ev){if(ev)ev.stopPropagation();
-  if(favs[id])delete favs[id];else favs[id]=1;saveFavs();
+  if(favs[id])delete favs[id];else favs[id]=Date.now();saveFavs();
   toast(favs[id]?'♥ Added to favourites':'Removed from favourites');
   document.querySelectorAll('.fvp').forEach(b=>{if(b.dataset.id===id){b.classList.toggle('on',!!favs[id]);b.textContent=favs[id]?'♥':'♡'}});
   if(cur)render();else{renderList();const b=$('favBtn');if(b)b.textContent='♥ Favourites ('+favCount()+')'}}
@@ -276,7 +276,8 @@ function playFocus(id,k){setFm(true);play(id,k);scrollTo(0,0)}
 function goHome(){setFm(false);fromPl=null;curPl=null;tab='songs';q='';
   if(history.state&&history.state.pft){try{cur=null;history.back()}catch(e){}}
   cur=null;render();scrollTo(0,0)}
-function setFavOnly(){favOnly=!favOnly;store.set('favonly',favOnly);render();scrollTo(0,0)}
+let favSort='add';const sortEff=()=>favOnly?favSort:sortM;
+function setFavOnly(){favOnly=!favOnly;favSort='add';store.set('favonly',favOnly);render();scrollTo(0,0)}
 let edits=store.get('edits_'+code,{});   // changes made on this phone to the church's songs: {songId:{t,x,by,at}}
 const saveEdits=()=>store.set('edits_'+code,edits);
 const cArr=c=>c==null?[]:(Array.isArray(c)?c:[c]);
@@ -285,7 +286,7 @@ const songs=()=>[...((D&&D.songs)||[]).map(s=>{let r=!s.l&&myLinks[s.i]?{...s,l:
 function reconcile(){
   const by={};(D.songs||[]).forEach(s=>by[s.t.trim().toLowerCase()]=s);
   mine=mine.filter(m=>{const r=by[m.t.trim().toLowerCase()];if(!r)return true;
-    pls.forEach(p=>p.items.forEach(x=>{if(x.s===m.i)x.s=r.i}));if(favs[m.i]){favs[r.i]=1;delete favs[m.i]}return false});
+    pls.forEach(p=>p.items.forEach(x=>{if(x.s===m.i)x.s=r.i}));if(favs[m.i]){favs[r.i]=favs[m.i];delete favs[m.i]}return false});
   (D.songs||[]).forEach(s=>{if(s.l)delete myLinks[s.i]});
   saveMine();savePls();saveFavs();
 }
@@ -371,10 +372,10 @@ function filtHtml(fs){
   if(gs.length)h+='<select class="'+(genre?'on':'')+'" aria-label="Kind" onchange="genre=this.value;render()">'+o('',genre,'🏷 All kinds')+gs.map(g=>o(g,genre,esc(g))).join('')+'</select>';
   if(fs&&tab==='songs')h+='<select class="'+(folder?'on':'')+'" aria-label="Folder" onchange="folder=this.value;render()">'+o('',folder,'📚 All songs')+o('🎧',folder,'🎧 With practice link')+fs.map(f=>o(f,folder,'📁 '+esc(f))).join('')+'</select>';
   h+='</div>';
-  h+='<div class="sortl"><span id="cnt"></span><span>· sort:</span>'+c(sortM!=='az',"setSort('no')",'By number')+c(sortM==='az',"setSort('az')",'A–Z')+'<button id="favBtn" class="fvf'+(favOnly?' on':'')+'" onclick="setFavOnly()">♥ Favourites ('+favCount()+')</button></div><div class="chips sm jump" id="jump"></div>';
+  h+='<div class="sortl"><span id="cnt"></span><span>· sort:</span>'+(favOnly?c(favSort==='add',"setSort('add')",'Order added'):'')+c(sortEff()==='no',"setSort('no')",'By number')+c(sortEff()==='az',"setSort('az')",'A–Z')+'<button id="favBtn" class="fvf'+(favOnly?' on':'')+'" onclick="setFavOnly()">♥ Favourites ('+favCount()+')</button></div><div class="chips sm jump" id="jump"></div>';
   return h;
 }
-function setSort(m){sortM=m;store.set('sort',m);render();scrollTo(0,0)}
+function setSort(m){if(favOnly)favSort=m;else{sortM=m;store.set('sort',m)}render();scrollTo(0,0)}
 function setLang(l){lang=l;store.set('lang',l);render()}
 const bareT=s=>mBare(s.t);
 function pracHtml(){
@@ -391,20 +392,20 @@ function card(s,w){
     '<button class="pb'+(L?'':' off')+'" '+(L?'onclick="event.stopPropagation();play(\''+s.i+'\')" title="Play the practice song"':'tabindex="-1" aria-hidden="true"')+'>▶</button></div>';
 }
 function grpKey(s){
-  if(sortM==='az'){const c=(bareT(s).trim()[0]||'#').toUpperCase(),b=c.normalize('NFD')[0];return /[A-Z]/.test(b)?b:(/\p{L}/u.test(c)?c:'#')}
+  if(sortEff()==='az'){const c=(bareT(s).trim()[0]||'#').toUpperCase(),b=c.normalize('NFD')[0];return /[A-Z]/.test(b)?b:(/\p{L}/u.test(c)?c:'#')}
   const n=mNo(s);if(!n)return 'More songs';const lo=Math.floor((n-1)/50)*50+1;return lo+'–'+(lo+49);
 }
 function listRows(){
   const w=q.trim().toLowerCase(),wn=w.replace(/^#/,'');
   let r=songs().filter(s=>((!favOnly||favs[s.i])&&(tab==='prac'?linksOf(s).length>0:(!folder||(folder==='🎧'?linksOf(s).length:s.f===folder))))&&(!lang||lang==='__alt'||s.lg===lang)&&(!genre||s.g===genre)&&(!w||(/^\d+$/.test(wn)&&String(mNo(s))===wn)||s.t.toLowerCase().includes(w)||String(s.x).toLowerCase().includes(w)));
-  const by=sortM==='az'?(a,b)=>bareT(a).localeCompare(bareT(b),undefined,{sensitivity:'base'}):mByT;
+  const by=sortEff()==='add'?(a,b)=>(+favs[a.i]||0)-(+favs[b.i]||0):sortEff()==='az'?(a,b)=>bareT(a).localeCompare(bareT(b),undefined,{sensitivity:'base'}):mByT;
   r.sort((a,b)=>{if(/^\d+$/.test(wn)){const ax=String(mNo(a))===wn,bx=String(mNo(b))===wn;if(ax!==bx)return ax?-1:1}const at=a.t.toLowerCase().includes(w),bt=b.t.toLowerCase().includes(w);return at===bt?by(a,b):at?-1:1});
   if(lang==='__alt'&&!w){const sw=r.filter(s=>s.lg==='Kiswahili'),ki=r.filter(s=>s.lg==='Kikuyu'),out=[];for(let i=0;i<Math.max(sw.length,ki.length);i++){if(sw[i])out.push(sw[i]);if(ki[i])out.push(ki[i])}r=out.concat(r.filter(s=>s.lg!=='Kiswahili'&&s.lg!=='Kikuyu'))}
   if(tab==='songs'&&!w&&!folder&&!lang&&!genre&&!favOnly&&r.length)return folderRows(r);
   order=r.map(s=>s.i);
   setTimeout(()=>{const c=$('cnt');if(c)c.textContent=(favOnly?'Favourites ':w?'Found ':tab==='prac'?'With links ':'All songs ')+'('+r.length+')'},0);
   let h='',keys=[];
-  if(!w&&lang!=='__alt'&&r.length>12){let last=null;r.forEach(s=>{const k=grpKey(s);if(k!==last){last=k;keys.push(k);h+='<div class="grp" id="g_'+keys.length+'">'+esc(k)+'</div>'}h+=card(s,'')})}
+  if(!w&&lang!=='__alt'&&r.length>12&&sortEff()!=='add'){let last=null;r.forEach(s=>{const k=grpKey(s);if(k!==last){last=k;keys.push(k);h+='<div class="grp" id="g_'+keys.length+'">'+esc(k)+'</div>'}h+=card(s,'')})}
   else h=r.map(s=>card(s,w)).join('');
   setTimeout(()=>{const j=$('jump');if(j)j.innerHTML=keys.length>1?keys.map((k,i)=>'<button onclick="$(\'g_'+(i+1)+'\').scrollIntoView({behavior:\'smooth\'})">'+esc(k)+'</button>').join(''):''},0);
   if(!r.length&&favOnly&&!w)h='<p class="hint nf">No favourites yet. Tap the ♡ on a song to add it here.</p>';else if(!r.length)h=tab==='prac'?'<p class="hint nf">No songs with practice links yet.</p>':'<div class="nf"><p class="hint" style="margin:0">'+(w?'No song has “'+esc(q.trim())+'”.':'No songs here yet.')+'</p>'+(w&&!/^\d+$/.test(wn)?'<button class="pri" onclick="newSong(null,null,q)">+ Add “'+esc(q.trim())+'” as a new song</button>':'')+'</div>';
