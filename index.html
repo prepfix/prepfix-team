@@ -121,6 +121,10 @@ dialog.full .bar button{flex:1;padding:13px}
 .sc .ly{color:#cfc8bb;font-size:13px;font-style:italic;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sc .pb{flex:none;width:48px;height:34px;padding:0;border-radius:999px;background:#e4e8f0;color:#16181d;border:0;font-size:17px;box-shadow:0 0 12px #ffffff22}
 .sc .pb.off{display:none}
+.sc .fv{flex:none;width:40px;height:34px;padding:0;border-radius:999px;background:transparent;border:0;color:#8a90a0;font-size:22px;line-height:1}
+.sc .fv.on,.fvs.on,.fvp.on{color:#ff6b6b}
+.fvs.on{border-color:#ff6b6b}
+.sortl button.fvf{margin-left:auto}.sortl button.fvf.on{background:#ff6b6b;border-color:#ff6b6b;color:#16181d}
 .fold{display:flex;gap:8px;align-items:center;margin:8px 0 3px;padding:12px 10px;background:color-mix(in srgb,var(--fc,#7b8594) 16%,#1d2026);border:1px solid #2f3641;border-left:6px solid var(--fc,#7b8594);border-radius:10px;cursor:pointer;font-weight:800;font-size:16px;-webkit-user-select:none;user-select:none}
 .fold.open{background:color-mix(in srgb,var(--fc,#7b8594) 28%,#1d2026);border-color:var(--fc,#7b8594)}.fold .fn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fold small{opacity:.8;font-weight:600;font-size:12.5px}
 mark{background:#e0b24a44;color:inherit;border-radius:3px;padding:0 1px}
@@ -250,6 +254,16 @@ async function load(first,quiet){
 let mine=store.get('mine_'+code,[]),myLinks=store.get('links_'+code,{});
 const saveMine=()=>{store.set('mine_'+code,mine);store.set('links_'+code,myLinks)};
 let finds=store.get('finds_'+code,[]);const saveFinds=()=>store.set('finds_'+code,finds); // ⭐ songs liked while listening, not in the app yet
+// ♥ favourite songs / practice links: kept on this phone, {songId:1}
+let favs=store.get('favs_'+code,{}),favOnly=store.get('favonly',false);
+const saveFavs=()=>store.set('favs_'+code,favs);
+const favCount=()=>songs().filter(s=>favs[s.i]).length;
+function toggleFav(id,ev){if(ev)ev.stopPropagation();
+  if(favs[id])delete favs[id];else favs[id]=1;saveFavs();
+  toast(favs[id]?'♥ Added to favourites':'Removed from favourites');
+  document.querySelectorAll('.fvp').forEach(b=>{if(b.dataset.id===id){b.classList.toggle('on',!!favs[id]);b.textContent=favs[id]?'♥':'♡'}});
+  if(cur)render();else{renderList();const b=$('favBtn');if(b)b.textContent='♥ Favourites ('+favCount()+')'}}
+function setFavOnly(){favOnly=!favOnly;store.set('favonly',favOnly);render();scrollTo(0,0)}
 let edits=store.get('edits_'+code,{});   // changes made on this phone to the church's songs: {songId:{t,x,by,at}}
 const saveEdits=()=>store.set('edits_'+code,edits);
 const cArr=c=>c==null?[]:(Array.isArray(c)?c:[c]);
@@ -258,9 +272,9 @@ const songs=()=>[...((D&&D.songs)||[]).map(s=>{let r=!s.l&&myLinks[s.i]?{...s,l:
 function reconcile(){
   const by={};(D.songs||[]).forEach(s=>by[s.t.trim().toLowerCase()]=s);
   mine=mine.filter(m=>{const r=by[m.t.trim().toLowerCase()];if(!r)return true;
-    pls.forEach(p=>p.items.forEach(x=>{if(x.s===m.i)x.s=r.i}));return false});
+    pls.forEach(p=>p.items.forEach(x=>{if(x.s===m.i)x.s=r.i}));if(favs[m.i]){favs[r.i]=1;delete favs[m.i]}return false});
   (D.songs||[]).forEach(s=>{if(s.l)delete myLinks[s.i]});
-  saveMine();savePls();
+  saveMine();savePls();saveFavs();
 }
 let tmpS=null; // a saved Find being played in the app (not a church song)
 const songById=id=>songs().find(s=>s.i===id)||(tmpS&&tmpS.i===id?tmpS:null);
@@ -344,7 +358,7 @@ function filtHtml(fs){
   if(gs.length)h+='<select class="'+(genre?'on':'')+'" aria-label="Kind" onchange="genre=this.value;render()">'+o('',genre,'🏷 All kinds')+gs.map(g=>o(g,genre,esc(g))).join('')+'</select>';
   if(fs&&tab==='songs')h+='<select class="'+(folder?'on':'')+'" aria-label="Folder" onchange="folder=this.value;render()">'+o('',folder,'📚 All songs')+o('🎧',folder,'🎧 With practice link')+fs.map(f=>o(f,folder,'📁 '+esc(f))).join('')+'</select>';
   h+='</div>';
-  h+='<div class="sortl"><span id="cnt"></span><span>· sort:</span>'+c(sortM!=='az',"setSort('no')",'By number')+c(sortM==='az',"setSort('az')",'A–Z')+'</div><div class="chips sm jump" id="jump"></div>';
+  h+='<div class="sortl"><span id="cnt"></span><span>· sort:</span>'+c(sortM!=='az',"setSort('no')",'By number')+c(sortM==='az',"setSort('az')",'A–Z')+'<button id="favBtn" class="fvf'+(favOnly?' on':'')+'" onclick="setFavOnly()">♥ Favourites ('+favCount()+')</button></div><div class="chips sm jump" id="jump"></div>';
   return h;
 }
 function setSort(m){sortM=m;store.set('sort',m);render();scrollTo(0,0)}
@@ -360,6 +374,7 @@ function card(s,w){
   let ly='';if(w&&!s.t.toLowerCase().includes(w)){const ln=String(s.x||'').split('\n').find(x=>x.toLowerCase().includes(w));if(ln)ly='<div class="ly">… '+hl(ln.trim(),w)+'</div>'}
   const sub=[s.lg?esc(s.lg):'',s.g?'<span class="kd">'+esc(s.g)+'</span>':'',s.f?'📁 '+esc(s.f):''].filter(Boolean);if(s.mine)sub.unshift('<span class="nw">✎ new</span>');
   return '<div class="sc" onclick="openSong(\''+s.i+'\')"><div class="no">'+(no?'#'+no:'♪')+'</div><div class="w"><div class="tt" data-ti="'+s.i+'">'+hl(t,w)+'</div>'+(sub.length?'<div class="sub">'+sub.join(' · ')+'</div>':'')+ly+'</div>'+
+    '<button class="fv'+(favs[s.i]?' on':'')+'" title="'+(favs[s.i]?'Remove from favourites':'Add to favourites')+'" aria-label="Favourite" aria-pressed="'+(favs[s.i]?'true':'false')+'" onclick="toggleFav(\''+s.i+'\',event)">'+(favs[s.i]?'♥':'♡')+'</button>'+
     '<button class="pb'+(L?'':' off')+'" '+(L?'onclick="event.stopPropagation();play(\''+s.i+'\')" title="Play the practice song"':'tabindex="-1" aria-hidden="true"')+'>▶</button></div>';
 }
 function grpKey(s){
@@ -368,18 +383,18 @@ function grpKey(s){
 }
 function listRows(){
   const w=q.trim().toLowerCase(),wn=w.replace(/^#/,'');
-  let r=songs().filter(s=>(tab==='prac'?linksOf(s).length>0:(!folder||(folder==='🎧'?linksOf(s).length:s.f===folder)))&&(!lang||lang==='__alt'||s.lg===lang)&&(!genre||s.g===genre)&&(!w||(/^\d+$/.test(wn)&&String(mNo(s))===wn)||s.t.toLowerCase().includes(w)||String(s.x).toLowerCase().includes(w)));
+  let r=songs().filter(s=>((!favOnly||favs[s.i])&&(tab==='prac'?linksOf(s).length>0:(!folder||(folder==='🎧'?linksOf(s).length:s.f===folder))))&&(!lang||lang==='__alt'||s.lg===lang)&&(!genre||s.g===genre)&&(!w||(/^\d+$/.test(wn)&&String(mNo(s))===wn)||s.t.toLowerCase().includes(w)||String(s.x).toLowerCase().includes(w)));
   const by=sortM==='az'?(a,b)=>bareT(a).localeCompare(bareT(b),undefined,{sensitivity:'base'}):mByT;
   r.sort((a,b)=>{if(/^\d+$/.test(wn)){const ax=String(mNo(a))===wn,bx=String(mNo(b))===wn;if(ax!==bx)return ax?-1:1}const at=a.t.toLowerCase().includes(w),bt=b.t.toLowerCase().includes(w);return at===bt?by(a,b):at?-1:1});
   if(lang==='__alt'&&!w){const sw=r.filter(s=>s.lg==='Kiswahili'),ki=r.filter(s=>s.lg==='Kikuyu'),out=[];for(let i=0;i<Math.max(sw.length,ki.length);i++){if(sw[i])out.push(sw[i]);if(ki[i])out.push(ki[i])}r=out.concat(r.filter(s=>s.lg!=='Kiswahili'&&s.lg!=='Kikuyu'))}
-  if(tab==='songs'&&!w&&!folder&&!lang&&!genre&&r.length)return folderRows(r);
+  if(tab==='songs'&&!w&&!folder&&!lang&&!genre&&!favOnly&&r.length)return folderRows(r);
   order=r.map(s=>s.i);
-  setTimeout(()=>{const c=$('cnt');if(c)c.textContent=(w?'Found ':tab==='prac'?'With links ':'All songs ')+'('+r.length+')'},0);
+  setTimeout(()=>{const c=$('cnt');if(c)c.textContent=(favOnly?'Favourites ':w?'Found ':tab==='prac'?'With links ':'All songs ')+'('+r.length+')'},0);
   let h='',keys=[];
   if(!w&&lang!=='__alt'&&r.length>12){let last=null;r.forEach(s=>{const k=grpKey(s);if(k!==last){last=k;keys.push(k);h+='<div class="grp" id="g_'+keys.length+'">'+esc(k)+'</div>'}h+=card(s,'')})}
   else h=r.map(s=>card(s,w)).join('');
   setTimeout(()=>{const j=$('jump');if(j)j.innerHTML=keys.length>1?keys.map((k,i)=>'<button onclick="$(\'g_'+(i+1)+'\').scrollIntoView({behavior:\'smooth\'})">'+esc(k)+'</button>').join(''):''},0);
-  if(!r.length)h=tab==='prac'?'<p class="hint nf">No songs with practice links yet.</p>':'<div class="nf"><p class="hint" style="margin:0">'+(w?'No song has “'+esc(q.trim())+'”.':'No songs here yet.')+'</p>'+(w&&!/^\d+$/.test(wn)?'<button class="pri" onclick="newSong(null,null,q)">+ Add “'+esc(q.trim())+'” as a new song</button>':'')+'</div>';
+  if(!r.length&&favOnly&&!w)h='<p class="hint nf">No favourites yet. Tap the ♡ on a song to add it here.</p>';else if(!r.length)h=tab==='prac'?'<p class="hint nf">No songs with practice links yet.</p>':'<div class="nf"><p class="hint" style="margin:0">'+(w?'No song has “'+esc(q.trim())+'”.':'No songs here yet.')+'</p>'+(w&&!/^\d+$/.test(wn)?'<button class="pri" onclick="newSong(null,null,q)">+ Add “'+esc(q.trim())+'” as a new song</button>':'')+'</div>';
   return h;
 }
 let openF=null,lastG=[];
@@ -409,6 +424,7 @@ function songHtml(){
   let h='<div class="bar"><button onclick="back()">← Back</button><span style="flex:1"></span><button onclick="setFs(-2)" title="Smaller words">A−</button><button onclick="setFs(2)" title="Bigger words">A+</button><button onclick="shareSong()" title="Send this song (WhatsApp…)">📤</button></div>';
   h+='<h2 data-ti="'+s.i+'">'+esc(s.t)+'</h2>'+(s.lg||s.g?'<p class="hint" style="margin:0">'+[s.lg?'🌐 '+esc(s.lg):'',s.g?'🏷 '+esc(s.g):''].filter(Boolean).join(' · ')+'</p>':'')+(s.mine?'<p class="hint" style="margin:0">✎ Your new song – it goes to the church toolkit when you send a playlist that has it.</p>':'')+(s.ab?'<p class="hint" style="margin:2px 0 0">➕ Added by <b style="color:#2f8fff">'+esc(s.ab.by)+'</b> · '+esc(fmtAt(s.ab.at))+'</p>':'')+
     '<div class="bar">'+(()=>{const L=linksOf(s);return L.map((l,k)=>'<button class="pri" onclick="play(\''+s.i+'\','+k+')">▶ '+(L.length>1?esc(l.n||'Link '+(k+1)):'Play practice song')+'</button>').join('')})()+
+    '<button class="fvs'+(favs[s.i]?' on':'')+'" aria-pressed="'+(favs[s.i]?'true':'false')+'" onclick="toggleFav(\''+s.i+'\')">'+(favs[s.i]?'♥ Favourite':'♡ Favourite')+'</button>'+
     '<button onclick="addDlg(\''+s.i+'\')">+ Add to playlist</button>'+
     (s.mine?'<button onclick="newSong(\''+s.i+'\')">✎ Edit</button><button class="dng" onclick="delMine(\''+s.i+'\')">Delete</button>':
      (!s.l?'<button onclick="linkDlg(\''+s.i+'\')">🎧 Add practice link</button>':s.ml?'<button onclick="linkDlg(\''+s.i+'\')">✎ Your link</button>':''))+'</div>'+
@@ -489,6 +505,7 @@ function play(id,k,auto){
   b.className=DEMO?'demo':p.kind==='audio'?'aud':'';
   const head='<div class="phd"><span class="pt">🎧 <span class="glow">'+esc(s.t)+'</span> <span class="hint">· '+esc(lk.n||p.name)+'</span></span>'+
     (L.length>1?'<select onchange="play(\''+id+'\',this.value)">'+L.map((l,i)=>'<option value="'+i+'"'+(i===k?' selected':'')+'>'+esc(l.n||'Link '+(i+1))+'</option>').join('')+'</select>':'')+
+    (!String(id).startsWith('find:')?'<button class="fvp'+(favs[id]?' on':'')+'" data-id="'+esc(id)+'" title="Favourite" aria-label="Favourite" onclick="toggleFav(this.dataset.id)">'+(favs[id]?'♥':'♡')+'</button>':'')+
     (cur!==id&&!String(id).startsWith('find:')?'<button style="font-size:15px" onclick="openSong(\''+id+'\')">Lyrics</button>':'')+
     '<button class="'+(autoP?'on':'')+'" title="Autoplay: when a song ends, the next song with a link plays" onclick="autoP=!autoP;store.set(\'autoplay\',autoP);this.classList.toggle(\'on\',autoP);toast(autoP?\'Autoplay on – the next song plays by itself\':\'Autoplay off\')">⏭</button>'+
     (p.kind!=='audio'?'<button onclick="$(\'prac\').classList.toggle(\'small\');sizeBars()" title="Smaller / bigger player">⇕</button><button onclick="fullVid()" title="Full screen video">⛶</button>':'')+
@@ -1087,7 +1104,7 @@ function editStanza(id,i){
       return {st:[...cur.slice(0,i),...t,...cur.slice(i+1)],c:nc}},'Saved');
   });
 }
-function delMine(id){mine=mine.filter(x=>x.i!==id);pls.forEach(p=>p.items=p.items.filter(x=>x.s!==id));saveMine();savePls();cur=null;render()}
+function delMine(id){delete favs[id];saveFavs();mine=mine.filter(x=>x.i!==id);pls.forEach(p=>p.items=p.items.filter(x=>x.s!==id));saveMine();savePls();cur=null;render()}
 
 /* ---------- FINDS: a good song heard while listening that is not in the app yet. Tap ⭐ to keep it; later add it as a new song
    (title + link filled in, you paste the lyrics) or attach its link to a song that is already in the app but has no link. ---------- */
