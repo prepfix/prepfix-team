@@ -273,7 +273,7 @@ function toggleFav(id,ev){if(ev)ev.stopPropagation();
 let fm=false;
 function setFm(v){fm=!!v;document.body.classList.toggle('fm',fm);sizeBars();setTimeout(sizeBars,200)}
 function playFocus(id,k){setFm(true);play(id,k);scrollTo(0,0)}
-function goHome(){setFm(false);fromPl=null;curPl=null;tab='songs';q='';
+function goHome(){setFm(!!playing);fromPl=null;curPl=null;tab='songs';q='';
   if(history.state&&history.state.pft){try{cur=null;history.back()}catch(e){}}
   cur=null;render();scrollTo(0,0)}
 let favSort='add';const sortEff=()=>favOnly?favSort:sortM;
@@ -350,7 +350,7 @@ function outDlg(){const d=$('dlg');d.innerHTML='<h3 style="margin:0">Sign out</h
   $('soOk').onclick=async()=>{const pn=$('soP').value.replace(/\D/g,'');if(pn.length!==4){toast('Type your 4-number PIN.',1);return}
     try{await call({action:'signout',c:code,ph,did,pin:pn});d.close();signOut('You have signed out.');render()}
     catch(e){toast(e.message==='wrong-pin'?'That is not your PIN.':e.message==='too-many'?'Too many tries. Wait an hour.':'You need the internet to sign out.',1)}}}
-function go(t){setFm(false);tab=t;cur=null;curPl=null;fromPl=null;closePlayer(true);render();scrollTo(0,0)}
+function go(t){setFm(!!playing);tab=t;cur=null;curPl=null;fromPl=null;closePlayer(true);render();scrollTo(0,0)}
 
 /* ---------- songs ---------- */
 function listHtml(){
@@ -461,7 +461,7 @@ async function shareSong(){const s=songById(cur);if(!s)return;
   open('https://wa.me/?text='+encodeURIComponent(text),'_blank')}
 function autoPlay(){if(document.getElementById('prac')){const s=songById(cur);if(s&&s.l)play(s.i);else closePlayer()}}
 function back(){if(history.state&&history.state.pft){history.back();return}goBack()}
-function goBack(){setFm(false);if(fromPl){curPl=fromPl;fromPl=null;cur=null;tab='pls';render()}else{cur=null;render();requestAnimationFrame(()=>scrollTo(0,listY))}}
+function goBack(){setFm(!!playing);if(fromPl){curPl=fromPl;fromPl=null;cur=null;tab='pls';render()}else{cur=null;render();requestAnimationFrame(()=>scrollTo(0,listY))}}
 
 /* ---------- practice player (same links as the toolkit) ---------- */
 function ytId(u){const h=u.hostname.replace(/^(www|m|music)\./,'');let id='';
@@ -515,7 +515,7 @@ function killYT(){artistOn=false;ytTok++;try{ytP&&ytP.destroy()}catch(e){}ytP=nu
 function play(id,k,auto){
   const s=songById(id);const L=linksOf(s);if(!s||!L.length)return;k=Math.min(Math.max(+k||0,0),L.length-1);const lk=L[k];const p=practiceSrc(lk.u);if(!p){toast('This practice link cannot be opened.',1);return}
   let yid='';try{yid=ytId(new URL(lk.u))}catch(e){}
-  artistOn=false;playing=id;playingK=k;markPlaying();let b=$('prac');if(!b){b=document.createElement('div');b.id='prac';document.body.appendChild(b)}
+  artistOn=false;playing=id;playingK=k;setFm(true);markPlaying();let b=$('prac');if(!b){b=document.createElement('div');b.id='prac';document.body.appendChild(b)}
   b.className=DEMO?'demo':p.kind==='audio'?'aud':'';
   const head='<div class="phd"><span class="pt">🎧 <span class="glow">'+esc(s.t)+'</span> <span class="hint">· '+esc(lk.n||p.name)+'</span></span>'+
     (L.length>1?'<select onchange="play(\''+id+'\',this.value)">'+L.map((l,i)=>'<option value="'+i+'"'+(i===k?' selected':'')+'>'+esc(l.n||'Link '+(i+1))+'</option>').join('')+'</select>':'')+
