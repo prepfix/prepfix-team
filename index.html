@@ -7,13 +7,13 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Team App"><meta name="application-name" content="Team App">
 <link rel="manifest" href="manifest.json"><link rel="icon" href="team-icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
-*{box-sizing:border-box}:root{--cb:28px}html,body{margin:0;background:#16181d;color:#ece8e1;font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}:root{--cb:28px}html{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}body{overflow-x:clip;overscroll-behavior-x:none;max-width:100vw;position:relative}#app,main,header{max-width:100%}img,video,iframe{max-width:100%}html,body{margin:0;background:#16181d;color:#ece8e1;font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
 button,input,select{font:inherit;color:inherit}a{color:inherit}.sec button{padding:5px 9px;font-size:13px}
 button{background:#2a2f39;border:1px solid #363c48;border-radius:10px;padding:9px 14px;cursor:pointer}
 button.pri{background:#e0b24a;color:#16181d;border-color:#e0b24a;font-weight:700}button.dng{background:#5a2420;border-color:#7a2f29}
 button:disabled{opacity:.45}
 input,select{background:#0f1115;border:1px solid #363c48;border-radius:10px;padding:10px 12px;width:100%}
-header{position:sticky;top:0;z-index:20;background:#16181dee;backdrop-filter:blur(8px);padding:calc(env(safe-area-inset-top) + 10px) 14px 8px;border-bottom:1px solid #262b34}
+header{position:fixed;top:0;left:0;right:0;z-index:20;background:#16181dee;backdrop-filter:blur(8px);padding:calc(env(safe-area-inset-top) + 10px) 14px 8px;border-bottom:1px solid #262b34}
 .hd{display:flex;align-items:center;gap:10px}.hd img{height:30px;border-radius:6px}
 .hd .t{flex:1;min-width:0;text-align:center}.hd .t b{display:block;font-size:15px;letter-spacing:.03em}.hd .t span{display:block;font-size:12px;color:#e0b24a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hd img.gicon{height:58px;width:58px;border-radius:50%;flex:0 0 auto;animation:iconGlow 2.2s ease-in-out infinite}
@@ -22,7 +22,7 @@ header{position:sticky;top:0;z-index:20;background:#16181dee;backdrop-filter:blu
 .hd .t span.cn{font-size:clamp(18px,5.6vw,26px);font-weight:900;letter-spacing:.05em;text-transform:uppercase;text-align:center;color:#ffd86b;line-height:1.2;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
 .hd .t span.cn+b{font-size:clamp(20px,6.4vw,30px);font-weight:900;letter-spacing:.14em;text-transform:uppercase;text-align:center;color:#ffffff;line-height:1.15;margin-top:3px}
 .tabs{display:flex;gap:6px;margin-top:9px}.tabs button{flex:1;padding:8px 2px;font-size:12px;white-space:nowrap}.tabs button.on{background:#e0b24a;color:#16181d;border-color:#e0b24a;font-weight:700}
-main{padding:12px 14px calc(120px + var(--cb));max-width:760px;margin:0 auto}
+main{padding:calc(var(--hh,150px) + 12px) 14px calc(120px + var(--cb));max-width:760px;margin:0 auto}
 .chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0 4px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
 .chips button{flex:0 0 auto;padding:5px 12px;font-size:14px;border-radius:20px}.chips button.on{background:#e0b24a;color:#16181d;font-weight:700}
 .row{display:flex;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid #22262e;cursor:pointer}
@@ -59,10 +59,10 @@ h2{margin:6px 0 4px;font-size:22px;line-height:1.25}
 .toast{position:fixed;left:50%;bottom:calc(90px + var(--cb) + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2e9d6b;color:#fff;padding:10px 16px;border-radius:10px;z-index:90;font-weight:600;max-width:90vw;text-align:center}
 .toast.err{background:#b8392f}
 #prac{position:fixed;left:0;right:0;bottom:calc(var(--cb) + env(safe-area-inset-bottom));z-index:50;background:#12151b;border-top:1px solid #3a4150;box-shadow:0 -8px 24px #0008}
-#prac .phd{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 10px;background:#1c2028}
-#prac .pt{flex:1 1 100%;min-width:0;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#prac .phd button,#prac .phd select{flex:1 1 44px;min-width:44px;min-height:44px;padding:6px 10px;font-size:18px;line-height:1}
-#prac .phd select{flex:1 1 90px;font-size:14px;max-width:none!important}
+#prac .phd{display:flex;flex-wrap:nowrap;align-items:center;gap:6px;padding:6px 10px;background:#1c2028}
+#prac .pt{display:none;flex:1 1 100%;min-width:0;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#prac .phd button,#prac .phd select{flex:1 1 0;min-width:0;min-height:44px;padding:6px 10px;font-size:18px;line-height:1}
+#prac .phd select{flex:2 1 0;font-size:14px;max-width:none!important}
 #prac .phd button.more{flex:2 1 120px;font-size:15px;font-weight:700}
 #prac .phd a{display:contents}
 #prac .pbody{background:#000;height:min(56vw,300px)}#prac.small .pbody{height:110px}
@@ -72,7 +72,7 @@ h2{margin:6px 0 4px;font-size:22px;line-height:1.25}
 body.pracOn main{padding-bottom:calc(120px + var(--cb))}
 @media(max-width:799px),(hover:none) and (pointer:coarse){
   #prac{top:var(--hh,0px);bottom:auto;border-top:0;border-bottom:1px solid #3a4150;box-shadow:0 8px 24px #0008;z-index:19}
-  body.pracOn main{padding-top:calc(var(--ph,0px) + 12px)}
+  body.pracOn main{padding-top:calc(var(--hh,150px) + var(--ph,0px) + 12px)}
 }
 .pst{padding:7px 10px;border-radius:8px;margin:4px 0;background:#12151b;color:#8a90a0;font-size:14px}
 .pst.on{color:#e0b24a;background:#2a2410}.pst.ok{color:#7fd6a8;background:#14261d}
@@ -272,8 +272,8 @@ function render(){
   const a=$('app');
   if(!code||!signedIn()||!D){a.innerHTML=loginHtml();return}
   let h='<header><div class="hd"><img class="gicon" src="badge.png" alt="" onerror="this.onerror=null;this.src=\'logo.jpg\'"><div class="t"><span class="cn">'+esc(fixCh(D.church||churchName())||"F.G.C.K MURANG'A L.C.A")+'</span><b>TEAM APP</b></div>'+(fsOK()?'<button onclick="goFull()" title="Full screen">⛶</button>':'')+(isStandalone()||DEMO?'':'<button id="instBtn" onclick="maybeInstall(1)" title="Install the app" style="display:inline-block">📲 Install</button>')+'<button onclick="load()" title="Get the newest songs"'+(busy?' disabled':'')+'>'+(busy?'…':'↻')+'</button>'+(ph?'<button onclick="outDlg()" title="Sign out">⎋</button>':'')+'</div>'+
-    '<div class="tabs"><button class="'+(tab==='songs'?'on':'')+'" onclick="go(\'songs\')">🎵 Songs ('+songs().length+')</button><button class="'+(tab==='prac'?'on':'')+'" onclick="go(\'prac\')">🎧 Practice ('+songs().filter(s=>linksOf(s).length).length+')</button><button class="'+(tab==='pls'?'on':'')+'" onclick="go(\'pls\')">📋 Playlists ('+pls.length+')</button><button class="'+(tab==='finds'?'on':'')+'" onclick="go(\'finds\')">⭐ Finds ('+finds.length+')</button></div></header><main>';
-  if(cur)h+=songHtml();else if(curPl)h+=plHtml();else if(tab==='songs')h+=listHtml();else if(tab==='prac')h+=pracHtml();else if(tab==='finds')h+=findsHtml();else h+=plsHtml();
+    '<div class="tabs"><button class="'+(tab==='songs'?'on':'')+'" onclick="go(\'songs\')">🎵 Songs ('+songs().length+')</button><button class="'+(tab==='prac'?'on':'')+'" onclick="go(\'prac\')">🎧 Practice ('+songs().filter(s=>linksOf(s).length).length+')</button><button class="'+(tab==='pls'?'on':'')+'" onclick="go(\'pls\')">📋 Playlists ('+pls.length+')</button></div></header><main>';
+  if(cur)h+=songHtml();else if(curPl)h+=plHtml();else if(tab==='songs')h+=listHtml();else if(tab==='prac')h+=pracHtml();else h+=plsHtml();
   h+='</main>';
   a.innerHTML=h;
   sizeBars();
@@ -411,7 +411,6 @@ function songHtml(){
     '<div class="bar">'+(()=>{const L=linksOf(s);return L.map((l,k)=>'<button class="pri" onclick="play(\''+s.i+'\','+k+')">▶ '+(L.length>1?esc(l.n||'Link '+(k+1)):'Play practice song')+'</button>').join('')})()+
     '<button onclick="addDlg(\''+s.i+'\')">+ Add to playlist</button>'+
     (s.mine?'<button onclick="newSong(\''+s.i+'\')">✎ Edit</button><button class="dng" onclick="delMine(\''+s.i+'\')">Delete</button>':
-     '<button onclick="editSong(\''+s.i+'\')">✎ Edit song</button>'+
      (!s.l?'<button onclick="linkDlg(\''+s.i+'\')">🎧 Add practice link</button>':s.ml?'<button onclick="linkDlg(\''+s.i+'\')">✎ Your link</button>':''))+'</div>'+
     (s.h&&s.h.length?'<p class="hint" style="margin:2px 0 0">✏️ Last edited by <b style="color:#2f8fff">'+esc(s.h[0].by)+'</b> · '+esc(fmtAt(s.h[0].at))+(s.h[1]?'<br>Before that: <b style="color:#2f8fff">'+esc(s.h[1].by)+'</b> · '+esc(fmtAt(s.h[1].at)):'')+'</p>':'')+
     (s.ml?'<p class="hint" style="margin:0">🎧 You added this link – it goes to the church toolkit with your playlist.</p>':'');
@@ -490,7 +489,7 @@ function play(id,k,auto){
   b.className=DEMO?'demo':p.kind==='audio'?'aud':'';
   const head='<div class="phd"><span class="pt">🎧 <span class="glow">'+esc(s.t)+'</span> <span class="hint">· '+esc(lk.n||p.name)+'</span></span>'+
     (L.length>1?'<select onchange="play(\''+id+'\',this.value)">'+L.map((l,i)=>'<option value="'+i+'"'+(i===k?' selected':'')+'>'+esc(l.n||'Link '+(i+1))+'</option>').join('')+'</select>':'')+
-    (cur!==id&&!String(id).startsWith('find:')?'<button style="font-size:15px" onclick="openSong(\''+id+'\')">Lyrics</button>':'')+(yid&&!DEMO?'<button onclick="saveFind()" title="Save this song to Finds – to add it to the app later">⭐</button><button class="more" onclick="moreArtist()" title="More music from this artist – plays here in the app">🎵 More from artist</button>':'')+
+    (cur!==id&&!String(id).startsWith('find:')?'<button style="font-size:15px" onclick="openSong(\''+id+'\')">Lyrics</button>':'')+
     '<button class="'+(autoP?'on':'')+'" title="Autoplay: when a song ends, the next song with a link plays" onclick="autoP=!autoP;store.set(\'autoplay\',autoP);this.classList.toggle(\'on\',autoP);toast(autoP?\'Autoplay on – the next song plays by itself\':\'Autoplay off\')">⏭</button>'+
     (p.kind!=='audio'?'<button onclick="$(\'prac\').classList.toggle(\'small\');sizeBars()" title="Smaller / bigger player">⇕</button><button onclick="fullVid()" title="Full screen video">⛶</button>':'')+
     '<button onclick="castNow()" title="Show this on the TV (Chromecast / smart TV)">📺</button>'+
@@ -1134,8 +1133,8 @@ function findAttachTo(id,y){
   finds=finds.filter(x=>x.y!==y);saveFinds();$('dlg').close();render();toast('Link added to “'+s.t+'”');
 }
 function linkDlg(id){
-  const s=songById(id);
-  dlgForm('Practice link for “'+s.t+'”',[['l','YouTube, Spotify, Audiomack, SoundCloud or MP3 link',myLinks[id]||'']],v=>{
+  const s=songById(id);dlgSongTitle=s.t;
+  dlgForm('Practice link for “'+s.t+'”',[['l','Paste a YouTube, Spotify, Audiomack, SoundCloud or MP3 link – or find it on YouTube',myLinks[id]||'']],v=>{
     const l=fixLink(v.l);if(l===false){toast('The link does not look right.',1);return}
     if(l)myLinks[id]=l;else delete myLinks[id];saveMine();render();if(l)play(id);
   });
@@ -1157,8 +1156,28 @@ function dlgForm(title,fields,done){
       c=tidyText(c);ta.value=ta.value.trim()?ta.value.replace(/\s+$/,'')+'\n\n'+c:c;
       ta.dispatchEvent(new Event('input',{bubbles:true}));ta.focus();toast('Lyrics pasted')};
   }
+  const li=$('f_l');
+  if(li){ // practice link: paste it, or go to YouTube to find the song, copy its link and come back
+    const t=document.createElement('div');t.className='bar';t.style.cssText='margin:6px 0 0;flex-wrap:wrap';
+    t.innerHTML='<button type="button" id="lkYt">🔎 Find on YouTube</button><button type="button" id="lkPaste">📋 Paste link</button>';
+    li.insertAdjacentElement('afterend',t);
+    const isYt=c=>/^\s*(https?:\/\/)?((www|m|music)\.)?(youtube\.com|youtu\.be)\//i.test(c||'');
+    const fill=async(quiet)=>{let c='';
+      try{c=await navigator.clipboard.readText()}catch(e){if(!quiet){li.focus();toast('Press and hold in the box, then choose Paste.',1)}return false}
+      c=String(c||'').trim();if(!c||/\s/.test(c)){if(!quiet)toast('Nothing copied yet. Copy the link first.',1);return false}
+      if(quiet&&!isYt(c))return false;
+      li.value=c;li.dispatchEvent(new Event('input',{bubbles:true}));toast('Link pasted');return true};
+    $('lkPaste').onclick=()=>fill(false);
+    $('lkYt').onclick=()=>{const ti=(($('f_t')||{}).value||dlgSongTitle||'').trim();
+      if(!ti&&!($('f_t'))){toast('Type the title first.',1);return}
+      ytAway=0;window.open('https://www.youtube.com/results?search_query='+encodeURIComponent((ti+' official audio').trim()),'_blank');toast('Open the song, tap Share → Copy link, then come back here.')};
+    // back from YouTube with a copied YouTube link: put it in the box
+    const back=()=>{if(!d.open){document.removeEventListener('visibilitychange',back);return}if(document.visibilityState==='visible'&&!li.value.trim())fill(true)};
+    document.addEventListener('visibilitychange',back);
+  }
   $('dOk').onclick=()=>{const v={};fields.forEach(([k])=>v[k]=$('f_'+k).value.trim());d.close();done(v)};
 }
+let dlgSongTitle='';
 window.addEventListener('popstate',()=>{});
 if('serviceWorker' in navigator&&!DEMO&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 
