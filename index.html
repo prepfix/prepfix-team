@@ -74,6 +74,11 @@ body.pracOn main{padding-bottom:calc(120px + var(--cb))}
   #prac{top:var(--hh,0px);bottom:auto;border-top:0;border-bottom:1px solid #3a4150;box-shadow:0 8px 24px #0008;z-index:19}
   body.pracOn main{padding-top:calc(var(--hh,150px) + var(--ph,0px) + 12px)}
 }
+.phd .hm{display:none}
+body.fm header{display:none}
+body.fm #prac{top:0;bottom:auto;left:0;right:0;width:auto;border:0;border-bottom:1px solid #3a4150;border-radius:0;padding-top:env(safe-area-inset-top);box-shadow:0 8px 24px #0008;z-index:30}
+body.fm #prac .phd .hm{display:block}
+body.fm main{padding-top:calc(var(--ph,0px) + 12px)}
 .pst{padding:7px 10px;border-radius:8px;margin:4px 0;background:#12151b;color:#8a90a0;font-size:14px}
 .pst.on{color:#e0b24a;background:#2a2410}.pst.ok{color:#7fd6a8;background:#14261d}
 .sbar{display:flex;gap:8px;margin-top:8px}.sbar button{flex:1;min-height:40px;font-size:14px}.sbar button.on{border-color:#e0b24a;color:#e0b24a}
@@ -263,6 +268,14 @@ function toggleFav(id,ev){if(ev)ev.stopPropagation();
   toast(favs[id]?'♥ Added to favourites':'Removed from favourites');
   document.querySelectorAll('.fvp').forEach(b=>{if(b.dataset.id===id){b.classList.toggle('on',!!favs[id]);b.textContent=favs[id]?'♥':'♡'}});
   if(cur)render();else{renderList();const b=$('favBtn');if(b)b.textContent='♥ Favourites ('+favCount()+')'}}
+// LYRICS MODE: pressing "Play practice song" hides the top bar, pins the video at the top
+// (controls above it) and gives the rest of the screen to the lyrics. 🏠 Home leaves it.
+let fm=false;
+function setFm(v){fm=!!v;document.body.classList.toggle('fm',fm);sizeBars();setTimeout(sizeBars,200)}
+function playFocus(id,k){setFm(true);play(id,k);scrollTo(0,0)}
+function goHome(){setFm(false);fromPl=null;curPl=null;tab='songs';q='';
+  if(history.state&&history.state.pft){try{cur=null;history.back()}catch(e){}}
+  cur=null;render();scrollTo(0,0)}
 function setFavOnly(){favOnly=!favOnly;store.set('favonly',favOnly);render();scrollTo(0,0)}
 let edits=store.get('edits_'+code,{});   // changes made on this phone to the church's songs: {songId:{t,x,by,at}}
 const saveEdits=()=>store.set('edits_'+code,edits);
@@ -336,7 +349,7 @@ function outDlg(){const d=$('dlg');d.innerHTML='<h3 style="margin:0">Sign out</h
   $('soOk').onclick=async()=>{const pn=$('soP').value.replace(/\D/g,'');if(pn.length!==4){toast('Type your 4-number PIN.',1);return}
     try{await call({action:'signout',c:code,ph,did,pin:pn});d.close();signOut('You have signed out.');render()}
     catch(e){toast(e.message==='wrong-pin'?'That is not your PIN.':e.message==='too-many'?'Too many tries. Wait an hour.':'You need the internet to sign out.',1)}}}
-function go(t){tab=t;cur=null;curPl=null;fromPl=null;closePlayer(true);render();scrollTo(0,0)}
+function go(t){setFm(false);tab=t;cur=null;curPl=null;fromPl=null;closePlayer(true);render();scrollTo(0,0)}
 
 /* ---------- songs ---------- */
 function listHtml(){
@@ -423,14 +436,14 @@ function songHtml(){
   if(!store.get('lptip',0)){store.set('lptip',1);setTimeout(()=>toast('Tip: press and hold a stanza to edit it'),600)}
   let h='<div class="bar"><button onclick="back()">← Back</button><span style="flex:1"></span><button onclick="setFs(-2)" title="Smaller words">A−</button><button onclick="setFs(2)" title="Bigger words">A+</button><button onclick="shareSong()" title="Send this song (WhatsApp…)">📤</button></div>';
   h+='<h2 data-ti="'+s.i+'">'+esc(s.t)+'</h2>'+(s.lg||s.g?'<p class="hint" style="margin:0">'+[s.lg?'🌐 '+esc(s.lg):'',s.g?'🏷 '+esc(s.g):''].filter(Boolean).join(' · ')+'</p>':'')+(s.mine?'<p class="hint" style="margin:0">✎ Your new song – it goes to the church toolkit when you send a playlist that has it.</p>':'')+(s.ab?'<p class="hint" style="margin:2px 0 0">➕ Added by <b style="color:#2f8fff">'+esc(s.ab.by)+'</b> · '+esc(fmtAt(s.ab.at))+'</p>':'')+
-    '<div class="bar">'+(()=>{const L=linksOf(s);return L.map((l,k)=>'<button class="pri" onclick="play(\''+s.i+'\','+k+')">▶ '+(L.length>1?esc(l.n||'Link '+(k+1)):'Play practice song')+'</button>').join('')})()+
+    '<div class="bar">'+(()=>{const L=linksOf(s);return L.map((l,k)=>'<button class="pri" onclick="playFocus(\''+s.i+'\','+k+')">▶ '+(L.length>1?esc(l.n||'Link '+(k+1)):'Play practice song')+'</button>').join('')})()+
     '<button class="fvs'+(favs[s.i]?' on':'')+'" aria-pressed="'+(favs[s.i]?'true':'false')+'" onclick="toggleFav(\''+s.i+'\')">'+(favs[s.i]?'♥ Favourite':'♡ Favourite')+'</button>'+
     '<button onclick="addDlg(\''+s.i+'\')">+ Add to playlist</button>'+
     (s.mine?'<button onclick="newSong(\''+s.i+'\')">✎ Edit</button><button class="dng" onclick="delMine(\''+s.i+'\')">Delete</button>':
      (!s.l?'<button onclick="linkDlg(\''+s.i+'\')">🎧 Add practice link</button>':s.ml?'<button onclick="linkDlg(\''+s.i+'\')">✎ Your link</button>':''))+'</div>'+
     (s.h&&s.h.length?'<p class="hint" style="margin:2px 0 0">✏️ Last edited by <b style="color:#2f8fff">'+esc(s.h[0].by)+'</b> · '+esc(fmtAt(s.h[0].at))+(s.h[1]?'<br>Before that: <b style="color:#2f8fff">'+esc(s.h[1].by)+'</b> · '+esc(fmtAt(s.h[1].at)):'')+'</p>':'')+
     (s.ml?'<p class="hint" style="margin:0">🎧 You added this link – it goes to the church toolkit with your playlist.</p>':'');
-  h+='<div>'+stanzas(s.x).map((st,i)=>'<div class="stz'+(cArr(s.c).includes(i)?' chs':'')+'" data-sid="'+s.i+'" data-si="'+i+'"><h3>'+(cArr(s.c).includes(i)?'Chorus':'Stanza')+'</h3><p style="font-size:'+fsz+'px">'+esc(st).replace(/\n/g,'<br>')+'</p><div class="sbar"><button class="'+(cArr(s.c).includes(i)?'on':'')+'" onclick="toggleChorus(\''+s.i+'\','+i+')">'+(cArr(s.c).includes(i)?'★ Not chorus':'☆ Make chorus')+'</button></div></div>').join('')+'</div>';
+  h+='<div>'+stanzas(s.x).map((st,i)=>'<div class="stz'+(cArr(s.c).includes(i)?' chs':'')+'" data-sid="'+s.i+'" data-si="'+i+'"><h3>'+(cArr(s.c).includes(i)?'Chorus':'Stanza')+'</h3><p style="font-size:'+fsz+'px">'+esc(st).replace(/\n/g,'<br>')+'</p></div>').join('')+'</div>';
   if(fromPl){const p=pls.find(x=>x.id===fromPl);if(p){const ids=p.items.filter(x=>x.s).map(x=>x.s),k=ids.indexOf(s.i);
     h+='<div class="nav2"><button '+(k>0?'':'disabled')+' onclick="openSong(\''+ids[k-1]+'\',\''+p.id+'\');autoPlay()">⏮ Previous song</button><button class="pri" '+(k>=0&&k<ids.length-1?'':'disabled')+' onclick="openSong(\''+ids[k+1]+'\',\''+p.id+'\');autoPlay()">Next song ⏭</button></div>'}}
   else{const k=order.indexOf(s.i); // Previous / Next follow the list exactly as it was shown (search, language, genre, order)
@@ -447,7 +460,7 @@ async function shareSong(){const s=songById(cur);if(!s)return;
   open('https://wa.me/?text='+encodeURIComponent(text),'_blank')}
 function autoPlay(){if(document.getElementById('prac')){const s=songById(cur);if(s&&s.l)play(s.i);else closePlayer()}}
 function back(){if(history.state&&history.state.pft){history.back();return}goBack()}
-function goBack(){if(fromPl){curPl=fromPl;fromPl=null;cur=null;tab='pls';render()}else{cur=null;render();requestAnimationFrame(()=>scrollTo(0,listY))}}
+function goBack(){setFm(false);if(fromPl){curPl=fromPl;fromPl=null;cur=null;tab='pls';render()}else{cur=null;render();requestAnimationFrame(()=>scrollTo(0,listY))}}
 
 /* ---------- practice player (same links as the toolkit) ---------- */
 function ytId(u){const h=u.hostname.replace(/^(www|m|music)\./,'');let id='';
@@ -505,6 +518,7 @@ function play(id,k,auto){
   b.className=DEMO?'demo':p.kind==='audio'?'aud':'';
   const head='<div class="phd"><span class="pt">🎧 <span class="glow">'+esc(s.t)+'</span> <span class="hint">· '+esc(lk.n||p.name)+'</span></span>'+
     (L.length>1?'<select onchange="play(\''+id+'\',this.value)">'+L.map((l,i)=>'<option value="'+i+'"'+(i===k?' selected':'')+'>'+esc(l.n||'Link '+(i+1))+'</option>').join('')+'</select>':'')+
+    '<button class="hm" title="Home – back to the songs" aria-label="Home" onclick="goHome()">🏠</button>'+
     (!String(id).startsWith('find:')?'<button class="fvp'+(favs[id]?' on':'')+'" data-id="'+esc(id)+'" title="Favourite" aria-label="Favourite" onclick="toggleFav(this.dataset.id)">'+(favs[id]?'♥':'♡')+'</button>':'')+
     (cur!==id&&!String(id).startsWith('find:')?'<button style="font-size:15px" onclick="openSong(\''+id+'\')">Lyrics</button>':'')+
     '<button class="'+(autoP?'on':'')+'" title="Autoplay: when a song ends, the next song with a link plays" onclick="autoP=!autoP;store.set(\'autoplay\',autoP);this.classList.toggle(\'on\',autoP);toast(autoP?\'Autoplay on – the next song plays by itself\':\'Autoplay off\')">⏭</button>'+
@@ -686,7 +700,7 @@ function sizeBars(){
   r.setProperty('--hh',(hd?hd.offsetHeight:0)+'px');r.setProperty('--ph',(pr?pr.offsetHeight:0)+'px');
 }
 addEventListener('resize',()=>sizeBars());
-function closePlayer(keep){if(keep&&playing)return;castStop(true);killYT();const b=$('prac');if(b)b.remove();playing=null;markPlaying();document.body.classList.remove('pracOn');sizeBars()}
+function closePlayer(keep){if(keep&&playing)return;setFm(false);castStop(true);killYT();const b=$('prac');if(b)b.remove();playing=null;markPlaying();document.body.classList.remove('pracOn');sizeBars()}
 
 /* ---------- playlists ---------- */
 function plsHtml(){
